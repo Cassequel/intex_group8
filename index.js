@@ -247,7 +247,7 @@ app.get('/participants', async (req, res) => {
 });
 
 app.get('/teapot', (req, res) => {
-    res.status(418).render('teapot');
+    res.status(418).render('public/teapot');
   });
 
 app.listen(port, () => {
