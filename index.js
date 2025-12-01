@@ -122,3 +122,7 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
     res.render('public/landing');
 });
+
+app.get('/teapot', (req, res) => {
+    res.status(418).render('teapot');
+  });
