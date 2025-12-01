@@ -6,7 +6,7 @@ const multer = require("multer");
 let bodyParser = require("body-parser");
 let app = express();
 const bcrypt = require("bcrypt");
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -111,4 +111,8 @@ app.use((req, res, next) => {
 
 app.get('/', (req, res) => {
     res.render('public/landing');
+});
+
+app.listen(port, () => {
+    console.log("The server is listening");
 });
