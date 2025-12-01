@@ -106,6 +106,7 @@ app.use((req, res, next) => {
     if (req.path === '/' || req.path === '/login' || req.path === '/logout' ||
         req.path === '/register'||
         req.path === '/donations'||
+        req.path === '/teapot'||
         req.path === '/index') {
         //continue with the request path
         return next();
@@ -246,8 +247,8 @@ app.get('/participants', async (req, res) => {
 });
 
 app.get('/teapot', (req, res) => {
-    res.status(418).render('teapot');
-  });
+    res.status(418).render('public/418Code');
+});
 
 app.listen(port, () => {
     console.log("The server is listening");
