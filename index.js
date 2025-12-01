@@ -106,7 +106,8 @@ app.use((req, res, next) => {
     if (req.path === '/' || req.path === '/login' || req.path === '/logout' ||
         req.path === '/register'||
         req.path === '/donations'||
-        req.path === '/index') {
+        req.path === '/index' ||
+        req.path === '/teapot') {
         //continue with the request path
         return next();
     }
