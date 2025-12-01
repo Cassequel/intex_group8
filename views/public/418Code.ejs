@@ -1,6 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>418 I'm a teapot</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>418 | Ella Rises</title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .teapot-hero {
+      position: relative;
+      background: radial-gradient(circle at 20% 20%, #ffd6e8, #ffb6d9 35%, #ff7fbf 65%, #ff6fae);
+      color: #2b0f25;
+    }
+    .teapot-hero .hero-overlay {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 153, 204, 0.35));
+    }
+    .teapot-badge {
+      display: inline-block;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      background: #fff0f7;
+      color: #c4126b;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border: 1px solid #ffb6d9;
+    }
+    .teapot-card {
+      background: #fff0f7;
+      border: 1px solid #ffd6e8;
+      box-shadow: 0 14px 40px rgba(255, 143, 191, 0.15);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .teapot-card h2 {
+      color: #c4126b;
+    }
+    .teapot-icon {
+      font-size: 56px;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/participants">Participants</a></li>
+          <li><a href="/donations">Donate</a></li>
+          <li><a href="/login" class="btn btn--outline">Login</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero teapot-hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <span class="teapot-badge">HTTP 418</span>
+      <h1>I'm a teapot, not a coffee maker.</h1>
+      <p class="hero-subtitle">
+        This page is feeling extra cute and a little stubborn. The request was received, but this tiny teapot refuses to brew coffee.
+      </p>
+      <div class="hero-actions">
+        <a href="/" class="btn btn--primary">Back to home</a>
+        <a href="/donations" class="btn btn--ghost">Support the mission</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFO CARD -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="teapot-card">
+        <div class="teapot-icon">🍰</div>
+        <h2>Why 418?</h2>
+        <p>
+          The “I’m a teapot” status is a playful reminder from the early days of the web.
+          Don’t worry—your request is safe; we’re just having a lighthearted moment.
+        </p>
+        <div class="hero-actions" style="justify-content: center; gap: 1rem; margin-top: 1rem;">
+          <a href="/login" class="btn btn--primary">Sign in</a>
+          <a href="/participants" class="btn btn--ghost">View participants</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Ella Rises</h3>
+        <p>A nonprofit organization dedicated to helping young women rise through arts, culture, and education.</p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:info@ellarises.org">info@ellarises.org</a></p>
+      </div>
+      <div>
+        <h4>Partners</h4>
+        <p>We are grateful for the schools, community centers, and sponsors who support our mission.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Ac 2025 Ella Rises. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Simple mobile nav toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>

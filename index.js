@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require("express");
 const session = require("express-session");
 let path = require("path");
+const fs = require("fs");
 const multer = require("multer");
 let bodyParser = require("body-parser");
 let app = express();
@@ -37,6 +38,8 @@ const knex = require("knex")({
 const uploadRoot = path.join(__dirname, "images");
 // Sub-directory where uploaded profile pictures will be stored
 const uploadDir = path.join(uploadRoot, "uploads");
+// Ensure upload directories exist
+fs.mkdirSync(uploadDir, { recursive: true });
 // cb is the callback function
 // The callback is how you hand control back to Multer after
 // your customization step
@@ -243,6 +246,189 @@ app.get('/participants', async (req, res) => {
     } catch (error) {
         console.error("Error fetching participants:", error);
         res.status(500).send("Error loading participants");
+    }
+});
+
+app.get('/participants/new', (req, res) => {
+    res.render('participants/parAdd');
+});
+
+app.post('/participants/new', upload.single('profile_image'), async (req, res) => {
+    const {
+        first_name,
+        last_name,
+        email,
+        dob,
+        phone,
+        city,
+        state,
+        zip,
+        school,
+        employer,
+        field_of_interest
+    } = req.body;
+    const profileImagePath = req.file ? `/images/uploads/${req.file.filename}` : null;
+
+    if (!first_name || !last_name || !email) {
+        return res.status(400).render('participants/parAdd', {
+            error_message: "First name, last name, and email are required."
+        });
+    }
+
+    try {
+        const [newParticipant] = await knex("participants")
+            .insert({
+                email,
+                first_name,
+                last_name,
+                dob: dob || null,
+                phone,
+                city,
+                state,
+                zip,
+                img: profileImagePath,
+                school_or_employer: school || employer || null,
+                field_of_interest,
+                role: "participant"
+            })
+            .returning("*");
+
+        res.redirect(`/participants/${newParticipant.participant_id}`);
+    } catch (error) {
+        console.error("Error creating participant:", error);
+        const duplicateErr = error.code === "23505";
+        const message = duplicateErr
+            ? "That email is already in use."
+            : "Could not create participant. Please try again.";
+        res.status(500).render('participants/parAdd', { error_message: message });
+    }
+});
+
+app.get('/participants/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const participant = await knex("participants")
+            .select("*")
+            .where({ participant_id: id })
+            .first();
+
+        if (!participant) {
+            return res.status(404).render('public/418Code');
+        }
+
+        res.render('participants/parDetail', { participant });
+    } catch (error) {
+        console.error("Error loading participant:", error);
+        res.status(500).send("Error loading participant");
+    }
+});
+
+app.get('/participants/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const participant = await knex("participants")
+            .select("*")
+            .where({ participant_id: id })
+            .first();
+
+        if (!participant) {
+            return res.status(404).render('public/418Code');
+        }
+
+        res.render('participants/parEdit', { participant, error_message: null });
+    } catch (error) {
+        console.error("Error loading participant for edit:", error);
+        res.status(500).send("Error loading participant");
+    }
+});
+
+app.post('/participants/:id/edit', upload.single('profile_image'), async (req, res) => {
+    const { id } = req.params;
+    const {
+        first_name,
+        last_name,
+        email,
+        dob,
+        phone,
+        city,
+        state,
+        zip,
+        school,
+        employer,
+        field_of_interest,
+        existing_image
+    } = req.body;
+    const profileImagePath = req.file ? `/images/uploads/${req.file.filename}` : existing_image || null;
+
+    if (!first_name || !last_name || !email) {
+        return res.status(400).render('participants/parEdit', {
+            participant: {
+                participant_id: id,
+                first_name,
+                last_name,
+                email,
+                dob,
+                phone,
+                city,
+                state,
+                zip,
+                school,
+                employer,
+                field_of_interest,
+                img: existing_image
+            },
+            error_message: "First name, last name, and email are required."
+        });
+    }
+
+    try {
+        const [updatedParticipant] = await knex("participants")
+            .where({ participant_id: id })
+            .update({
+                email,
+                first_name,
+                last_name,
+                dob: dob || null,
+                phone,
+                city,
+                state,
+                zip,
+                img: profileImagePath,
+                school_or_employer: school || employer || null,
+                field_of_interest
+            })
+            .returning("*");
+
+        res.redirect(`/participants/${updatedParticipant.participant_id}`);
+    } catch (error) {
+        console.error("Error updating participant:", error);
+        const duplicateErr = error.code === "23505";
+        const message = duplicateErr
+            ? "That email is already in use."
+            : "Could not update participant. Please try again.";
+
+        try {
+            const participant = await knex("participants")
+                .select("*")
+                .where({ participant_id: id })
+                .first();
+            res.status(500).render('participants/parEdit', { participant, error_message: message });
+        } catch (loadErr) {
+            res.status(500).send("Error loading participant");
+        }
+    }
+});
+
+app.post('/participants/:id/delete', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await knex("participants")
+            .where({ participant_id: id })
+            .del();
+        res.redirect('/participants');
+    } catch (error) {
+        console.error("Error deleting participant:", error);
+        res.status(500).send("Error deleting participant");
     }
 });
 

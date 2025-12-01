@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= participant.first_name %> <%= participant.last_name %> | Participant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .detail-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.2rem 1.3rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(153, 183, 198, 0.18);
+    }
+    .detail-card h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1rem;
+      color: var(--color-primary-dark);
+    }
+    .detail-value {
+      margin: 0;
+      color: var(--color-text-soft);
+      font-weight: 600;
+    }
+    .avatar-large {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 2px solid rgba(153, 183, 198, 0.35);
+      background: #f0f4f7;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+    .avatar-large img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/participants">Participants</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Participant</p>
+      <h1><%= participant.first_name %> <%= participant.last_name %></h1>
+      <p class="hero-subtitle">
+        Profile details and contact information.
+      </p>
+    </div>
+  </section>
+
+  <!-- DETAILS -->
+  <section class="section section--light">
+    <div class="container">
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
+        <div class="avatar-large">
+          <% if (participant.img) { %>
+            <img alt="Profile" src="<%= participant.img %>" />
+          <% } else { %>
+            <img alt="Profile placeholder" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none"><circle cx="80" cy="80" r="80" fill="%23f0f4f7"/><path d="M80 76c11.046 0 20-8.954 20-20s-8.954-20-20-20-20 8.954-20 20 8.954 20 20 20Z" fill="%2399b7c6"/><path d="M48 126c0-13.255 14.327-24 32-24s32 10.745 32 24v6H48v-6Z" fill="%2399b7c6"/></svg>' />
+          <% } %>
+        </div>
+        <div>
+          <h2 style="margin: 0 0 0.5rem;">Contact</h2>
+          <p style="margin: 0.15rem 0;">Email: <%= participant.email || "Not provided" %></p>
+          <p style="margin: 0.15rem 0;">Phone: <%= participant.phone || "Not provided" %></p>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-card">
+          <h3>Date of birth</h3>
+          <p class="detail-value"><%= participant.dob ? (participant.dob.toISOString ? participant.dob.toISOString().slice(0,10) : String(participant.dob).slice(0,10)) : "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>City</h3>
+          <p class="detail-value"><%= participant.city || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>State</h3>
+          <p class="detail-value"><%= participant.state || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Zip code</h3>
+          <p class="detail-value"><%= participant.zip || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>School / Employer</h3>
+          <p class="detail-value"><%= participant.school || participant.school_or_employer || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Field of interest</h3>
+          <p class="detail-value"><%= participant.field_of_interest || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Role</h3>
+          <p class="detail-value"><%= participant.role || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Total donations</h3>
+          <p class="detail-value"><%= typeof participant.total_donations !== "undefined" && participant.total_donations !== null ? participant.total_donations : "Not provided" %></p>
+        </div>
+      </div>
+      <div style="margin-top: 1.5rem;">
+        <a href="/participants/<%= participant.participant_id %>/edit" class="btn btn--outline">Edit participant</a>
+        <a href="/participants" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to list</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Mobile nav toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>
