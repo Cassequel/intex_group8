@@ -245,6 +245,12 @@ app.get('/participants', async (req, res) => {
     }
 });
 
+app.get('/teapot', (req, res) => {
+    res.status(418).render('teapot');
+  });
+
 app.listen(port, () => {
     console.log("The server is listening");
 });
+
+
