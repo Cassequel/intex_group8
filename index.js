@@ -107,3 +107,8 @@ app.use((req, res, next) => {
         res.render("login", { error_message: "Please log in to access this page" });
     }
 });
+
+
+app.get('/', (req, res) => {
+    res.render('public/landing');
+});
