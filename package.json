@@ -1,5 +1,5 @@
 {
-  "name": "midterm_2",
+  "name": "Ella Rises",
   "version": "1.0.0",
   "description": "INTEX",
   "main": "index.js",
@@ -10,12 +10,15 @@
   "author": "Aiden Swanson",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "knex": "^3.1.0",
+    "multer": "^2.0.2",
     "path": "^0.12.7",
+     "pg": "^8.16.3",
     "session": "^0.1.0"
   }
 }
