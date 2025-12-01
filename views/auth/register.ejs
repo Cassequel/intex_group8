@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/participants">Participants</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Join the community</p>
+      <h1>Create your Ella Rises account</h1>
+      <p class="hero-subtitle">
+        Register to access participant tools, events, and dashboards.
+      </p>
+    </div>
+  </section>
+
+  <!-- REGISTER FORM -->
+  <section class="section section--light" id="contact">
+    <div class="container auth-grid">
+      <div>
+        <h2>Register</h2>
+        <p>Sign up with your details to get started.</p>
+        <p>Already have an account? <a href="/login">Sign in</a></p>
+      </div>
+      <div class="form-card">
+        <% if (typeof error_message !== "undefined" && error_message) { %>
+          <div class="alert alert--error"><%= error_message %></div>
+        <% } %>
+        <form method="POST" action="/register" class="form-grid">
+          <div class="form-field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <div class="form-field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" required />
+          </div>
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--large">Create account</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Ella Rises</h3>
+        <p>A nonprofit organization dedicated to helping young women rise through arts, culture, and education.</p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:info@ellarises.org">info@ellarises.org</a></p>
+      </div>
+      <div>
+        <h4>Partners</h4>
+        <p>We are grateful for the schools, community centers, and sponsors who support our mission.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Ac 2025 Ella Rises. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Simple mobile nav toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>

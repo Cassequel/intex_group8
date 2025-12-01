@@ -1,0 +1,592 @@
+BEGIN;
+
+--------------------------------------------------
+-- 0. Clean slate (drop if they exist)
+--------------------------------------------------
+DROP TABLE IF EXISTS donations;
+DROP TABLE IF EXISTS milestones;
+DROP TABLE IF EXISTS survey;
+DROP TABLE IF EXISTS registration;
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS participants;
+DROP TABLE IF EXISTS event_registrations_raw;
+DROP TABLE IF EXISTS users
+
+--------------------------------------------------
+-- 1. Staging table with ALL raw columns
+--------------------------------------------------
+CREATE TABLE event_registrations_raw (
+    participant_email              TEXT,
+    participant_first_name         TEXT,
+    participant_last_name          TEXT,
+    participant_dob                TIMESTAMP WITHOUT TIME ZONE,
+    participant_role               TEXT,
+    participant_phone              TEXT,
+    participant_city               TEXT,
+    participant_state              TEXT,
+    participant_zip                TEXT,
+    participant_school_or_employer TEXT,
+    participant_field_of_interest  TEXT,
+    event_name                     TEXT,
+    event_type                     TEXT,
+    event_description              TEXT,
+    event_recurrence_pattern       TEXT,
+    event_default_capacity         INTEGER,
+    event_datetime_start           TIMESTAMP WITHOUT TIME ZONE,
+    event_datetime_end             TIMESTAMP WITHOUT TIME ZONE,
+    event_location                 TEXT,
+    event_capacity                 INTEGER,
+    event_registration_deadline    TIMESTAMP WITHOUT TIME ZONE,
+    registration_status            TEXT,
+    registration_attended_flag     BOOLEAN,
+    registration_check_in_time     TIMESTAMP WITHOUT TIME ZONE,
+    registration_created_at        TIMESTAMP WITHOUT TIME ZONE,
+    survey_satisfaction_score      NUMERIC(4,2),
+    survey_usefulness_score        NUMERIC(4,2),
+    survey_instructor_score        NUMERIC(4,2),
+    survey_recommendation_score    NUMERIC(4,2),
+    survey_overall_score           NUMERIC(4,2),
+    survey_nps_bucket              TEXT,
+    survey_comments                TEXT,
+    survey_submission_date         TIMESTAMP WITHOUT TIME ZONE,
+    milestone_titles               TEXT,
+    milestone_dates                TEXT,
+    donation_history               TEXT,
+    total_donations                NUMERIC(12,2)
+);
+
+--------------------------------------------------
+-- 2. Insert your 5 rows into the staging table
+--------------------------------------------------
+INSERT INTO event_registrations_raw (
+    participant_email,
+    participant_first_name,
+    participant_last_name,
+    participant_dob,
+    participant_role,
+    participant_phone,
+    participant_city,
+    participant_state,
+    participant_zip,
+    participant_school_or_employer,
+    participant_field_of_interest,
+    event_name,
+    event_type,
+    event_description,
+    event_recurrence_pattern,
+    event_default_capacity,
+    event_datetime_start,
+    event_datetime_end,
+    event_location,
+    event_capacity,
+    event_registration_deadline,
+    registration_status,
+    registration_attended_flag,
+    registration_check_in_time,
+    registration_created_at,
+    survey_satisfaction_score,
+    survey_usefulness_score,
+    survey_instructor_score,
+    survey_recommendation_score,
+    survey_overall_score,
+    survey_nps_bucket,
+    survey_comments,
+    survey_submission_date,
+    milestone_titles,
+    milestone_dates,
+    donation_history,
+    total_donations
+) VALUES
+-- 1) Penelope (no survey, no donations)
+(
+    'penelope.martinez4@studentmail.org',
+    'Penelope',
+    'Martinez',
+    '2000-03-03 00:00:00',
+    'participant',
+    '801-294-7224',
+    'Lehi',
+    'UT',
+    '84105',
+    'UVU',
+    'Arts',
+    'Mentor Office Hours',
+    'Leadership',
+    'One-on-one mentoring & career advising.',
+    'Weekly',
+    100,
+    '2024-10-06 10:00:00',
+    '2024-10-06 12:00:00',
+    'Ella Rises HQ',
+    100,
+    '2024-09-29 10:00:00',
+    'attended',
+    TRUE,
+    '2024-10-06 10:01:00',
+    '2024-09-09 10:00:00',
+    NULL,  -- satisfaction
+    NULL,  -- usefulness
+    NULL,  -- instructor
+    NULL,  -- recommendation
+    NULL,  -- overall
+    NULL,  -- nps_bucket
+    NULL,  -- comments
+    NULL,  -- submission_date
+    'AA in Art & Design; Clinical Data Coordinator',
+    '2025-03-07; 2024-11-03',
+    NULL,  -- donation_history
+    NULL   -- total_donations
+),
+-- 2) Natalie (no survey, has donation)
+(
+    'natalie.torres6@studentmail.org',
+    'Natalie',
+    'Torres',
+    '2004-06-28 00:00:00',
+    'participant',
+    '801-877-4733',
+    'Ogden',
+    'UT',
+    '84047',
+    'East Ridge Middle',
+    'STEM',
+    'Robotics Lab Saturday',
+    'STEM',
+    'Build & test robots with mentors.',
+    'Weekly',
+    100,
+    '2022-04-02 10:00:00',
+    '2022-04-02 12:00:00',
+    'Ella Rises HQ',
+    100,
+    '2022-03-26 10:00:00',
+    'attended',
+    TRUE,
+    '2022-04-02 10:01:00',
+    '2022-03-30 10:00:00',
+    NULL,  -- satisfaction
+    NULL,  -- usefulness
+    NULL,  -- instructor
+    NULL,  -- recommendation
+    NULL,  -- overall
+    NULL,  -- nps_bucket
+    NULL,  -- comments
+    NULL,  -- submission_date
+    'Middle School Diploma; Published Project',
+    '2022-08-29; 2022-11-13',
+    '2022-01-06:$257.41',
+    257.41
+),
+-- 3) Elizabeth (has survey, no donations)
+(
+    'elizabeth.harris7@learners.net',
+    'Elizabeth',
+    'Harris',
+    '2006-04-21 00:00:00',
+    'participant',
+    '801-573-3664',
+    'Riverton',
+    'UT',
+    '84651',
+    'UVU',
+    'STEM',
+    'Mentor Office Hours',
+    'Leadership',
+    'One-on-one mentoring & career advising.',
+    'Weekly',
+    100,
+    '2024-10-27 10:00:00',
+    '2024-10-27 12:00:00',
+    'Virtual Zoom',
+    100,
+    '2024-10-20 10:00:00',
+    'attended',
+    TRUE,
+    '2024-10-27 10:14:00',
+    '2024-10-22 10:00:00',
+    5,
+    4,
+    5,
+    4,
+    4.5,
+    'Passive',
+    'The panel Q&A during Mentor Office Hours really clicked for me, I left with actionable next steps; I left energized to keep learning. The networking breakouts during Mentor Office Hours really clicked for me, the pacing made complex ideas feel doable.',
+    '2024-10-28 16:14:00',
+    'High School Diploma',
+    '2025-05-02',
+    NULL,
+    NULL
+),
+-- 4) Paisley (no survey, no donations)
+(
+    'paisley.jones8@studentmail.org',
+    'Paisley',
+    'Jones',
+    '2004-01-21 00:00:00',
+    'participant',
+    '801-673-7216',
+    'West Jordan',
+    'UT',
+    '84168',
+    'Startup Lab',
+    'Both',
+    'Mentor Office Hours',
+    'Leadership',
+    'One-on-one mentoring & career advising.',
+    'Weekly',
+    100,
+    '2022-09-11 10:00:00',
+    '2022-09-11 12:00:00',
+    'Art Studio 2',
+    100,
+    '2022-09-04 10:00:00',
+    'attended',
+    TRUE,
+    '2022-09-11 10:09:00',
+    '2022-09-05 10:00:00',
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    'Mentorship Program; Internship; BS in Information Systems',
+    '2023-06-26; 2022-09-28; 2024-01-21',
+    NULL,
+    NULL
+),
+-- 5) Victoria (has survey, no donations)
+(
+    'victoria.lee9@ellarises.org',
+    'Victoria',
+    'Lee',
+    '2006-12-31 00:00:00',
+    'participant',
+    '801-232-6168',
+    'West Jordan',
+    'UT',
+    '84842',
+    'BYU',
+    'STEM',
+    'Mentor Office Hours',
+    'Leadership',
+    'One-on-one mentoring & career advising.',
+    'Weekly',
+    100,
+    '2023-08-27 10:00:00',
+    '2023-08-27 12:00:00',
+    'Ella Rises HQ',
+    100,
+    '2023-08-20 10:00:00',
+    'attended',
+    TRUE,
+    '2023-08-27 10:10:00',
+    '2023-08-25 10:00:00',
+    5,
+    4,
+    5,
+    5,
+    4.75,
+    'Promoter',
+    'At first, the pacing made complex ideas feel doable, the goal-setting exercise during Mentor Office Hours really clicked for me; I left energized to keep learning. The pacing made complex ideas feel doable, the mentor roundtable during Mentor Office Hours really clicked for me; This was absolutely worth the time. (wish there had been more time).',
+    '2023-08-28 23:10:00',
+    'High School Diploma',
+    '2023-12-31',
+    NULL,
+    NULL
+);
+
+--------------------------------------------------
+-- 3. Normalized tables
+--------------------------------------------------
+
+-- Participants (ID used everywhere else)
+CREATE TABLE participants (
+    participant_id       SERIAL PRIMARY KEY,
+    email                TEXT NOT NULL UNIQUE,
+    first_name           TEXT NOT NULL,
+    last_name            TEXT NOT NULL,
+    dob                  DATE,
+    role                 TEXT,
+    phone                TEXT,
+    city                 TEXT,
+    state                TEXT,
+    zip                  TEXT,
+    school_or_employer   TEXT,
+    field_of_interest    TEXT,
+    total_donations      NUMERIC(12,2) DEFAULT 0
+);
+
+-- Events (ID used in registration & survey)
+CREATE TABLE events (
+    event_id              SERIAL PRIMARY KEY,
+    name                  TEXT NOT NULL,
+    type                  TEXT,
+    description           TEXT,
+    recurrence_pattern    TEXT,
+    default_capacity      INTEGER,
+    datetime_start        TIMESTAMP WITHOUT TIME ZONE,
+    datetime_end          TIMESTAMP WITHOUT TIME ZONE,
+    location              TEXT,
+    capacity              INTEGER,
+    registration_deadline TIMESTAMP WITHOUT TIME ZONE
+);
+
+-- Registration (one per participant x event in your sample)
+CREATE TABLE registration (
+    registration_id       SERIAL PRIMARY KEY,
+    participant_id        INTEGER NOT NULL REFERENCES participants(participant_id),
+    event_id              INTEGER NOT NULL REFERENCES events(event_id),
+    status                TEXT,
+    attended_flag         BOOLEAN,
+    check_in_time         TIMESTAMP WITHOUT TIME ZONE,
+    created_at            TIMESTAMP WITHOUT TIME ZONE
+);
+
+-- Survey (linked to participant, event, and optionally registration)
+CREATE TABLE survey (
+    survey_id             SERIAL PRIMARY KEY,
+    participant_id        INTEGER NOT NULL REFERENCES participants(participant_id),
+    event_id              INTEGER NOT NULL REFERENCES events(event_id),
+    registration_id       INTEGER REFERENCES registration(registration_id),
+    satisfaction_score    NUMERIC(4,2),
+    usefulness_score      NUMERIC(4,2),
+    instructor_score      NUMERIC(4,2),
+    recommendation_score  NUMERIC(4,2),
+    overall_score         NUMERIC(4,2),
+    nps_bucket            TEXT,
+    comments              TEXT,
+    submission_date       TIMESTAMP WITHOUT TIME ZONE
+);
+
+-- Milestones (one row per milestone per participant)
+CREATE TABLE milestones (
+    milestone_id          SERIAL PRIMARY KEY,
+    participant_id        INTEGER NOT NULL REFERENCES participants(participant_id),
+    title                 TEXT NOT NULL,
+    achieved_date         DATE
+);
+
+-- Donations (one row per donation)
+CREATE TABLE donations (
+    donation_id           SERIAL PRIMARY KEY,
+    participant_id        INTEGER NOT NULL REFERENCES participants(participant_id),
+    donation_date         DATE,
+    amount                NUMERIC(12,2)
+);
+
+-- Users (they who have registered)
+CREATE TABLE users (
+    user_id   SERIAL PRIMARY KEY,
+    username  TEXT NOT NULL UNIQUE,
+    password  TEXT NOT NULL,
+    email     TEXT NOT NULL UNIQUE,
+    level     CHAR(1) NOT NULL  -- U = user, M = manager/admin
+);
+
+
+--------------------------------------------------
+-- 4. Populate participants & events
+--------------------------------------------------
+
+INSERT INTO participants (
+    email,
+    first_name,
+    last_name,
+    dob,
+    role,
+    phone,
+    city,
+    state,
+    zip,
+    school_or_employer,
+    field_of_interest,
+    total_donations
+)
+SELECT DISTINCT
+    participant_email,
+    participant_first_name,
+    participant_last_name,
+    participant_dob::date,
+    participant_role,
+    participant_phone,
+    participant_city,
+    participant_state,
+    participant_zip,
+    participant_school_or_employer,
+    participant_field_of_interest,
+    COALESCE(total_donations, 0)
+FROM event_registrations_raw;
+
+INSERT INTO events (
+    name,
+    type,
+    description,
+    recurrence_pattern,
+    default_capacity,
+    datetime_start,
+    datetime_end,
+    location,
+    capacity,
+    registration_deadline
+)
+SELECT DISTINCT
+    event_name,
+    event_type,
+    event_description,
+    event_recurrence_pattern,
+    event_default_capacity,
+    event_datetime_start,
+    event_datetime_end,
+    event_location,
+    event_capacity,
+    event_registration_deadline
+FROM event_registrations_raw;
+
+--------------------------------------------------
+-- 5. Populate registration
+--------------------------------------------------
+
+INSERT INTO registration (
+    participant_id,
+    event_id,
+    status,
+    attended_flag,
+    check_in_time,
+    created_at
+)
+SELECT
+    p.participant_id,
+    e.event_id,
+    r.registration_status,
+    r.registration_attended_flag,
+    r.registration_check_in_time,
+    r.registration_created_at
+FROM event_registrations_raw r
+JOIN participants p
+  ON p.email = r.participant_email
+JOIN events e
+  ON e.name = r.event_name
+ AND e.datetime_start = r.event_datetime_start;
+
+--------------------------------------------------
+-- 6. Populate survey (only rows that have survey data)
+--------------------------------------------------
+
+INSERT INTO survey (
+    participant_id,
+    event_id,
+    registration_id,
+    satisfaction_score,
+    usefulness_score,
+    instructor_score,
+    recommendation_score,
+    overall_score,
+    nps_bucket,
+    comments,
+    submission_date
+)
+SELECT
+    p.participant_id,
+    e.event_id,
+    reg.registration_id,
+    r.survey_satisfaction_score,
+    r.survey_usefulness_score,
+    r.survey_instructor_score,
+    r.survey_recommendation_score,
+    r.survey_overall_score,
+    r.survey_nps_bucket,
+    r.survey_comments,
+    r.survey_submission_date
+FROM event_registrations_raw r
+JOIN participants p
+  ON p.email = r.participant_email
+JOIN events e
+  ON e.name = r.event_name
+ AND e.datetime_start = r.event_datetime_start
+JOIN registration reg
+  ON reg.participant_id = p.participant_id
+ AND reg.event_id = e.event_id
+WHERE r.survey_overall_score IS NOT NULL;
+
+--------------------------------------------------
+-- 7. Populate milestones (split semicolon-delimited lists)
+--------------------------------------------------
+
+WITH raw_milestones AS (
+  SELECT
+    participant_email,
+    string_to_array(milestone_titles, ';') AS titles,
+    string_to_array(milestone_dates, ';')  AS dates
+  FROM event_registrations_raw
+  WHERE milestone_titles IS NOT NULL
+    AND milestone_titles <> ''
+),
+expanded AS (
+  SELECT
+    participant_email,
+    trim(titles[i]) AS title,
+    NULLIF(trim(dates[i]), '')::date AS achieved_date
+  FROM raw_milestones rm
+  CROSS JOIN generate_subscripts(rm.titles, 1) AS i
+)
+INSERT INTO milestones (participant_id, title, achieved_date)
+SELECT
+  p.participant_id,
+  e.title,
+  e.achieved_date
+FROM expanded e
+JOIN participants p
+  ON p.email = e.participant_email;
+
+--------------------------------------------------
+-- 8. Populate donations (parse DonationHistory "YYYY-MM-DD:$amount;...")
+--------------------------------------------------
+
+WITH donations_raw AS (
+  SELECT
+    participant_email,
+    regexp_split_to_table(donation_history, '\s*;\s*') AS donation_item
+  FROM event_registrations_raw
+  WHERE donation_history IS NOT NULL
+    AND donation_history <> ''
+),
+parsed AS (
+  SELECT
+    participant_email,
+    split_part(donation_item, ':', 1)::date AS donation_date,
+    replace(split_part(donation_item, ':', 2), '$', '')::numeric(12,2) AS amount
+  FROM donations_raw
+)
+INSERT INTO donations (participant_id, donation_date, amount)
+SELECT
+  p.participant_id,
+  parsed.donation_date,
+  parsed.amount
+FROM parsed
+JOIN participants p
+  ON p.email = parsed.participant_email;
+
+INSERT INTO users (username, password, email, level) VALUES
+    ('aiden', 'admin', 'apierceswan@gmail.com', 'M')
+    ('penelope.martinez4', 'pass123', 'penelope.martinez4@studentmail.org', 'U'),
+    ('natalie.torres6',    'pass123', 'natalie.torres6@studentmail.org',     'U'),
+    ('elizabeth.harris7',  'pass123', 'elizabeth.harris7@learners.net',      'U'),
+    ('paisley.jones8',     'pass123', 'paisley.jones8@studentmail.org',      'U'),
+    ('victoria.lee9',      'pass123', 'victoria.lee9@ellarises.org',         'U');
+
+
+
+-- Optional: keep participants.total_donations in sync with donations table
+UPDATE participants p
+SET total_donations = d.sum_amount
+FROM (
+  SELECT participant_id, SUM(amount) AS sum_amount
+  FROM donations
+  GROUP BY participant_id
+) d
+WHERE p.participant_id = d.participant_id;
+
+COMMIT;

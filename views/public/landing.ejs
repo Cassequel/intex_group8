@@ -1,11 +1,348 @@
-=<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WELCOM </title>
+  <meta charset="UTF-8" />
+  <title>Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-    <h1>ELASTIC BEANSTALK WORKS</h1>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="#" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#programs">Programs</a></li>
+          <li><a href="#events">Events</a></li>
+          <li><a href="#get-involved">Get Involved</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="/participants">Participants</a></li>
+          <li><a href="/donations" class="btn btn--outline">Donate</a></li>
+          <li><a href="/logout" class="btn btn--outline">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Welcome to Ella Rises</p>
+      <h1>Inspiring young women to pursue education and celebrate their heritage.</h1>
+      <p class="hero-subtitle">
+        Ella Rises creates culturally rooted programs where young Latinas can develop confidence,
+        leadership, and a vision for their future.
+      </p>
+      <div class="hero-actions">
+        <a href="#enroll" class="btn btn--primary">Enroll in a Program</a>
+        <a href="/donations" class="btn btn--ghost">Support Our Mission</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">150+</span>
+          <span class="stat-label">Girls served each year</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">4</span>
+          <span class="stat-label">Signature programs</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Focused on future pathways</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section section--light">
+    <div class="container about-grid">
+      <div>
+        <h2>Our Mission</h2>
+        <p>
+          Ella Rises exists to empower young women to see themselves as scholars, creators, and leaders.
+          Through arts, music, and STEAM-focused programming, participants explore their culture and their
+          potential side by side.
+        </p>
+        <p>
+          We collaborate with families, mentors, and community partners to create experiences that expand
+          horizons and open doors to higher education and careers.
+        </p>
+      </div>
+      <div class="about-card">
+        <h3>What We Focus On</h3>
+        <ul class="checklist">
+          <li>Belonging and cultural pride</li>
+          <li>Academic and career readiness</li>
+          <li>Creative expression through arts and music</li>
+          <li>Hands-on STEAM exploration</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROGRAMS -->
+  <section id="programs" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Programs</h2>
+        <p>
+          Our programs invite young women to explore heritage, creativity, and innovation in a supportive
+          community.
+        </p>
+      </div>
+
+      <div class="program-grid">
+        <!-- Program 1 -->
+        <article class="program-card">
+          <div class="program-tag">Arts</div>
+          <h3>Ballet Folklórico</h3>
+          <p>
+            Dance classes rooted in Latin American folk traditions that build confidence, connection,
+            and joy through movement and performance.
+          </p>
+          <div class="program-meta">
+            <span>Grades: 6–12</span>
+            <span>Weekly in-person sessions</span>
+          </div>
+          <a href="#enroll" class="program-link">Learn more &amp; enroll →</a>
+        </article>
+
+        <!-- Program 2 -->
+        <article class="program-card">
+          <div class="program-tag">Music</div>
+          <h3>Mariachi Ensemble</h3>
+          <p>
+            A welcoming space for young women to learn mariachi, strengthen musical skills, and perform
+            together as a band, no matter their experience level.
+          </p>
+          <div class="program-meta">
+            <span>All skill levels welcome</span>
+            <span>Group rehearsals &amp; performances</span>
+          </div>
+          <a href="#enroll" class="program-link">Learn more &amp; enroll →</a>
+        </article>
+
+        <!-- Program 3 -->
+        <article class="program-card">
+          <div class="program-tag">Summit</div>
+          <h3>Ella Rises Summit</h3>
+          <p>
+            A one-day, high-energy experience that blends art, STEAM, and campus visits so participants
+            can imagine themselves thriving in college.
+          </p>
+          <div class="program-meta">
+            <span>Annual summer event</span>
+            <span>Workshops + campus tour</span>
+          </div>
+          <a href="#enroll" class="program-link">Learn more &amp; enroll →</a>
+        </article>
+
+        <!-- Program 4 -->
+        <article class="program-card">
+          <div class="program-tag">STEAM</div>
+          <h3>STEAM Workshops</h3>
+          <p>
+            Hands-on activities in science, tech, engineering, art, and math that highlight Latina role
+            models and real-world pathways in these fields.
+          </p>
+          <div class="program-meta">
+            <span>Virtual &amp; in-person</span>
+            <span>Guest speakers &amp; mentors</span>
+          </div>
+          <a href="#enroll" class="program-link">Learn more &amp; enroll →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT / CTA -->
+  <section class="section section--accent">
+    <div class="container impact-grid">
+      <div>
+        <h2>Impact at a Glance</h2>
+        <p>
+          Each workshop, rehearsal, and summit session is designed to spark questions, deepen identity,
+          and help young women picture their futures.
+        </p>
+        <ul class="checklist checklist--light">
+          <li>Participants report increased confidence and sense of belonging.</li>
+          <li>Families feel more equipped to talk about college and career pathways.</li>
+          <li>Community partners invest time, resources, and mentorship.</li>
+        </ul>
+      </div>
+      <div class="impact-card">
+        <h3>Be Part of the Story</h3>
+        <p>
+          Join us as a volunteer, mentor, or sponsor and help expand access to arts and STEAM education.
+        </p>
+        <div class="impact-actions">
+          <a href="#get-involved" class="btn btn--primary btn--full">Get involved</a>
+          <a href="#donate" class="btn btn--ghost btn--full">Make a donation</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events" class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>Upcoming Events</h2>
+        <p>Workshops, rehearsals, and community gatherings happening in the coming months.</p>
+      </div>
+
+      <div class="events-grid">
+        <article class="event-card">
+          <p class="event-date">Multiple Dates</p>
+          <h3>Ballet Folklórico Classes</h3>
+          <p class="event-location">Neighborhood Arts Center</p>
+          <p class="event-description">
+            Weekly classes for new and returning dancers to learn choreography, technique, and cultural
+            stories behind each dance.
+          </p>
+          <div class="event-actions">
+            <a href="#" class="btn btn--ghost">More info</a>
+            <a href="#" class="btn btn--primary">RSVP</a>
+          </div>
+        </article>
+
+        <article class="event-card">
+          <p class="event-date">Spring 2026</p>
+          <h3>Mariachi Open Rehearsal</h3>
+          <p class="event-location">Community Music Space</p>
+          <p class="event-description">
+            A chance to meet the ensemble, try instruments, and learn how to join the program this year.
+          </p>
+          <div class="event-actions">
+            <a href="#" class="btn btn--ghost">More info</a>
+            <a href="#" class="btn btn--primary">RSVP</a>
+          </div>
+        </article>
+
+        <article class="event-card">
+          <p class="event-date">Summer 2026</p>
+          <h3>Ella Rises Summit</h3>
+          <p class="event-location">Local College Campus</p>
+          <p class="event-description">
+            A full-day summit featuring art, STEAM activities, and a tour of a college or technical school.
+          </p>
+          <div class="event-actions">
+            <a href="#" class="btn btn--ghost">More info</a>
+            <a href="#" class="btn btn--primary">RSVP</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENROLL -->
+  <section id="enroll" class="section enroll-section">
+    <div class="container enroll-inner">
+      <div>
+        <h2>Ready to enroll?</h2>
+        <p>
+          Fill out a short form to let us know which programs you’re interested in and we’ll follow up
+          with next steps, schedules, and details.
+        </p>
+      </div>
+      <a href="#" class="btn btn--primary btn--large">Click here to enroll</a>
+    </div>
+  </section>
+
+  <!-- DONATE -->
+  <section id="donate" class="section">
+    <div class="container donate-grid">
+      <div>
+        <h2>Donate</h2>
+        <p>
+          Your support keeps programs accessible and affordable for families. Gifts of any size help us
+          provide instructors, instruments, materials, and transportation.
+        </p>
+        <p>
+          Consider setting up a recurring monthly donation or becoming a sponsor for a specific program or
+          event.
+        </p>
+      </div>
+      <div class="donate-card">
+        <h3>Ways to give</h3>
+        <ul class="donate-list">
+          <li>One-time or recurring online gifts</li>
+          <li>Program or event sponsorships</li>
+          <li>In-kind donations of supplies and instruments</li>
+        </ul>
+        <a href="#" class="btn btn--primary btn--full">Give online</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GET INVOLVED -->
+  <section id="get-involved" class="section section--light">
+    <div class="container get-involved-grid">
+      <div>
+        <h2>Get Involved</h2>
+        <p>
+          Volunteers, mentors, and partners are essential to making Ella Rises possible. Share your skills,
+          your story, or your support.
+        </p>
+      </div>
+      <div class="pill-grid">
+        <span class="pill">Volunteer at events</span>
+        <span class="pill">Mentor students</span>
+        <span class="pill">Host a workshop</span>
+        <span class="pill">Sponsor a cohort</span>
+        <span class="pill">Share our programs</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contact" class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Ella Rises</h3>
+        <p>
+          A nonprofit organization dedicated to helping young women rise through arts, culture, and
+          education.
+        </p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:info@ellarises.org">info@ellarises.org</a></p>
+        <p>Instagram · Facebook</p>
+      </div>
+      <div>
+        <h4>Partners</h4>
+        <p>We are grateful for the schools, community centers, and sponsors who support our mission.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Ella Rises. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Simple mobile nav toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
 </body>
 </html>

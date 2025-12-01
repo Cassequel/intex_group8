@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Donate | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/participants">Participants</a></li>
+          <li><a href="#impact">Impact</a></li>
+          <li><a href="#stories">Stories</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="/donations" class="btn btn--outline">Donate</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Fuel the movement</p>
+      <h1>Your donation powers confidence, culture, and opportunity.</h1>
+      <p class="hero-subtitle">
+        Gifts keep programs accessible, fund instruments and art supplies, and open doors for young Latinas to thrive.
+      </p>
+      <div class="hero-actions">
+        <a href="#donate" class="btn btn--primary btn--large">Donate now</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT -->
+  <section id="impact" class="section section--light">
+    <div class="container impact-grid">
+      <div>
+        <h2>Why your support matters</h2>
+        <p>Every contribution helps us deliver culturally rooted programs that build belonging and leadership.</p>
+        <ul class="checklist">
+          <li>Scholarships and fee waivers so no girl is turned away.</li>
+          <li>Instruments, costumes, and art supplies for hands-on learning.</li>
+          <li>Transportation assistance to rehearsals, workshops, and campus visits.</li>
+          <li>Mentor stipends that bring diverse role models into the classroom.</li>
+        </ul>
+      </div>
+      <div class="impact-card">
+        <h3>Recent wins your donations made possible</h3>
+        <ul class="checklist checklist--light">
+          <li>Funded a new mariachi instrument library for beginners.</li>
+          <li>Covered travel for 40 students to tour a local university.</li>
+          <li>Launched a STEAM workshop series featuring Latina engineers.</li>
+          <li>Provided costumes for our Ballet Folklórico performance cohort.</li>
+        </ul>
+        <div class="impact-actions">
+          <a id="donate" href="#donate" class="btn btn--primary btn--full">Give today</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORIES -->
+  <section id="stories" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>What participants are saying</h2>
+        <p>Donor support makes moments like these possible.</p>
+      </div>
+      <div class="events-grid">
+        <article class="event-card">
+          <p class="event-date">Arts</p>
+          <h3>“I found my voice on stage.”</h3>
+          <p class="event-description">
+            Ballet Folklórico students performed in new costumes funded by donor gifts, building confidence and pride in their heritage.
+          </p>
+        </article>
+        <article class="event-card">
+          <p class="event-date">STEAM</p>
+          <h3>“I can see myself in tech.”</h3>
+          <p class="event-description">
+            Donor-backed STEAM workshops connected girls with Latina engineers and hands-on projects that sparked career curiosity.
+          </p>
+        </article>
+        <article class="event-card">
+          <p class="event-date">Summit</p>
+          <h3>“College feels possible now.”</h3>
+          <p class="event-description">
+            Transportation assistance and meals at the Ella Rises Summit ensured every participant could attend without barriers.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONATE CTA -->
+  <section class="section section--accent">
+    <div class="container enroll-inner">
+      <div>
+        <h2>Ready to make an impact?</h2>
+        <p>Your gift today keeps Ella Rises accessible, inclusive, and transformative.</p>
+      </div>
+      <a href="#donate" class="btn btn--primary btn--large">Donate now</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contact" class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Ella Rises</h3>
+        <p>A nonprofit organization dedicated to helping young women rise through arts, culture, and education.</p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:info@ellarises.org">info@ellarises.org</a></p>
+      </div>
+      <div>
+        <h4>Partners</h4>
+        <p>We are grateful for the schools, community centers, and sponsors who support our mission.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Ac 2025 Ella Rises. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Simple mobile nav toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>

@@ -10,6 +10,8 @@ const port = process.env.PORT || 3000;
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/styles', express.static(path.join(__dirname, 'styles')));
+
 
 app.use(session({
     secret: process.env.SESSION_SECRET || "devsecret",
@@ -26,9 +28,9 @@ const knex = require("knex")({
     connection: {
         host : process.env.RDS_HOST_NAME || "localhost",
         user : process.env.RDS_USER_NAME || "postgres",
-        password : process.env.RDS_USER_PASSWORD || "admin",
-        database : process.env.RDS_DB_NAME || "foodisus",
-        port : process.env.RDS_PORT || 5434  // PostgreSQL 16 typically uses port 5434
+        password : process.env.RDS_USER_PASSWORD || "wiztec12",
+        database : process.env.RDS_DB_NAME || "ellarises",
+        port : process.env.RDS_PORT || 5432  // PostgreSQL 16 typically uses port 5434
     }
 });
 // Root directory for static images
@@ -103,6 +105,7 @@ app.use((req, res, next) => {
     // Skip authentication for login routes
     if (req.path === '/' || req.path === '/login' || req.path === '/logout' ||
         req.path === '/register'||
+        req.path === '/donations'||
         req.path === '/index') {
         //continue with the request path
         return next();
@@ -114,11 +117,134 @@ app.use((req, res, next) => {
         next(); // User is logged in, continue
     } 
     else {
-        res.render("login", { error_message: "Please log in to access this page" });
+        res.render("auth/login", { error_message: "Please log in to access this page" });
     }
 });
 
 
 app.get('/', (req, res) => {
     res.render('public/landing');
+});
+
+app.get('/donations', (req, res) => {
+    res.render('donations/donations');
+});
+
+app.get('/register', (req, res) => {
+    if (req.session.isLoggedIn) {
+        return res.redirect('/');
+    }
+    res.render('auth/register', { error_message: null });
+});
+
+app.post('/register', async (req, res) => {
+    const { email, username, password } = req.body;
+
+    if (!email || !username || !password) {
+        return res.render('auth/register', { error_message: "Please enter an email, username, and password." });
+    }
+
+    try {
+        // Prevent duplicate usernames or emails
+        const existingUser = await knex("users")
+            .where({ username })
+            .orWhere({ email })
+            .first();
+
+        if (existingUser) {
+            return res.render('auth/register', { error_message: "That username or email is already in use." });
+        }
+
+        const [newUser] = await knex("users")
+            .insert({
+                email,
+                username,
+                password,
+                level: "U" // Standard user level
+            })
+            .returning("*");
+
+        req.session.isLoggedIn = true;
+        req.session.userId = newUser.user_id;
+        req.session.username = newUser.username;
+        req.session.role = newUser.role || 'user';
+        req.session.level = newUser.level || 'U';
+
+        res.redirect('/');
+    } catch (error) {
+        console.error("Registration error:", error);
+        const duplicateErr = error.code === "23505";
+        const message = duplicateErr
+            ? "That username or email is already in use."
+            : "Server error. Please try again.";
+        res.status(500).render('auth/register', { error_message: message });
+    }
+});
+
+app.get('/login', (req, res) => {
+    if (req.session.isLoggedIn) {
+        return res.redirect('/');
+    }
+    res.render('auth/login', { error_message: null });
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.render('auth/login', { error_message: "Please enter a username and password." });
+    }
+
+    try {
+        // NOTE: Current DB uses a plain `password` column (not hashed). Adjusted check accordingly.
+        // For production, store bcrypt hashes instead.
+        // Select all columns so future fields (e.g., level) are available without breaking now
+        const user = await knex("users")
+            .select("*")
+            .where({ username })
+            .first();
+        if (!user) {
+            return res.render('auth/login', { error_message: "Invalid credentials." });
+        }
+
+        const isMatch = password === user.password;
+        if (!isMatch) {
+            return res.render('auth/login', { error_message: "Invalid credentials." });
+        }
+
+        req.session.isLoggedIn = true;
+        req.session.userId = user.user_id;
+        req.session.username = user.username;
+        req.session.role = user.role || 'user';
+        req.session.level = user.level || 'user';
+
+        res.redirect('/');
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).render('auth/login', { error_message: "Server error. Please try again." });
+    }
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/login');
+    });
+});
+
+app.get('/participants', async (req, res) => {
+    try {
+        // Select all columns to avoid missing-column errors if schema differs (e.g., no "school")
+        const participants = await knex("participants")
+            .select("*")
+            .orderBy("participant_id", "desc");
+
+        res.render("participants/participants", { participants });
+    } catch (error) {
+        console.error("Error fetching participants:", error);
+        res.status(500).send("Error loading participants");
+    }
+});
+
+app.listen(port, () => {
+    console.log("The server is listening");
 });

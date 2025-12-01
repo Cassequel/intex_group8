@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Participants | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="#participants">Participants</a></li>
+          <li><a href="#actions">Actions</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Program Roster</p>
+      <h1>Participants</h1>
+      <p class="hero-subtitle">
+        View and manage everyone enrolled across Ella Rises programs.
+      </p>
+      <div class="hero-actions">
+        <a href="/participants/new" class="btn btn--primary">Add participant</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTICIPANT TABLE -->
+  <section id="participants" class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>All participants</h2>
+        <p>A snapshot of everyone in the participants table.</p>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card__header" id="actions">
+          <span>Participants</span>
+          <a href="/participants/new" class="btn btn--primary btn--small">Add participant</a>
+        </div>
+        <div class="table-card__body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>School</th>
+                <th>Grade</th>
+                <th>Group</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (participants && participants.length) { %>
+                <% participants.forEach((participant) => { %>
+                  <tr>
+                    <td><%= participant.first_name %> <%= participant.last_name %></td>
+                    <td><%= participant.email %></td>
+                    <td><%= participant.phone %></td>
+                    <td><%= participant.school %></td>
+                    <td><%= participant.grade_level %></td>
+                    <td><%= participant.demographic_group %></td>
+                    <td>
+                      <%
+                        const joined = participant.joined_date;
+                        let formattedDate = "";
+                        if (joined) {
+                          formattedDate = joined.toISOString ? joined.toISOString().slice(0, 10) : String(joined).slice(0, 10);
+                        }
+                      %>
+                      <%= formattedDate %>
+                    </td>
+                    <td class="table-actions">
+                      <a class="btn btn--outline btn--small" href="/participants/<%= participant.participant_id %>/edit">Edit</a>
+                      <form class="inline-form" method="POST" action="/participants/<%= participant.participant_id %>/delete">
+                        <button type="submit" class="btn btn--ghost btn--small">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="8" class="empty-row">No participants found.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Simple mobile nav toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>
