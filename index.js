@@ -21,6 +21,7 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
+const helmet = require('helmet');
 
 
 app.use(session({
@@ -28,6 +29,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+
+// installs helmet - used to delcare headers to pretect other aspects of the code
+app.use(helmet());
+
 // sets up connections for migrations(script to install database)
 const knexConfig = require("./knexfile");
 const environment = process.env.NODE_ENV || "development";
@@ -164,12 +169,14 @@ app.post('/register', async (req, res) => {
             return res.render('auth/register', { error_message: "That username or email is already in use." });
         }
 
+        let hashedPassword = await bcrypt.hash(password, 10);
+
         const [newUser] = await knex("users")
             .insert({
                 email,
                 username,
-                password,
-                level: "U" // Standard user level
+                password_hash: hashedPassword,
+                level: "U"
             })
             .returning("*");
 
@@ -220,7 +227,7 @@ app.post('/login', async (req, res) => {
         if (!users) {
             return res.render("login", { error_message: "Invalid login" });
         }
-        const validPassword = await bcrypt.compare(password, users.password_hash);
+        let validPassword = await bcrypt.compare(password, users.password_hash);
 
         if (!validPassword) {
             return res.render("login", { error_message: "Invalid login" });
@@ -459,10 +466,11 @@ app.post('/users/new', async (req, res) => {
         });
     }
     try {
+        let password_hash = await bcrypt.hash(password, 10);
         await knex("users").insert({
             username,
             email,
-            password,
+            password_hash,
             level: level || 'U'
         });
         res.redirect('/users');
@@ -500,12 +508,13 @@ app.post('/users/:id/edit', async (req, res) => {
         });
     }
     try {
+        let password_hash = await bcrypt.hash(password, 10);
         const [updated] = await knex("users")
             .where({ user_id: id })
             .update({
                 username,
                 email,
-                password,
+                password_hash,
                 level: level || 'U'
             })
             .returning("*");
