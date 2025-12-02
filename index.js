@@ -1,9 +1,33 @@
-// ROUTES TO BE FIXED 
-// Events and all events sub routes - needs to reflect DB, event columns are split up 
-// 
-// EJS TO BE FIXED
-// Particpants - doesnt display names correctly
-// landing - enroll in program button becomes loop, donate becomes loop, get involved becomes loop 
+// TO DO 
+// EVENTS 
+// -Fix Events Location - add new migration to rename table to events location 
+// -in Add event, figure out how to pull in template and other information - test add
+// - clicking on event names loops back, i think it doesn't go to detail view 
+// - havent been able to test delte, no event i want to delete yet 
+
+// SURVEYS 
+// - Event ID in edit doesnt show up
+// - add survey doesnt work, sayd relation events doesnt exist
+// (Error: Error loading survey: error: select "s".*, CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name, "e"."name" as "event_name" from "surveys" as "s" left join "participants" as "p" on "s"."participant_id" = "p"."participant_id" left join "events" as "e" on "s"."event_occurence_id" = "e"."event_id" where "s"."survey_id" = $1 limit $2 - relation "events" does not exist)
+// Delete cant be tested
+
+//USERS - COMPLETELY FUNCITONAL 
+
+//PARTICIPANTS 
+// add Particpant doenst work,
+// Delete cant be tested until add works 
+
+// MILESTONES
+// ADD doesnt work, says fill in info, but info was filled in 
+// NO edit or delte, idk if we need that 
+
+
+//DONATIONS 
+// Cannot Add, says needs to fill in info but info was filled in ()
+// no delete
+
+
+
 
 
 // requrirements to set up all dev and production stuff
@@ -191,10 +215,10 @@ app.get('/donAdd', (req, res) => {
 });
 
 app.post('/donations/new', async (req, res) => {
-    const { first_name, last_name, email, donation_date, amount } = req.body;
+    const {  participant_first_name,  participant_last_name, email, donation_date, donation_amount } = req.body;
 
-    if (!first_name || !last_name || !email || !amount) {
-        return res.status(400).render('donations/donAdd', { error_message: "Please fill in name, email, and amount." });
+    if (! participant_first_name || ! participant_last_name || !email || !donation_amount) {
+        return res.status(400).render('donations/donAdd', { error_message: "Please fill in name, email, and donation_amount." });
     }
 
     try {
@@ -206,7 +230,7 @@ app.post('/donations/new', async (req, res) => {
         await knex("donations").insert({
             participant_id: participant.participant_id,
             donation_date: donation_date || null,
-            donation_amount: amount
+            donation_amount: donation_amount
         });
 
         res.redirect('/donations');
@@ -263,12 +287,12 @@ app.get('/donations/:id/edit', async (req, res) => {
 
 app.post('/donations/:id/edit', async (req, res) => {
     const { id } = req.params;
-    const { first_name, last_name, email, donation_date, amount } = req.body;
+    const {  participant_first_name,  participant_last_name, email, donation_date, donation_amount } = req.body;
 
-    if (!first_name || !last_name || !email || !amount) {
+    if (! participant_first_name || ! participant_last_name || !email || !donation_amount) {
         return res.status(400).render('donations/donEdit', {
-            donation: { donation_id: id, first_name, last_name, email, donation_date, amount },
-            error_message: "Please fill in name, email, and amount."
+            donation: { donation_id: id,  participant_first_name,  participant_last_name, email, donation_date, donation_amount },
+            error_message: "Please fill in name, email, and donation_amount."
         });
     }
 
@@ -276,7 +300,7 @@ app.post('/donations/:id/edit', async (req, res) => {
         const participant = await knex("participants").where({ participant_email: email }).first();
         if (!participant) {
             return res.status(400).render('donations/donEdit', {
-                donation: { donation_id: id, first_name, last_name, email, donation_date, amount },
+                donation: { donation_id: id,  participant_first_name,  participant_last_name, email, donation_date, donation_amount },
                 error_message: "We couldn't find a participant with that email."
             });
         }
@@ -286,7 +310,7 @@ app.post('/donations/:id/edit', async (req, res) => {
             .update({
                 participant_id: participant.participant_id,
                 donation_date: donation_date || null,
-                donation_amount: amount
+                donation_amount: donation_amount
             });
 
         res.redirect(`/donations/${id}`);
@@ -608,7 +632,7 @@ app.post('/participants/new', async (req, res) => {
         participant_field_of_interest
     } = req.body;
 
-    if (!participant_first_name || !participant_last_name || !participant_email) {
+    if (! participant_first_name || ! participant_last_name || !email) {
         return res.status(400).render('participants/parAdd', {
             error_message: "First name, last name, and email are required."
         });
@@ -627,7 +651,7 @@ app.post('/participants/new', async (req, res) => {
                 zip,
                 participant_school_or_employer,
                 participant_field_of_interest,
-                participant_role: "participant"
+                role: "participant"
             })
             .returning("*");
 
@@ -1108,7 +1132,6 @@ app.post('/surveys/new', async (req, res) => {
         usefulness_score,
         instructor_score,
         recommendation_score,
-        nps_bucket,
         comments,
         submission_date
     } = req.body;
@@ -1126,7 +1149,6 @@ app.post('/surveys/new', async (req, res) => {
                 usefulness_score: usefulness_score || null,
                 instructor_score: instructor_score || null,
                 recommendation_score: recommendation_score || null,
-                nps_bucket,
                 survey_comments: comments,
                 submission_date: submission_date || null
             })
@@ -1184,7 +1206,6 @@ app.post('/surveys/:id/edit', async (req, res) => {
         usefulness_score,
         instructor_score,
         recommendation_score,
-        nps_bucket,
         comments,
         submission_date
     } = req.body;
@@ -1199,7 +1220,6 @@ app.post('/surveys/:id/edit', async (req, res) => {
                 usefulness_score,
                 instructor_score,
                 recommendation_score,
-                nps_bucket,
                 comments,
                 submission_date
             },
@@ -1217,7 +1237,6 @@ app.post('/surveys/:id/edit', async (req, res) => {
                 usefulness_score: usefulness_score || null,
                 instructor_score: instructor_score || null,
                 recommendation_score: recommendation_score || null,
-                nps_bucket,
                 survey_comments: comments,
                 submission_date: submission_date || null
             });

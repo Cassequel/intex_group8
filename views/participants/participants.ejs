@@ -108,38 +108,21 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
-                <th>School</th>
-                <th>Grade</th>
-                <th>Group</th>
-                <th>Joined</th>
                 <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
               <% if (participants && participants.length) { %>
                 <% participants.forEach((participant) => { %>
-                  <tr data-name="<%= `${participant.first_name} ${participant.last_name}`.toLowerCase() %>">
+                  <tr data-name="<%= `${participant. participant_first_name} ${participant. participant_last_name}`.toLowerCase() %>">
                     <td><%= participant.participant_id %></td>
                     <td><a href="/participants/<%= participant.participant_id %>"><%= participant.participatn_first_name %> <%= participant.participant_last_name %></a></td>
                     <td><%= participant.participant_email %></td>
                     <td><%= participant.phone %></td>
-                    <td><%= participant.participant_school %></td>
-                    <td><%= participant.grade_level %></td>
-                    <td><%= participant.demographic_group %></td>
-                    <td>
-                      <%
-                        const joined = participant.joined_date;
-                        let formattedDate = "";
-                        if (joined) {
-                          formattedDate = joined.toISOString ? joined.toISOString().slice(0, 10) : String(joined).slice(0, 10);
-                        }
-                      %>
-                      <%= formattedDate %>
-                    </td>
                     <% if (userLevel !== 'U') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/participants/<%= participant.participant_id %>/edit">Edit</a>
-                        <button type="button" class="btn btn--ghost btn--small delete-btn" data-id="<%= participant.participant_id %>" data-name="<%= participant.first_name %> <%= participant.last_name %>">Delete</button>
+                        <button type="button" class="btn btn--ghost btn--small delete-btn" data-id="<%= participant.participant_id %>" data-name="<%= participant. participant_first_name %> <%= participant. participant_last_name %>">Delete</button>
                       </td>
                     <% } %>
                   </tr>
