@@ -56,7 +56,7 @@ app.use(session({
     cookie: {
         secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
@@ -156,9 +156,6 @@ const requireManager = (req, res, next) => {
     }
     next();
 };
-
-// Tells Express how to read form data sent in the body of a request
-app.use(express.urlencoded({extended: true}));
 
 // Expose session flags to views
 app.use((req, res, next) => {
