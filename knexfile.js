@@ -1,4 +1,5 @@
-// knexfile.js
+// knexfile.js tells weither or not to user local env or use poduction variables. 
+
 module.exports = {
     development: {
       client: 'pg',

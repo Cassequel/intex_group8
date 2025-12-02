@@ -1,3 +1,12 @@
+// ROUTES TO BE FIXED 
+// Events and all events sub routes - needs to reflect DB, event columns are split up 
+// 
+// EJS TO BE FIXED
+// Particpants - doesnt display names correctly
+// landing - enroll in program button becomes loop, donate becomes loop, get involved becomes loop 
+
+
+// requrirements to set up all dev and production stuff
 require('dotenv').config();
 const express = require("express");
 const session = require("express-session");
@@ -19,7 +28,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
-
+// sets up connections for migrations(script to install database)
 const knexConfig = require("./knexfile");
 const environment = process.env.NODE_ENV || "development";
 const knex = require("knex")(knexConfig[environment]);
@@ -196,9 +205,6 @@ app.post('/login', async (req, res) => {
     }
 
     try {
-        // NOTE: Current DB uses a plain `password` column (not hashed). Adjusted check accordingly.
-        // For production, store bcrypt hashes instead.
-        // Select all columns so future fields (e.g., level) are available without breaking now
         const user = await knex("users")
             .select("*")
             .where({ username })
@@ -207,9 +213,17 @@ app.post('/login', async (req, res) => {
             return res.render('auth/login', { error_message: "Invalid credentials." });
         }
 
-        const isMatch = password === user.password;
-        if (!isMatch) {
-            return res.render('auth/login', { error_message: "Invalid credentials." });
+        const users = await knex("users")
+        .where("username", user.username)
+        .first();
+
+        if (!users) {
+            return res.render("login", { error_message: "Invalid login" });
+        }
+        const validPassword = await bcrypt.compare(password, users.password_hash);
+
+        if (!validPassword) {
+            return res.render("login", { error_message: "Invalid login" });
         }
 
         req.session.isLoggedIn = true;
@@ -525,7 +539,7 @@ app.post('/users/:id/delete', async (req, res) => {
 // Events
 app.get('/events', async (req, res) => {
     try {
-        const events = await knex("events").select("*").orderBy("event_id", "desc");
+        const events = await knex("event_occurances").select("*").orderBy("event_id", "desc");
         res.render('events/events', { events });
     } catch (error) {
         console.error("Error loading events:", error);
@@ -556,7 +570,7 @@ app.post('/events/new', async (req, res) => {
     }
 
     try {
-        const [newEvent] = await knex("events")
+        const [newEvent] = await knex("events_occurances")
             .insert({
                 name,
                 type,

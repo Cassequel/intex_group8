@@ -1,3 +1,4 @@
+
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
@@ -66523,11 +66524,11 @@ exports.up = async function(knex) {
  * @returns { Promise<void> }
  */
 exports.down = async function(knex) {
-  await knex.schema.dropTableIfExists('participants');
-  await knex.schema.dropTableIfExists('event_templates');
-  await knex.schema.dropTableIfExists('event_occurences');
-  await knex.schema.dropTableIfExists('registrations');
-  await knex.schema.dropTableIfExists('surveys');
-  await knex.schema.dropTableIfExists('milestones');
-  await knex.schema.dropTableIfExists('donations');
+    await knex.schema.dropTableIfExists('donations');
+    await knex.schema.dropTableIfExists('milestones');
+    await knex.schema.dropTableIfExists('surveys');
+    await knex.schema.dropTableIfExists('registrations');
+    await knex.schema.dropTableIfExists('event_occurences');
+    await knex.schema.dropTableIfExists('event_templates');
+    await knex.schema.dropTableIfExists('participants');
 };
