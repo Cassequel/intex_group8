@@ -24,6 +24,7 @@ app.use('/styles', express.static(path.join(__dirname, 'styles')));
 const helmet = require('helmet');
 const { sendPasswordReset, sendNewDeviceAlert, sendEventReminder} = require('./email/emailService');
 const crypto = require('crypto'); 
+const knex = require("./db");
 
 
 app.use(session({
@@ -261,15 +262,6 @@ app.post('/reset-password', async (req, res) => {
 
 // installs helmet - used to delcare headers to pretect other aspects of the code
 app.use(helmet());
-
-
-// sets up connections for migrations(script to install database)
-// const knexConfig = require("./knexfile");
-// const environment = process.env.NODE_ENV || "development";
-// const knex = require("knex")(knexConfig[environment]);
-
-const knex = require('./db');
-
 
 
 // Root directory for static images
