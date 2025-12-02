@@ -1,3 +1,12 @@
+// ROUTES TO BE FIXED 
+// Events and all events sub routes - needs to reflect DB, event columns are split up 
+// 
+// EJS TO BE FIXED
+// Particpants - doesnt display names correctly
+// landing - enroll in program button becomes loop, donate becomes loop, get involved becomes loop 
+
+
+// requrirements to set up all dev and production stuff
 require('dotenv').config();
 const express = require("express");
 const session = require("express-session");
@@ -19,24 +28,11 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+// sets up connections for migrations(script to install database)
+const knexConfig = require("./knexfile");
+const environment = process.env.NODE_ENV || "development";
+const knex = require("knex")(knexConfig[environment]);
 
-// const knexConfig = require("./knexfile");
-// const environment = process.env.NODE_ENV || "development";
-// const knex = require("knex")(knexConfig[environment]);
-// const knexConfig = require("./knexfile");
-// const environment = process.env.NODE_ENV || "development";
-// const knex = require("knex")(knexConfig[environment]);
-
-const knex = require("knex")({
-    client: "pg",
-    connection: {
-        host : process.env.RDS_HOST_NAME || "localhost",
-        user : process.env.RDS_USER_NAME || "postgres",
-        password : process.env.RDS_USER_PASSWORD || "wiztec12",
-        database : process.env.RDS_DB_NAME || "ellarises",
-        port : process.env.RDS_PORT || 5432  // PostgreSQL 16 typically uses port 5434
-    }
-});
 // Root directory for static images
 const uploadRoot = path.join(__dirname, "images");
 // Sub-directory where uploaded profile pictures will be stored
@@ -499,9 +495,6 @@ app.post('/login', async (req, res) => {
     }
 
     try {
-        // NOTE: Current DB uses a plain `password` column (not hashed). Adjusted check accordingly.
-        // For production, store bcrypt hashes instead.
-        // Select all columns so future fields (e.g., level) are available without breaking now
         const user = await knex("users")
             .select("*")
             .where({ username })
@@ -510,9 +503,17 @@ app.post('/login', async (req, res) => {
             return res.render('auth/login', { error_message: "Invalid credentials." });
         }
 
-        const isMatch = password === user.password;
-        if (!isMatch) {
-            return res.render('auth/login', { error_message: "Invalid credentials." });
+        const users = await knex("users")
+        .where("username", user.username)
+        .first();
+
+        if (!users) {
+            return res.render("login", { error_message: "Invalid login" });
+        }
+        const validPassword = await bcrypt.compare(password, users.password_hash);
+
+        if (!validPassword) {
+            return res.render("login", { error_message: "Invalid login" });
         }
 
         req.session.isLoggedIn = true;
@@ -868,7 +869,7 @@ app.post('/events/new', async (req, res) => {
     }
 
     try {
-        const [newEvent] = await knex("events")
+        const [newEvent] = await knex("events_occurances")
             .insert({
                 name,
                 type,
