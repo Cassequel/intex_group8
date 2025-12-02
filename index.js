@@ -7,7 +7,7 @@ const multer = require("multer");
 let bodyParser = require("body-parser");
 let app = express();
 const bcrypt = require("bcrypt");
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -20,6 +20,9 @@ app.use(session({
     saveUninitialized: false
 }));
 
+// const knexConfig = require("./knexfile");
+// const environment = process.env.NODE_ENV || "development";
+// const knex = require("knex")(knexConfig[environment]);
 // const knexConfig = require("./knexfile");
 // const environment = process.env.NODE_ENV || "development";
 // const knex = require("knex")(knexConfig[environment]);
