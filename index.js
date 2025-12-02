@@ -20,12 +20,9 @@ app.use(session({
     saveUninitialized: false
 }));
 
-// const knexConfig = require("./knexfile");
-// const environment = process.env.NODE_ENV || "development";
-// const knex = require("knex")(knexConfig[environment]);
-// const knexConfig = require("./knexfile");
-// const environment = process.env.NODE_ENV || "development";
-// const knex = require("knex")(knexConfig[environment]);
+const knexConfig = require("./knexfile");
+const environment = process.env.NODE_ENV || "development";
+const knex = require("knex")(knexConfig[environment]);
 
 const knex = require("knex")({
     client: "pg",
