@@ -43,6 +43,7 @@ app.use('/styles', express.static(path.join(__dirname, 'styles')));
 const helmet = require('helmet');
 const { sendPasswordReset, sendNewDeviceAlert, sendEventReminder} = require('./email/emailService');
 const crypto = require('crypto'); 
+const knex = require("./db");
 
 
 app.use(session({
