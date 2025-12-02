@@ -64,6 +64,8 @@ app.use(session({
 // installs helmet - used to delcare headers to pretect other aspects of the code
 app.use(helmet());
 
+app.set('trust proxy', 1);
+
 // sets up connections for migrations(script to install database)
 const knexConfig = require("./knexfile");
 const environment = process.env.NODE_ENV || "development";
