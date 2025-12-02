@@ -51,6 +51,11 @@ app.use(session({
     saveUninitialized: false
 }));
 
+// sets up connections for migrations(script to install database)
+const knexConfig = require("./knexfile");
+const environment = process.env.NODE_ENV || "development";
+const knex = require("knex")(knexConfig[environment]);
+
 app.get('/test-email', async (req, res) => {
   try {
     const user = { email: 'apierceswan@gmail.com', firstName: 'Aiden' };
@@ -150,54 +155,6 @@ app.get('/reset-password', async (req, res) => {
     }
 });
 
-// Handle reset form submit
-app.post('/reset-password', async (req, res) => {
-    const { token, password } = req.body;
-
-    if (!token || !password) {
-        return res.status(400).render('auth/reset', { 
-            token,
-            error_message: "Password is required."
-        });
-    }
-
-    try {
-        const record = await knex("password_reset_tokens")
-            .where({ token })
-            .andWhere("expires_at", ">", new Date())
-            .andWhere(function () {
-                this.whereNull("used_at");
-            })
-            .first();
-
-        if (!record) {
-            return res.status(400).render('auth/reset', { 
-                token: null,
-                error_message: "Invalid or expired token."
-            });
-        }
-
-        const hashed = await bcrypt.hash(password, 10);
-
-        await knex.transaction(async trx => {
-            await trx("users")
-                .where({ user_id: record.user_id })
-                .update({ password: hashed });
-
-            await trx("password_reset_tokens")
-                .where({ id: record.id })
-                .update({ used_at: new Date() });
-        });
-
-        res.redirect('/login');
-    } catch (error) {
-        console.error("Reset password POST error:", error);
-        res.status(500).render('auth/reset', { 
-            token,
-            error_message: "Server error. Please try again."
-        });
-    }
-});
 
 // Show reset form
 app.get('/reset-password', async (req, res) => {
@@ -280,14 +237,6 @@ app.post('/reset-password', async (req, res) => {
 
 // installs helmet - used to delcare headers to pretect other aspects of the code
 app.use(helmet());
-
-
-// sets up connections for migrations(script to install database)
-const knexConfig = require("./knexfile");
-const environment = process.env.NODE_ENV || "development";
-const knex = require("knex")(knexConfig[environment]);
-
-
 
 
 // Root directory for static images
