@@ -86,19 +86,10 @@
   <!-- DETAILS -->
   <section class="section section--light">
     <div class="container">
-      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
-        <div class="avatar-large">
-          <% if (participant.img) { %>
-            <img alt="Profile" src="<%= participant.img %>" />
-          <% } else { %>
-            <img alt="Profile placeholder" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none"><circle cx="80" cy="80" r="80" fill="%23f0f4f7"/><path d="M80 76c11.046 0 20-8.954 20-20s-8.954-20-20-20-20 8.954-20 20 8.954 20 20 20Z" fill="%2399b7c6"/><path d="M48 126c0-13.255 14.327-24 32-24s32 10.745 32 24v6H48v-6Z" fill="%2399b7c6"/></svg>' />
-          <% } %>
-        </div>
-        <div>
-          <h2 style="margin: 0 0 0.5rem;">Contact</h2>
-          <p style="margin: 0.15rem 0;">Email: <%= participant.email || "Not provided" %></p>
-          <p style="margin: 0.15rem 0;">Phone: <%= participant.phone || "Not provided" %></p>
-        </div>
+      <div>
+        <h2 style="margin: 0 0 0.5rem;">Contact</h2>
+        <p style="margin: 0.15rem 0;">Email: <%= participant.email || "Not provided" %></p>
+        <p style="margin: 0.15rem 0;">Phone: <%= participant.phone || "Not provided" %></p>
       </div>
 
       <div class="detail-grid">

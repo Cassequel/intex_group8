@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= event.name %> | Event</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .detail-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.2rem 1.3rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(153, 183, 198, 0.18);
+    }
+    .detail-card h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1rem;
+      color: var(--color-primary-dark);
+    }
+    .detail-value {
+      margin: 0;
+      color: var(--color-text-soft);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/events">Events</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Event</p>
+      <h1><%= event.name %></h1>
+      <p class="hero-subtitle">
+        Full details for this event.
+      </p>
+    </div>
+  </section>
+
+  <!-- DETAILS -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="detail-grid">
+        <div class="detail-card">
+          <h3>Type</h3>
+          <p class="detail-value"><%= event.type || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Description</h3>
+          <p class="detail-value"><%= event.description || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Recurrence</h3>
+          <p class="detail-value"><%= event.recurrence_pattern || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Default capacity</h3>
+          <p class="detail-value"><%= event.default_capacity || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Start</h3>
+          <p class="detail-value"><%= event.datetime_start ? (event.datetime_start.toISOString ? event.datetime_start.toISOString().replace('T',' ').slice(0,16) : String(event.datetime_start)) : "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>End</h3>
+          <p class="detail-value"><%= event.datetime_end ? (event.datetime_end.toISOString ? event.datetime_end.toISOString().replace('T',' ').slice(0,16) : String(event.datetime_end)) : "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Location</h3>
+          <p class="detail-value"><%= event.location || "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Capacity</h3>
+          <p class="detail-value"><%= typeof event.capacity !== "undefined" && event.capacity !== null ? event.capacity : "Not provided" %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Registration deadline</h3>
+          <p class="detail-value"><%= event.registration_deadline ? (event.registration_deadline.toISOString ? event.registration_deadline.toISOString().replace('T',' ').slice(0,16) : String(event.registration_deadline)) : "Not provided" %></p>
+        </div>
+      </div>
+      <div style="margin-top: 1.5rem;">
+        <a href="/events/<%= event.event_id %>/edit" class="btn btn--outline">Edit event</a>
+        <a href="/events" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to list</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>

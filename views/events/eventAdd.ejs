@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Event | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/events">Events</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Programs</p>
+      <h1>Add event</h1>
+      <p class="hero-subtitle">Create a new event with schedule and capacity details.</p>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="form-card">
+        <% if (typeof error_message !== "undefined" && error_message) { %>
+          <div class="alert alert--error"><%= error_message %></div>
+        <% } %>
+        <form class="form-grid" method="POST" action="/events/new">
+          <div class="form-field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" required />
+          </div>
+          <div class="form-field">
+            <label for="type">Type</label>
+            <input id="type" name="type" type="text" />
+          </div>
+          <div class="form-field">
+            <label for="description">Description</label>
+            <input id="description" name="description" type="text" />
+          </div>
+          <div class="form-field">
+            <label for="recurrence_pattern">Recurrence pattern</label>
+            <input id="recurrence_pattern" name="recurrence_pattern" type="text" />
+          </div>
+          <div class="form-field">
+            <label for="default_capacity">Default capacity</label>
+            <input id="default_capacity" name="default_capacity" type="number" />
+          </div>
+          <div class="form-grid-two">
+            <div class="form-field">
+              <label for="datetime_start">Start</label>
+              <input id="datetime_start" name="datetime_start" type="datetime-local" />
+            </div>
+            <div class="form-field">
+              <label for="datetime_end">End</label>
+              <input id="datetime_end" name="datetime_end" type="datetime-local" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="location">Location</label>
+            <input id="location" name="location" type="text" />
+          </div>
+          <div class="form-field">
+            <label for="capacity">Capacity</label>
+            <input id="capacity" name="capacity" type="number" />
+          </div>
+          <div class="form-field">
+            <label for="registration_deadline">Registration deadline</label>
+            <input id="registration_deadline" name="registration_deadline" type="datetime-local" />
+          </div>
+          <div class="form-field" style="margin-top: 0.5rem;">
+            <button type="submit" class="btn btn--primary btn--large">Save event</button>
+            <a href="/events" class="btn btn--ghost btn--large" style="margin-left: 0.5rem;">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>

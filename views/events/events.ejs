@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Events | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/participants">Participants</a></li>
+          <li><a href="/events">Events</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Programs</p>
+      <h1>Events</h1>
+      <p class="hero-subtitle">Browse and manage scheduled events.</p>
+      <div class="hero-actions">
+        <a href="/events/new" class="btn btn--primary">Add event</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS TABLE -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>All events</h2>
+        <p>A snapshot of current events.</p>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card__header">
+          <span>Events</span>
+          <a href="/events/new" class="btn btn--primary btn--small">Add event</a>
+        </div>
+        <div class="table-card__body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Starts</th>
+                <th>Location</th>
+                <th>Capacity</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (events && events.length) { %>
+                <% events.forEach((event) => { %>
+                  <tr>
+                    <td><a href="/events/<%= event.event_id %>"><%= event.name %></a></td>
+                    <td><%= event.type || "—" %></td>
+                    <td>
+                      <%
+                        const start = event.datetime_start;
+                        let startDate = "";
+                        if (start) {
+                          startDate = start.toISOString ? start.toISOString().replace('T', ' ').slice(0,16) : String(start);
+                        }
+                      %>
+                      <%= startDate %>
+                    </td>
+                    <td><%= event.location || "—" %></td>
+                    <td><%= typeof event.capacity !== "undefined" && event.capacity !== null ? event.capacity : "—" %></td>
+                    <td class="table-actions">
+                      <a class="btn btn--outline btn--small" href="/events/<%= event.event_id %>/edit">Edit</a>
+                      <form class="inline-form" method="POST" action="/events/<%= event.event_id %>/delete">
+                        <button type="submit" class="btn btn--ghost btn--small">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="6" class="empty-row">No events found.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>

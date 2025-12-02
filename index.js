@@ -103,6 +103,12 @@ app.use(
 // Tells Express how to read form data sent in the body of a request
 app.use(express.urlencoded({extended: true}));
 
+// Expose session flags to views
+app.use((req, res, next) => {
+    res.locals.isLoggedIn = !!req.session.isLoggedIn;
+    next();
+});
+
 // Global authentication middleware - runs on EVERY request
 app.use((req, res, next) => {
     // Skip authentication for login routes
@@ -253,7 +259,7 @@ app.get('/participants/new', (req, res) => {
     res.render('participants/parAdd');
 });
 
-app.post('/participants/new', upload.single('profile_image'), async (req, res) => {
+app.post('/participants/new', async (req, res) => {
     const {
         first_name,
         last_name,
@@ -267,7 +273,6 @@ app.post('/participants/new', upload.single('profile_image'), async (req, res) =
         employer,
         field_of_interest
     } = req.body;
-    const profileImagePath = req.file ? `/images/uploads/${req.file.filename}` : null;
 
     if (!first_name || !last_name || !email) {
         return res.status(400).render('participants/parAdd', {
@@ -286,7 +291,6 @@ app.post('/participants/new', upload.single('profile_image'), async (req, res) =
                 city,
                 state,
                 zip,
-                img: profileImagePath,
                 school_or_employer: school || employer || null,
                 field_of_interest,
                 role: "participant"
@@ -342,7 +346,7 @@ app.get('/participants/:id/edit', async (req, res) => {
     }
 });
 
-app.post('/participants/:id/edit', upload.single('profile_image'), async (req, res) => {
+app.post('/participants/:id/edit', async (req, res) => {
     const { id } = req.params;
     const {
         first_name,
@@ -355,10 +359,8 @@ app.post('/participants/:id/edit', upload.single('profile_image'), async (req, r
         zip,
         school,
         employer,
-        field_of_interest,
-        existing_image
+        field_of_interest
     } = req.body;
-    const profileImagePath = req.file ? `/images/uploads/${req.file.filename}` : existing_image || null;
 
     if (!first_name || !last_name || !email) {
         return res.status(400).render('participants/parEdit', {
@@ -374,8 +376,7 @@ app.post('/participants/:id/edit', upload.single('profile_image'), async (req, r
                 zip,
                 school,
                 employer,
-                field_of_interest,
-                img: existing_image
+                field_of_interest
             },
             error_message: "First name, last name, and email are required."
         });
@@ -393,7 +394,6 @@ app.post('/participants/:id/edit', upload.single('profile_image'), async (req, r
                 city,
                 state,
                 zip,
-                img: profileImagePath,
                 school_or_employer: school || employer || null,
                 field_of_interest
             })
@@ -429,6 +429,262 @@ app.post('/participants/:id/delete', async (req, res) => {
     } catch (error) {
         console.error("Error deleting participant:", error);
         res.status(500).send("Error deleting participant");
+    }
+});
+
+// Users
+app.get('/users', async (req, res) => {
+    try {
+        const users = await knex("users").select("*").orderBy("user_id", "asc");
+        res.render('userDashboard/userDashboard', { users });
+    } catch (error) {
+        console.error("Error loading users:", error);
+        res.status(500).send("Error loading users");
+    }
+});
+
+app.get('/users/new', (req, res) => {
+    res.render('userDashboard/userAdd', { error_message: null });
+});
+
+app.post('/users/new', async (req, res) => {
+    const { username, email, password, level } = req.body;
+    if (!username || !email || !password) {
+        return res.status(400).render('userDashboard/userAdd', {
+            error_message: "Username, email, and password are required."
+        });
+    }
+    try {
+        await knex("users").insert({
+            username,
+            email,
+            password,
+            level: level || 'U'
+        });
+        res.redirect('/users');
+    } catch (error) {
+        console.error("Error creating user:", error);
+        const duplicateErr = error.code === "23505";
+        const message = duplicateErr
+            ? "That username or email is already in use."
+            : "Could not create user. Please try again.";
+        res.status(500).render('userDashboard/userAdd', { error_message: message });
+    }
+});
+
+app.get('/users/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await knex("users").where({ user_id: id }).first();
+        if (!user) {
+            return res.status(404).render('public/418Code');
+        }
+        res.render('userDashboard/userEdit', { user, error_message: null });
+    } catch (error) {
+        console.error("Error loading user:", error);
+        res.status(500).send("Error loading user");
+    }
+});
+
+app.post('/users/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    const { username, email, password, level } = req.body;
+    if (!username || !email || !password) {
+        return res.status(400).render('userDashboard/userEdit', {
+            user: { user_id: id, username, email, password, level },
+            error_message: "Username, email, and password are required."
+        });
+    }
+    try {
+        const [updated] = await knex("users")
+            .where({ user_id: id })
+            .update({
+                username,
+                email,
+                password,
+                level: level || 'U'
+            })
+            .returning("*");
+        res.redirect('/users');
+    } catch (error) {
+        console.error("Error updating user:", error);
+        const duplicateErr = error.code === "23505";
+        const message = duplicateErr
+            ? "That username or email is already in use."
+            : "Could not update user. Please try again.";
+        try {
+            const user = await knex("users").where({ user_id: id }).first();
+            res.status(500).render('userDashboard/userEdit', { user, error_message: message });
+        } catch (loadErr) {
+            res.status(500).send("Error loading user");
+        }
+    }
+});
+
+app.post('/users/:id/delete', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await knex("users").where({ user_id: id }).del();
+        res.redirect('/users');
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).send("Error deleting user");
+    }
+});
+
+// Events
+app.get('/events', async (req, res) => {
+    try {
+        const events = await knex("events").select("*").orderBy("event_id", "desc");
+        res.render('events/events', { events });
+    } catch (error) {
+        console.error("Error loading events:", error);
+        res.status(500).send("Error loading events");
+    }
+});
+
+app.get('/events/new', (req, res) => {
+    res.render('events/eventAdd', { error_message: null });
+});
+
+app.post('/events/new', async (req, res) => {
+    const {
+        name,
+        type,
+        description,
+        recurrence_pattern,
+        default_capacity,
+        datetime_start,
+        datetime_end,
+        location,
+        capacity,
+        registration_deadline
+    } = req.body;
+
+    if (!name) {
+        return res.status(400).render('events/eventAdd', { error_message: "Name is required." });
+    }
+
+    try {
+        const [newEvent] = await knex("events")
+            .insert({
+                name,
+                type,
+                description,
+                recurrence_pattern,
+                default_capacity: default_capacity || null,
+                datetime_start: datetime_start || null,
+                datetime_end: datetime_end || null,
+                location,
+                capacity: capacity || null,
+                registration_deadline: registration_deadline || null
+            })
+            .returning("*");
+
+        res.redirect(`/events/${newEvent.event_id}`);
+    } catch (error) {
+        console.error("Error creating event:", error);
+        res.status(500).render('events/eventAdd', { error_message: "Could not create event. Please try again." });
+    }
+});
+
+app.get('/events/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const event = await knex("events").where({ event_id: id }).first();
+        if (!event) {
+            return res.status(404).render('public/418Code');
+        }
+        res.render('events/eventDetail', { event });
+    } catch (error) {
+        console.error("Error loading event:", error);
+        res.status(500).send("Error loading event");
+    }
+});
+
+app.get('/events/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const event = await knex("events").where({ event_id: id }).first();
+        if (!event) {
+            return res.status(404).render('public/418Code');
+        }
+        res.render('events/eventEdit', { event, error_message: null });
+    } catch (error) {
+        console.error("Error loading event:", error);
+        res.status(500).send("Error loading event");
+    }
+});
+
+app.post('/events/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    const {
+        name,
+        type,
+        description,
+        recurrence_pattern,
+        default_capacity,
+        datetime_start,
+        datetime_end,
+        location,
+        capacity,
+        registration_deadline
+    } = req.body;
+
+    if (!name) {
+        return res.status(400).render('events/eventEdit', {
+            event: {
+                event_id: id,
+                name,
+                type,
+                description,
+                recurrence_pattern,
+                default_capacity,
+                datetime_start,
+                datetime_end,
+                location,
+                capacity,
+                registration_deadline
+            },
+            error_message: "Name is required."
+        });
+    }
+
+    try {
+        await knex("events")
+            .where({ event_id: id })
+            .update({
+                name,
+                type,
+                description,
+                recurrence_pattern,
+                default_capacity: default_capacity || null,
+                datetime_start: datetime_start || null,
+                datetime_end: datetime_end || null,
+                location,
+                capacity: capacity || null,
+                registration_deadline: registration_deadline || null
+            });
+        res.redirect(`/events/${id}`);
+    } catch (error) {
+        console.error("Error updating event:", error);
+        try {
+            const event = await knex("events").where({ event_id: id }).first();
+            res.status(500).render('events/eventEdit', { event, error_message: "Could not update event. Please try again." });
+        } catch (loadErr) {
+            res.status(500).send("Error loading event");
+        }
+    }
+});
+
+app.post('/events/:id/delete', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await knex("events").where({ event_id: id }).del();
+        res.redirect('/events');
+    } catch (error) {
+        console.error("Error deleting event:", error);
+        res.status(500).send("Error deleting event");
     }
 });
 

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Surveys | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .comment-preview {
+      max-width: 420px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/participants">Participants</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/surveys">Surveys</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Feedback</p>
+      <h1>Surveys</h1>
+      <p class="hero-subtitle">View participant feedback across events.</p>
+      <div class="hero-actions">
+        <a href="/surveys/new" class="btn btn--primary">Add survey</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SURVEYS TABLE -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>All surveys</h2>
+        <p>Quick view of respondent, event, bucket, and submitted date.</p>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card__header">
+          <span>Surveys</span>
+          <a href="/surveys/new" class="btn btn--primary btn--small">Add survey</a>
+        </div>
+        <div class="table-card__body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Participant</th>
+                <th>Event</th>
+                <th>NPS Bucket</th>
+                <th>Submitted</th>
+                <th>Comments</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (surveys && surveys.length) { %>
+                <% surveys.forEach((survey) => { %>
+                  <tr>
+                    <td><a href="/surveys/<%= survey.survey_id %>"><%= survey.participant_name || "Unknown participant" %></a></td>
+                    <td><%= survey.event_name || "Unknown event" %></td>
+                    <td><%= survey.survey_nps_bucket || survey.nps_bucket || "—" %></td>
+                    <td>
+                      <%
+                        const submitted = survey.survey_submission_date || survey.submission_date;
+                        let submittedDate = "";
+                        if (submitted) {
+                          submittedDate = submitted.toISOString ? submitted.toISOString().replace('T',' ').slice(0,16) : String(submitted);
+                        }
+                      %>
+                      <%= submittedDate %>
+                    </td>
+                    <td class="comment-preview"><%= survey.survey_comments || survey.comments || "" %></td>
+                    <td class="table-actions">
+                      <a class="btn btn--outline btn--small" href="/surveys/<%= survey.survey_id %>/edit">Edit</a>
+                      <form class="inline-form" method="POST" action="/surveys/<%= survey.survey_id %>/delete">
+                        <button type="submit" class="btn btn--ghost btn--small">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="6" class="empty-row">No surveys found.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>

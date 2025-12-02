@@ -9,38 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    .avatar-upload {
-      display: grid;
-      gap: 0.6rem;
-      align-items: center;
-    }
-    .avatar-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: #f0f4f7;
-      border: 2px dashed rgba(0, 0, 0, 0.08);
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      position: relative;
-    }
-    .avatar-circle img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .avatar-circle span {
-      color: #8da0aa;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .upload-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
     .form-grid-two {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -93,19 +61,7 @@
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
-        <form class="form-grid" method="POST" action="/participants/new" enctype="multipart/form-data">
-          <div class="avatar-upload">
-            <label for="profile_image">Profile image</label>
-            <div class="avatar-circle" id="avatarPreview">
-              <img id="avatarImg" alt="Profile preview" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none"><circle cx="80" cy="80" r="80" fill="%23f0f4f7"/><path d="M80 76c11.046 0 20-8.954 20-20s-8.954-20-20-20-20 8.954-20 20 8.954 20 20 20Z" fill="%2399b7c6"/><path d="M48 126c0-13.255 14.327-24 32-24s32 10.745 32 24v6H48v-6Z" fill="%2399b7c6"/></svg>' />
-            </div>
-            <div class="upload-actions">
-              <label class="btn btn--outline btn--small" for="profile_image">Upload photo</label>
-              <input id="profile_image" name="profile_image" type="file" accept="image/*" hidden />
-              <button type="button" class="btn btn--ghost btn--small" id="clearImage">Remove</button>
-            </div>
-          </div>
-
+        <form class="form-grid" method="POST" action="/participants/new">
           <div class="form-grid-two">
             <div class="form-field">
               <label for="first_name">First name</label>
@@ -180,28 +136,6 @@
     navToggle.addEventListener("click", () => {
       navLinks.classList.toggle("nav-links--open");
       navToggle.classList.toggle("nav-toggle--open");
-    });
-
-    // Image preview
-    const fileInput = document.getElementById("profile_image");
-    const avatarImg = document.getElementById("avatarImg");
-    const clearBtn = document.getElementById("clearImage");
-    const placeholder =
-      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none"><circle cx="80" cy="80" r="80" fill="%23f0f4f7"/><path d="M80 76c11.046 0 20-8.954 20-20s-8.954-20-20-20-20 8.954-20 20 8.954 20 20 20Z" fill="%2399b7c6"/><path d="M48 126c0-13.255 14.327-24 32-24s32 10.745 32 24v6H48v-6Z" fill="%2399b7c6"/></svg>';
-
-    fileInput?.addEventListener("change", () => {
-      const file = fileInput.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        avatarImg.src = e.target?.result || placeholder;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    clearBtn?.addEventListener("click", () => {
-      fileInput.value = "";
-      avatarImg.src = placeholder;
     });
   </script>
 </body>

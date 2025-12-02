@@ -25,12 +25,16 @@
         <ul class="nav-links">
           <li><a href="#about">About</a></li>
           <li><a href="#programs">Programs</a></li>
-          <li><a href="#events">Events</a></li>
+          <li><a href="/events">Events</a></li>
           <li><a href="#get-involved">Get Involved</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li><a href="/users">Users</a></li>
           <li><a href="/participants">Participants</a></li>
           <li><a href="/donations" class="btn btn--outline">Donate</a></li>
-          <li><a href="/logout" class="btn btn--outline">Logout</a></li>
+          <% if (isLoggedIn) { %>
+            <li><a href="/logout" class="btn btn--outline">Logout</a></li>
+          <% } else { %>
+            <li><a href="/login" class="btn btn--primary">Login</a></li>
+          <% } %>
         </ul>
       </nav>
     </div>
