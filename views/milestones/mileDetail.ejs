@@ -35,7 +35,7 @@
     <div class="hero-overlay"></div>
     <div class="container hero-content">
       <p class="eyebrow">Milestone</p>
-      <h1><%= milestone.title %></h1>
+      <h1><%= milestone.milestone_title %></h1>
       <p class="hero-subtitle"><%= milestone.participant_name || ('Participant ID ' + milestone.participant_id) %></p>
     </div>
   </section>
@@ -59,18 +59,18 @@
               <tr>
                 <td><%= milestone.milestone_id %></td>
                 <td><a href="/participants/<%= milestone.participant_id %>?return=milestones"><%= milestone.participant_name || ('ID ' + milestone.participant_id) %></a></td>
-                <td><%= milestone.title %></td>
+                <td><%= milestone.milestone_title %></td>
                 <td>
                   <%
                     const today = new Date();
-                    const achieved = milestone.achieved_date ? new Date(milestone.achieved_date) : null;
+                    const achieved = milestone.milestone_date ? new Date(milestone.milestone_date) : null;
                     const status = achieved && achieved < today ? "Completed" : "Planned";
                   %>
                   <%= status %>
                 </td>
                 <td>
                   <%
-                    const d = milestone.achieved_date;
+                    const d = milestone.milestone_date;
                     let formattedDate = "";
                     if (d) {
                       formattedDate = d.toISOString ? d.toISOString().slice(0,10) : String(d).slice(0,10);
@@ -101,10 +101,10 @@
                   <% milestonesForParticipant.forEach((m) => { %>
                     <tr>
                       <td><%= m.milestone_id %></td>
-                      <td><a href="/milestones/<%= m.milestone_id %>?from=milestones"><%= m.title %></a></td>
+                      <td><a href="/milestones/<%= m.milestone_id %>?from=milestones"><%= m.milestone_title %></a></td>
                       <td>
                         <%
-                          const d = m.achieved_date;
+                          const d = m.milestone_date;
                           let formattedDate = "";
                           if (d) {
                             formattedDate = d.toISOString ? d.toISOString().slice(0,10) : String(d).slice(0,10);

@@ -84,10 +84,10 @@
                   <tr data-title="<%= (m.title || '').toLowerCase() %>" data-name="<%= (m.participant_name || '').toLowerCase() %>">
                     <td><%= m.milestone_id %></td>
                     <td><a href="/participants/<%= m.participant_id %>?return=milestones"><%= m.participant_name || ('ID ' + m.participant_id) %></a></td>
-                    <td><a href="/milestones/<%= m.milestone_id %>?from=milestones"><%= m.title %></a></td>
+                    <td><a href="/milestones/<%= m.milestone_id %>?from=milestones"><%= m.milestone_title %></a></td>
                     <td>
                       <%
-                        const d = m.achieved_date;
+                        const d = m.milestone_date;
                         let formattedDate = "";
                         if (d) {
                           formattedDate = d.toISOString ? d.toISOString().slice(0,10) : String(d).slice(0,10);

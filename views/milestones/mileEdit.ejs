@@ -50,16 +50,16 @@
         <form class="form-grid" method="POST" action="/milestones/<%= milestone.milestone_id %>/edit">
           <div class="form-field">
             <label for="email">Participant email</label>
-            <input id="email" name="email" type="email" value="<%= milestone.email || '' %>" required />
+            <input id="email" name="email" type="email" value="<%= milestone.participant_email || '' %>" required />
             <small>We’ll re-lookup the participant by this email.</small>
           </div>
           <div class="form-field">
             <label for="title">Title</label>
-            <input id="title" name="title" type="text" value="<%= milestone.title || '' %>" required />
+            <input id="title" name="title" type="text" value="<%= milestone.milestone_title || '' %>" required />
           </div>
           <div class="form-field">
             <label for="achieved_date">Achieved date</label>
-            <input id="achieved_date" name="achieved_date" type="date" value="<%= milestone.achieved_date ? (milestone.achieved_date.toISOString ? milestone.achieved_date.toISOString().slice(0,10) : String(milestone.achieved_date).slice(0,10)) : '' %>" />
+            <input id="achieved_date" name="achieved_date" type="date" value="<%= milestone.milestone_date ? (milestone.milestone_date.toISOString ? milestone.milestone_date.toISOString().slice(0,10) : String(milestone.milestone_date).slice(0,10)) : '' %>" />
           </div>
           <div class="form-field" style="margin-top: 0.5rem;">
             <button type="submit" class="btn btn--primary btn--large">Save changes</button>
