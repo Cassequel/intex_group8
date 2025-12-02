@@ -47,18 +47,11 @@ app.use(express.json());
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
 const helmet = require('helmet');
 
-app.set('trust proxy', 1);
 
 app.use(session({
     secret: process.env.SESSION_SECRET || "devsecret",
     resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+    saveUninitialized: false
 }));
 
 // installs helmet - used to delcare headers to pretect other aspects of the code
