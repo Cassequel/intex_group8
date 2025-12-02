@@ -100,18 +100,18 @@
               <% if (events && events.length) { %>
                 <% events.forEach((event) => { %>
                   <tr
-                    data-name="<%= (event.eventname || '').toLowerCase() %>"
-                    data-type="<%= (event.eventtype || '').toLowerCase() %>"
-                    data-capacity="<%= typeof event.eventcapacity !== 'undefined' && event.eventcapacity !== null ? event.eventcapacity : 0 %>"
-                    data-location="<%= (event.eventlocation || '').toLowerCase() %>"
+                    data-name="<%= (event.event_name || '').toLowerCase() %>"
+                    data-type="<%= (event.event_type || '').toLowerCase() %>"
+                    data-capacity="<%= typeof event.event_capacity !== 'undefined' && event.event_capacity !== null ? event.event_capacity : 0 %>"
+                    data-location="<%= (event.event_location || '').toLowerCase() %>"
                   >
-                    <td><%= event.eventoccurrenceid %></td>
-                    <td><%= event.eventtemplateid %></td>
-                    <td><a href="/events/<%= event.eventoccurrenceid %>"><%= event.eventname %></a></td>
-                    <td><%= event.eventtype || "—" %></td>
+                    <td><%= event.event_occurrence_id %></td>
+                    <td><%= event.event_template_id %></td>
+                    <td><a href="/events/<%= event.event_occurrence_id %>"><%= event.event_name %></a></td>
+                    <td><%= event.event_type || "—" %></td>
                     <td>
                       <%
-                        const start = event.eventdatetimestart;
+                        const start = event.event_date_time_start;
                         let startDate = "";
                         if (start) {
                           startDate = start.toISOString ? start.toISOString().replace('T', ' ').slice(0,16) : String(start);
@@ -119,12 +119,12 @@
                       %>
                       <%= startDate %>
                     </td>
-                    <td><%= event.eventlocation || "—" %></td>
-                    <td><%= typeof event.eventcapacity !== "undefined" && event.eventcapacity !== null ? event.eventcapacity : "—" %></td>
+                    <td><%= event.event_location || "—" %></td>
+                    <td><%= typeof event.event_capacity !== "undefined" && event.event_capacity !== null ? event.event_capacity : "—" %></td>
                     <% if (userLevel !== 'U') { %>
                       <td class="table-actions">
-                        <a class="btn btn--outline btn--small" href="/events/<%= event.eventoccurrenceid %>/edit">Edit</a>
-                        <form class="inline-form" method="POST" action="/events/<%= event.eventoccurrenceid %>/delete">
+                        <a class="btn btn--outline btn--small" href="/events/<%= event.event_occurrence_id %>/edit">Edit</a>
+                        <form class="inline-form" method="POST" action="/events/<%= event.event_occurrence_id %>/delete">
                           <button type="submit" class="btn btn--ghost btn--small">Delete</button>
                         </form>
                       </td>

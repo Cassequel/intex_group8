@@ -64,24 +64,24 @@
         <form class="form-grid" method="POST" action="/participants/new">
           <div class="form-grid-two">
             <div class="form-field">
-              <label for="first_name">First name</label>
-              <input id="first_name" name="first_name" type="text" required />
+              <label for="participant_first_name">First name</label>
+              <input id="participant_first_name" name="participant_first_name" type="text" required />
             </div>
             <div class="form-field">
-              <label for="last_name">Last name</label>
-              <input id="last_name" name="last_name" type="text" required />
+              <label for="participant_last_name">Last name</label>
+              <input id="participant_last_name" name="participant_last_name" type="text" required />
             </div>
           </div>
 
           <div class="form-field">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" required />
+            <label for="participant_email">Email</label>
+            <input id="participant_email" name="participant_email" type="email" required />
           </div>
 
           <div class="form-grid-two">
             <div class="form-field">
-              <label for="dob">Date of birth</label>
-              <input id="dob" name="dob" type="date" />
+              <label for="participant_dob">Date of birth</label>
+              <input id="participant_dob" name="participant_dob" type="date" />
             </div>
             <div class="form-field">
               <label for="phone">Phone</label>
@@ -106,18 +106,19 @@
 
           <div class="form-grid-two">
             <div class="form-field">
-              <label for="school">School</label>
-              <input id="school" name="school" type="text" />
-            </div>
-            <div class="form-field">
-              <label for="employer">Employer</label>
-              <input id="employer" name="employer" type="text" />
+              <label for="participant_school_or_employer">School or Employer</label>
+              <input id="participant_school_or_employer" name="participant_school_or_employer" type="text" />
             </div>
           </div>
 
           <div class="form-field">
-            <label for="field_of_interest">Field of interest</label>
-            <input id="field_of_interest" name="field_of_interest" type="text" />
+            <label for="participant_field_of_interest">Field of interest</label>
+            <select id="participant_field_of_interest" name="participant_field_of_interest">
+              <option value="">-- Select one --</option>
+              <option value="STEM">STEM</option>
+              <option value="Arts">Arts</option>
+              <option value="Both">Both</option>
+            </select>
           </div>
 
           <div class="form-field" style="margin-top: 0.5rem;">

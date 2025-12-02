@@ -71,13 +71,13 @@
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
-        <form class="form-grid" method="POST" action="/events/<%= event.eventoccurrenceid %>/edit">
+        <form class="form-grid" method="POST" action="/events/<%= event.event_occurrence_id %>/edit">
           <div class="form-field">
             <label for="eventtemplateid">Template</label>
             <select id="eventtemplateid" name="eventtemplateid" required>
               <option value="">Select a template</option>
               <% templates.forEach((t) => { %>
-                <option value="<%= t.eventtemplateid %>" <%= t.eventtemplateid === event.eventtemplateid ? 'selected' : '' %>><%= t.eventname %></option>
+                <option value="<%= t.event_template_id %>" <%= t.event_template_id === event.event_template_id ? 'selected' : '' %>><%= t.event_name %></option>
               <% }) %>
             </select>
           </div>
@@ -85,50 +85,50 @@
           <div class="info-grid" id="templateInfo">
             <div class="info-item">
               <span>Name</span>
-              <strong id="tmplName"><%= event.eventname || '' %></strong>
+              <strong id="tmplName"><%= event.event_name || '' %></strong>
             </div>
             <div class="info-item">
               <span>Type</span>
-              <strong id="tmplType"><%= event.eventtype || '' %></strong>
+              <strong id="tmplType"><%= event.event_type || '' %></strong>
             </div>
             <div class="info-item">
               <span>Recurrence</span>
-              <strong id="tmplRecurrence"><%= event.eventrecurrencepattern || '' %></strong>
+              <strong id="tmplRecurrence"><%= event.event_recurrence_pattern || '' %></strong>
             </div>
             <div class="info-item">
               <span>Default capacity</span>
-              <strong id="tmplCapacity"><%= event.eventdefaultcapacity || '' %></strong>
+              <strong id="tmplCapacity"><%= event.event_default_capacity || '' %></strong>
             </div>
             <div class="info-item" style="grid-column: 1 / -1;">
               <span>Description</span>
-              <strong id="tmplDescription"><%= event.eventdescription || '' %></strong>
+              <strong id="tmplDescription"><%= event.event_description || '' %></strong>
             </div>
           </div>
 
           <div class="form-grid-two" style="margin-top: 1rem;">
             <div class="form-field">
               <label for="eventdatetimestart">Start</label>
-              <input id="eventdatetimestart" name="eventdatetimestart" type="datetime-local" value="<%= event.eventdatetimestart ? (event.eventdatetimestart.toISOString ? event.eventdatetimestart.toISOString().slice(0,16) : String(event.eventdatetimestart).slice(0,16)) : '' %>" />
+              <input id="eventdatetimestart" name="eventdatetimestart" type="datetime-local" value="<%= event.event_date_time_start ? (event.event_date_time_start.toISOString ? event.event_date_time_start.toISOString().slice(0,16) : String(event.event_date_time_start).slice(0,16)) : '' %>" />
             </div>
             <div class="form-field">
               <label for="eventdatetimeend">End</label>
-              <input id="eventdatetimeend" name="eventdatetimeend" type="datetime-local" value="<%= event.eventdatetimeend ? (event.eventdatetimeend.toISOString ? event.eventdatetimeend.toISOString().slice(0,16) : String(event.eventdatetimeend).slice(0,16)) : '' %>" />
+              <input id="eventdatetimeend" name="eventdatetimeend" type="datetime-local" value="<%= event.event_date_time_end ? (event.event_date_time_end.toISOString ? event.event_date_time_end.toISOString().slice(0,16) : String(event.event_date_time_end).slice(0,16)) : '' %>" />
             </div>
           </div>
 
           <div class="form-field">
             <label for="eventlocation">Location</label>
-            <input id="eventlocation" name="eventlocation" type="text" value="<%= event.eventlocation || '' %>" />
+            <input id="eventlocation" name="eventlocation" type="text" value="<%= event.event_location || '' %>" />
           </div>
 
           <div class="form-field">
             <label for="eventcapacity">Capacity</label>
-            <input id="eventcapacity" name="eventcapacity" type="number" value="<%= event.eventcapacity || '' %>" />
+            <input id="eventcapacity" name="eventcapacity" type="number" value="<%= event.event_capacity || '' %>" />
           </div>
 
           <div class="form-field">
             <label for="eventregistrationdeadline">Registration deadline</label>
-            <input id="eventregistrationdeadline" name="eventregistrationdeadline" type="datetime-local" value="<%= event.eventregistrationdeadline ? (event.eventregistrationdeadline.toISOString ? event.eventregistrationdeadline.toISOString().slice(0,16) : String(event.eventregistrationdeadline).slice(0,16)) : '' %>" />
+            <input id="eventregistrationdeadline" name="eventregistrationdeadline" type="datetime-local" value="<%= event.event_registration_deadline ? (event.event_registration_deadline.toISOString ? event.event_registration_deadline.toISOString().slice(0,16) : String(event.event_registration_deadline).slice(0,16)) : '' %>" />
           </div>
 
           <div class="form-field" style="margin-top: 0.5rem;">
@@ -148,7 +148,7 @@
       navToggle.classList.toggle("nav-toggle--open");
     });
 
-    const templates = <%- JSON.stringify(templates || []) %>;
+    const templates = <%-JSON.stringify(templates || []) %>;
     const tmplSelect = document.getElementById("eventtemplateid");
     const tmplName = document.getElementById("tmplName");
     const tmplType = document.getElementById("tmplType");

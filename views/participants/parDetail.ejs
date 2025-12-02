@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title><%= participant.first_name %> <%= participant.last_name %> | Participant</title>
+  <title><%= participant. participant_first_name %> <%= participant. participant_last_name %> | Participant</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/styles/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -76,7 +76,7 @@
     <div class="hero-overlay"></div>
     <div class="container hero-content">
       <p class="eyebrow">Participant</p>
-      <h1><%= participant.first_name %> <%= participant.last_name %></h1>
+      <h1><%= participant. participant_first_name %> <%= participant. participant_last_name %></h1>
       <p class="hero-subtitle">
         Profile details and contact information.
       </p>
@@ -88,14 +88,14 @@
     <div class="container">
       <div>
         <h2 style="margin: 0 0 0.5rem;">Contact</h2>
-        <p style="margin: 0.15rem 0;">Email: <%= participant.email || "Not provided" %></p>
+        <p style="margin: 0.15rem 0;">Email: <%= participant.participant_email || "Not provided" %></p>
         <p style="margin: 0.15rem 0;">Phone: <%= participant.phone || "Not provided" %></p>
       </div>
 
       <div class="detail-grid">
         <div class="detail-card">
           <h3>Date of birth</h3>
-          <p class="detail-value"><%= participant.dob ? (participant.dob.toISOString ? participant.dob.toISOString().slice(0,10) : String(participant.dob).slice(0,10)) : "Not provided" %></p>
+          <p class="detail-value"><%= participant.participant_dob ? (participant.participant_dob.toISOString ? participant.participant_dob.toISOString().slice(0,10) : String(participant.participant_dob).slice(0,10)) : "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>City</h3>
@@ -111,11 +111,11 @@
         </div>
         <div class="detail-card">
           <h3>School / Employer</h3>
-          <p class="detail-value"><%= participant.school || participant.school_or_employer || "Not provided" %></p>
+          <p class="detail-value"><%= participant.school || participant.participant_school_or_employer || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Field of interest</h3>
-          <p class="detail-value"><%= participant.field_of_interest || "Not provided" %></p>
+          <p class="detail-value"><%= participant.participant_field_of_interest || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Role</h3>

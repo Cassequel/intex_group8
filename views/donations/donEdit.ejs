@@ -36,31 +36,31 @@
     <div class="container hero-content">
       <p class="eyebrow">Give</p>
       <h1>Edit donation</h1>
-      <p class="hero-subtitle">Update donor email lookup, amount, or date.</p>
+      <p class="hero-subtitle">Update donor email lookup, donation_amount, or date.</p>
     </div>
   </section>
 
   <!-- FORM -->
   <section class="section section--light">
     <div class="container">
-      <div class="form-card">
+       <div class="form-card">
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
         <form class="form-grid" method="POST" action="/donations/<%= donation.donation_id %>/edit">
           <div class="form-grid-two">
             <div class="form-field">
-              <label for="first_name">First name</label>
-              <input id="first_name" name="first_name" type="text" value="<%= donation.first_name || '' %>" required />
+              <label for="participant_first_name">First name</label>
+              <input id="participant_first_name" name="participant_first_name" type="text" value="<%= donation.participant_first_name || '' %>" required />
             </div>
             <div class="form-field">
-              <label for="last_name">Last name</label>
-              <input id="last_name" name="last_name" type="text" value="<%= donation.last_name || '' %>" required />
+              <label for="participant_last_name">Last name</label>
+              <input id="participant_last_name" name="participant_last_name" type="text" value="<%= donation.participant_last_name || '' %>" required />
             </div>
           </div>
           <div class="form-field">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" value="<%= donation.email || donation.participant_email || '' %>" required />
+            <label for="participant_email">Email</label>
+            <input id="participant_email" name="participant_email" type="email" value="<%= donation.participant_email || donation.participant_email || '' %>" required />
             <small>We’ll re-lookup the participant by this email.</small>
           </div>
           <div class="form-grid-two">
@@ -69,8 +69,8 @@
               <input id="donation_date" name="donation_date" type="date" value="<%= donation.donation_date ? (donation.donation_date.toISOString ? donation.donation_date.toISOString().slice(0,10) : String(donation.donation_date).slice(0,10)) : '' %>" />
             </div>
             <div class="form-field">
-              <label for="amount">Amount (USD)</label>
-              <input id="amount" name="amount" type="number" step="0.01" value="<%= donation.amount || '' %>" required />
+              <label for="donation_amount">donation_amount (USD)</label>
+              <input id="donation_amount" name="donation_amount" type="number" step="0.01" value="<%= donation.donation_amount || '' %>" required />
             </div>
           </div>
           <div class="form-field" style="margin-top: 0.5rem;">
