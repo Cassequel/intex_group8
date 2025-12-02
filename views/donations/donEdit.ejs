@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Add Donation | Ella Rises</title>
+  <title>Edit Donation | Ella Rises</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/styles/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -35,8 +35,8 @@
     <div class="hero-overlay"></div>
     <div class="container hero-content">
       <p class="eyebrow">Give</p>
-      <h1>Make a donation</h1>
-      <p class="hero-subtitle">Enter your info and gift amount. We’ll match your email to an existing participant record.</p>
+      <h1>Edit donation</h1>
+      <p class="hero-subtitle">Update donor email lookup, amount, or date.</p>
     </div>
   </section>
 
@@ -47,34 +47,34 @@
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
-        <form class="form-grid" method="POST" action="/donations/new">
+        <form class="form-grid" method="POST" action="/donations/<%= donation.donation_id %>/edit">
           <div class="form-grid-two">
             <div class="form-field">
               <label for="first_name">First name</label>
-              <input id="first_name" name="first_name" type="text" required />
+              <input id="first_name" name="first_name" type="text" value="<%= donation.first_name || '' %>" required />
             </div>
             <div class="form-field">
               <label for="last_name">Last name</label>
-              <input id="last_name" name="last_name" type="text" required />
+              <input id="last_name" name="last_name" type="text" value="<%= donation.last_name || '' %>" required />
             </div>
           </div>
           <div class="form-field">
             <label for="email">Email</label>
-            <input id="email" name="email" type="email" required />
-            <small>We’ll use this to find your participant record.</small>
+            <input id="email" name="email" type="email" value="<%= donation.email || donation.participant_email || '' %>" required />
+            <small>We’ll re-lookup the participant by this email.</small>
           </div>
           <div class="form-grid-two">
             <div class="form-field">
               <label for="donation_date">Donation date</label>
-              <input id="donation_date" name="donation_date" type="date" />
+              <input id="donation_date" name="donation_date" type="date" value="<%= donation.donation_date ? (donation.donation_date.toISOString ? donation.donation_date.toISOString().slice(0,10) : String(donation.donation_date).slice(0,10)) : '' %>" />
             </div>
             <div class="form-field">
               <label for="amount">Amount (USD)</label>
-              <input id="amount" name="amount" type="number" step="0.01" required />
+              <input id="amount" name="amount" type="number" step="0.01" value="<%= donation.amount || '' %>" required />
             </div>
           </div>
           <div class="form-field" style="margin-top: 0.5rem;">
-            <button type="submit" class="btn btn--primary btn--large">Submit donation</button>
+            <button type="submit" class="btn btn--primary btn--large">Save changes</button>
             <a href="/donations" class="btn btn--ghost btn--large" style="margin-left: 0.5rem;">Cancel</a>
           </div>
         </form>

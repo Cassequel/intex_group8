@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Milestones | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/participants">Participants</a></li>
+          <li><a href="/milestones">Milestones</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Progress</p>
+      <h1>Milestones</h1>
+      <p class="hero-subtitle">Track achievements by participant.</p>
+      <% if (userLevel !== 'U') { %>
+        <div class="hero-actions">
+          <a href="/milestones/new" class="btn btn--primary">Add milestone</a>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- TABLE -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>All milestones</h2>
+        <p>Grouped by participant with aggregated milestones.</p>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card__header">
+          <span>Milestones</span>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <input type="search" id="nameSearch" placeholder="Search participant..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
+            <input type="search" id="titleSearch" placeholder="Search title..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
+            <% if (userLevel !== 'U') { %>
+              <a href="/milestones/new" class="btn btn--primary btn--small">Add milestone</a>
+            <% } %>
+          </div>
+        </div>
+        <div class="table-card__body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Participant</th>
+                <th>Title</th>
+                <th>Achieved date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (milestones && milestones.length) { %>
+                <% milestones.forEach((m) => { %>
+                  <tr data-title="<%= (m.title || '').toLowerCase() %>" data-name="<%= (m.participant_name || '').toLowerCase() %>">
+                    <td><%= m.milestone_id %></td>
+                    <td><a href="/participants/<%= m.participant_id %>?return=milestones"><%= m.participant_name || ('ID ' + m.participant_id) %></a></td>
+                    <td><a href="/milestones/<%= m.milestone_id %>?from=milestones"><%= m.title %></a></td>
+                    <td>
+                      <%
+                        const d = m.achieved_date;
+                        let formattedDate = "";
+                        if (d) {
+                          formattedDate = d.toISOString ? d.toISOString().slice(0,10) : String(d).slice(0,10);
+                        }
+                      %>
+                      <%= formattedDate %>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="4" class="empty-row">No milestones found.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+
+    const nameSearch = document.getElementById("nameSearch");
+    const titleSearch = document.getElementById("titleSearch");
+    const milestoneRows = Array.from(document.querySelectorAll("tbody tr"));
+
+    const applyFilters = () => {
+      const nameTerm = nameSearch?.value.trim().toLowerCase() || "";
+      const titleTerm = titleSearch?.value.trim().toLowerCase() || "";
+      milestoneRows.forEach((row) => {
+        const name = row.dataset.name || "";
+        const title = row.dataset.title || "";
+        const matchesName = name.includes(nameTerm);
+        const matchesTitle = title.includes(titleTerm);
+        row.style.display = matchesName && matchesTitle ? "" : "none";
+      });
+    };
+
+    nameSearch?.addEventListener("input", applyFilters);
+    titleSearch?.addEventListener("input", applyFilters);
+  </script>
+</body>
+</html>
