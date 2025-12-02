@@ -74,9 +74,11 @@
       <p class="hero-subtitle">
         View and manage everyone enrolled across Ella Rises programs.
       </p>
-      <div class="hero-actions">
-        <a href="/participants/new" class="btn btn--primary">Add participant</a>
-      </div>
+      <% if (userLevel !== 'U') { %>
+        <div class="hero-actions">
+          <a href="/participants/new" class="btn btn--primary">Add participant</a>
+        </div>
+      <% } %>
     </div>
   </section>
 
@@ -91,12 +93,18 @@
       <div class="table-card">
         <div class="table-card__header" id="actions">
           <span>Participants</span>
-          <a href="/participants/new" class="btn btn--primary btn--small">Add participant</a>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <input type="search" id="participantSearch" placeholder="Search participants..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
+            <% if (userLevel !== 'U') { %>
+              <a href="/participants/new" class="btn btn--primary btn--small">Add participant</a>
+            <% } %>
+          </div>
         </div>
         <div class="table-card__body">
           <table class="data-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -104,13 +112,14 @@
                 <th>Grade</th>
                 <th>Group</th>
                 <th>Joined</th>
-                <th>Actions</th>
+                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
               <% if (participants && participants.length) { %>
                 <% participants.forEach((participant) => { %>
-                  <tr>
+                  <tr data-name="<%= `${participant.first_name} ${participant.last_name}`.toLowerCase() %>">
+                    <td><%= participant.participant_id %></td>
                     <td><a href="/participants/<%= participant.participant_id %>"><%= participant.first_name %> <%= participant.last_name %></a></td>
                     <td><%= participant.email %></td>
                     <td><%= participant.phone %></td>
@@ -127,15 +136,17 @@
                       %>
                       <%= formattedDate %>
                     </td>
-                    <td class="table-actions">
-                      <a class="btn btn--outline btn--small" href="/participants/<%= participant.participant_id %>/edit">Edit</a>
-                      <button type="button" class="btn btn--ghost btn--small delete-btn" data-id="<%= participant.participant_id %>" data-name="<%= participant.first_name %> <%= participant.last_name %>">Delete</button>
-                    </td>
+                    <% if (userLevel !== 'U') { %>
+                      <td class="table-actions">
+                        <a class="btn btn--outline btn--small" href="/participants/<%= participant.participant_id %>/edit">Edit</a>
+                        <button type="button" class="btn btn--ghost btn--small delete-btn" data-id="<%= participant.participant_id %>" data-name="<%= participant.first_name %> <%= participant.last_name %>">Delete</button>
+                      </td>
+                    <% } %>
                   </tr>
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="8" class="empty-row">No participants found.</td>
+                  <td colspan="<%= userLevel !== 'U' ? 9 : 8 %>" class="empty-row">No participants found.</td>
                 </tr>
               <% } %>
             </tbody>
@@ -200,6 +211,18 @@
         pendingId = null;
         modalOverlay.classList.remove("is-open");
       }
+    });
+
+    // Simple client-side search by name
+    const participantSearch = document.getElementById("participantSearch");
+    const participantRows = Array.from(document.querySelectorAll("tbody tr"));
+
+    participantSearch?.addEventListener("input", () => {
+      const term = participantSearch.value.trim().toLowerCase();
+      participantRows.forEach((row) => {
+        const name = row.dataset.name || "";
+        row.style.display = name.includes(term) ? "" : "none";
+      });
     });
   </script>
 </body>

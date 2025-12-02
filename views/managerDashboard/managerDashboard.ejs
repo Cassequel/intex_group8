@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manager Dashboard | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .dashboard-shell {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: var(--shadow-soft);
+      min-height: 60vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      border: 1px solid rgba(153, 183, 198, 0.2);
+    }
+    .placeholder {
+      text-align: center;
+      max-width: 620px;
+      color: var(--color-text-soft);
+    }
+    .placeholder h2 {
+      margin: 0 0 0.6rem;
+      font-family: "DM Serif Display", "Montserrat", serif;
+      color: var(--color-primary-dark);
+    }
+    .placeholder p {
+      margin: 0 0 1rem;
+    }
+    .placeholder .block {
+      height: 220px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(153,183,198,0.2), rgba(247,176,146,0.2));
+      border: 1px dashed rgba(58,63,59,0.25);
+      display: grid;
+      place-items: center;
+      color: rgba(58,63,59,0.7);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/participants">Participants</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/milestones">Milestones</a></li>
+          <li><a href="/donations">Donations</a></li>
+          <li><a href="/surveys">Surveys</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Manager</p>
+      <h1>Dashboard</h1>
+      <p class="hero-subtitle">Overview of participants, events, donations, and feedback.</p>
+    </div>
+  </section>
+
+  <!-- DASHBOARD PLACEHOLDER -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="dashboard-shell">
+        <div class="placeholder">
+          <h2>Interactive dashboard coming soon</h2>
+          <p>This space will host embedded Tableau or other BI widgets showing real-time KPIs, trends, and drill-downs.</p>
+          <div class="block">Placeholder for Tableau embed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>

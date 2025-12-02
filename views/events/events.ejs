@@ -26,6 +26,10 @@
           <li><a href="/">Home</a></li>
           <li><a href="/participants">Participants</a></li>
           <li><a href="/events">Events</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
         </ul>
       </nav>
     </div>
@@ -39,7 +43,9 @@
       <h1>Events</h1>
       <p class="hero-subtitle">Browse and manage scheduled events.</p>
       <div class="hero-actions">
-        <a href="/events/new" class="btn btn--primary">Add event</a>
+        <% if (userLevel !== 'U') { %>
+          <a href="/events/new" class="btn btn--primary">Add event</a>
+        <% } %>
       </div>
     </div>
   </section>
@@ -55,24 +61,50 @@
       <div class="table-card">
         <div class="table-card__header">
           <span>Events</span>
-          <a href="/events/new" class="btn btn--primary btn--small">Add event</a>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <input type="search" id="eventSearch" placeholder="Search events..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
+            <select id="typeFilter" style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px;">
+              <option value="all">All types</option>
+              <option value="leadership">Leadership</option>
+              <option value="stem">STEM</option>
+            </select>
+            <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.9rem;">
+              Capacity ≤ <span id="capacityValue">500</span>
+              <input type="range" id="capacityFilter" min="0" max="500" value="500" />
+            </label>
+            <select id="locationFilter" style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px;">
+              <option value="all">All locations</option>
+              <option value="online">Online</option>
+              <option value="inperson">In person</option>
+            </select>
+            <% if (userLevel !== 'U') { %>
+              <a href="/events/new" class="btn btn--primary btn--small">Add event</a>
+            <% } %>
+          </div>
         </div>
         <div class="table-card__body">
           <table class="data-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Starts</th>
                 <th>Location</th>
                 <th>Capacity</th>
-                <th>Actions</th>
+                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
               <% if (events && events.length) { %>
                 <% events.forEach((event) => { %>
-                  <tr>
+                  <tr
+                    data-name="<%= (event.name || '').toLowerCase() %>"
+                    data-type="<%= (event.type || '').toLowerCase() %>"
+                    data-capacity="<%= typeof event.capacity !== 'undefined' && event.capacity !== null ? event.capacity : 0 %>"
+                    data-location="<%= (event.location || '').toLowerCase() %>"
+                  >
+                    <td><%= event.event_id %></td>
                     <td><a href="/events/<%= event.event_id %>"><%= event.name %></a></td>
                     <td><%= event.type || "—" %></td>
                     <td>
@@ -87,17 +119,19 @@
                     </td>
                     <td><%= event.location || "—" %></td>
                     <td><%= typeof event.capacity !== "undefined" && event.capacity !== null ? event.capacity : "—" %></td>
-                    <td class="table-actions">
-                      <a class="btn btn--outline btn--small" href="/events/<%= event.event_id %>/edit">Edit</a>
-                      <form class="inline-form" method="POST" action="/events/<%= event.event_id %>/delete">
-                        <button type="submit" class="btn btn--ghost btn--small">Delete</button>
-                      </form>
-                    </td>
+                    <% if (userLevel !== 'U') { %>
+                      <td class="table-actions">
+                        <a class="btn btn--outline btn--small" href="/events/<%= event.event_id %>/edit">Edit</a>
+                        <form class="inline-form" method="POST" action="/events/<%= event.event_id %>/delete">
+                          <button type="submit" class="btn btn--ghost btn--small">Delete</button>
+                        </form>
+                      </td>
+                    <% } %>
                   </tr>
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="6" class="empty-row">No events found.</td>
+                  <td colspan="<%= userLevel !== 'U' ? 7 : 6 %>" class="empty-row">No events found.</td>
                 </tr>
               <% } %>
             </tbody>
@@ -114,6 +148,50 @@
       navLinks.classList.toggle("nav-links--open");
       navToggle.classList.toggle("nav-toggle--open");
     });
+
+    // Filters
+    const eventSearch = document.getElementById("eventSearch");
+    const typeFilter = document.getElementById("typeFilter");
+    const capacityFilter = document.getElementById("capacityFilter");
+    const capacityValue = document.getElementById("capacityValue");
+    const locationFilter = document.getElementById("locationFilter");
+    const eventRows = Array.from(document.querySelectorAll("tbody tr"));
+
+    const applyFilters = () => {
+      const term = eventSearch.value.trim().toLowerCase();
+      const typeVal = typeFilter.value;
+      const capacityVal = parseInt(capacityFilter.value || "0", 10);
+      const locVal = locationFilter.value;
+      capacityValue.textContent = capacityVal;
+
+      eventRows.forEach((row) => {
+        const name = row.dataset.name || "";
+        const type = row.dataset.type || "";
+        const capacity = parseInt(row.dataset.capacity || "0", 10);
+        const location = row.dataset.location || "";
+
+        const matchesSearch = name.includes(term);
+        const matchesType =
+          typeVal === "all" ||
+          (typeVal === "leadership" && type.includes("leadership")) ||
+          (typeVal === "stem" && type.includes("stem"));
+        const matchesCapacity = capacity <= capacityVal;
+        const isOnline = location.includes("virtual zoom");
+        const matchesLocation =
+          locVal === "all" ||
+          (locVal === "online" && isOnline) ||
+          (locVal === "inperson" && !isOnline);
+
+        row.style.display = matchesSearch && matchesType && matchesCapacity && matchesLocation ? "" : "none";
+      });
+    };
+
+    eventSearch?.addEventListener("input", applyFilters);
+    typeFilter?.addEventListener("change", applyFilters);
+    capacityFilter?.addEventListener("input", applyFilters);
+    locationFilter?.addEventListener("change", applyFilters);
+
+    applyFilters();
   </script>
 </body>
 </html>

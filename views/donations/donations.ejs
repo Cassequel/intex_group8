@@ -30,6 +30,9 @@
           <li><a href="#stories">Stories</a></li>
           <li><a href="#contact">Contact</a></li>
           <li><a href="/donations" class="btn btn--outline">Donate</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
           <% if (isLoggedIn) { %>
             <li><a href="/logout" class="btn btn--outline">Logout</a></li>
           <% } else { %>
@@ -50,7 +53,9 @@
         Gifts keep programs accessible, fund instruments and art supplies, and open doors for young Latinas to thrive.
       </p>
       <div class="hero-actions">
-        <a href="#donate" class="btn btn--primary btn--large">Donate now</a>
+        <a href="/donAdd" class="btn btn--primary btn--large">Donate now</a>
+        <a href="#donate-table" class="btn btn--primary btn--large">View Donations</a>
+
       </div>
     </div>
   </section>
@@ -78,6 +83,72 @@
         </ul>
         <div class="impact-actions">
           <a id="donate" href="#donate" class="btn btn--primary btn--full">Give today</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONATIONS TABLE -->
+  <section id="donate-table" class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>Recent donations</h2>
+        <p>Participant, amount, and date of each gift.</p>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card__header">
+          <span>Donations</span>
+        </div>
+        <div class="table-card__body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Participant</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (donations && donations.length) { %>
+                <% donations.forEach((donation) => { %>
+                  <tr>
+                    <td><%= donation.donation_id %></td>
+                    <td>
+                      <a href="/donations/<%= donation.donation_id %>">
+                        <%= donation.participant_name || ('ID ' + donation.participant_id) %>
+                      </a>
+                    </td>
+                    <td><%= donation.amount %></td>
+                    <td>
+                      <%
+                        const d = donation.donation_date;
+                        let formattedDate = "";
+                        if (d) {
+                          formattedDate = d.toISOString ? d.toISOString().slice(0,10) : String(d).slice(0,10);
+                        }
+                      %>
+                      <%= formattedDate %>
+                    </td>
+                    <% if (userLevel !== 'U') { %>
+                      <td class="table-actions">
+                        <a class="btn btn--outline btn--small" href="/donations/<%= donation.donation_id %>/edit">Edit</a>
+                        <form class="inline-form" method="POST" action="/donations/<%= donation.donation_id %>/delete">
+                          <button type="submit" class="btn btn--ghost btn--small">Delete</button>
+                        </form>
+                      </td>
+                    <% } %>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="<%= userLevel !== 'U' ? 5 : 4 %>" class="empty-row">No donations found.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -123,7 +194,7 @@
         <h2>Ready to make an impact?</h2>
         <p>Your gift today keeps Ella Rises accessible, inclusive, and transformative.</p>
       </div>
-      <a href="#donate" class="btn btn--primary btn--large">Donate now</a>
+      <a href="/donations" class="btn btn--primary btn--large">Donate now</a>
     </div>
   </section>
 
