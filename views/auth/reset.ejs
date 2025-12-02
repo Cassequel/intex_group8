@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Login | Ella Rises</title>
+  <title>Reset Password | Ella Rises</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/styles/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,7 +25,7 @@
         <ul class="nav-links">
           <li><a href="/">Home</a></li>
           <li><a href="/participants">Participants</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li><a href="/login">Login</a></li>
         </ul>
       </nav>
     </div>
@@ -35,37 +35,37 @@
   <section class="hero">
     <div class="hero-overlay"></div>
     <div class="container hero-content">
-      <p class="eyebrow">Welcome back</p>
-      <h1>Sign in to manage Ella Rises</h1>
+      <p class="eyebrow">Reset your password</p>
+      <h1>Create a new password</h1>
       <p class="hero-subtitle">
-        Access participant rosters, events, and dashboards with your account.
+        Choose a strong password to secure your account.
       </p>
     </div>
   </section>
 
-  <!-- LOGIN FORM -->
-  <section class="section section--light" id="contact">
+  <!-- RESET FORM -->
+  <section class="section section--light">
     <div class="container auth-grid">
       <div>
-        <h2>Login</h2>
-        <p>Enter your credentials to continue.</p>
-        <p>New here? <a class="btn btn--outline" href="/register">Create an account</a></p>
+        <h2>Set new password</h2>
+        <p>Enter your new password below.</p>
       </div>
       <div class="form-card">
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
-        <form method="POST" action="/login" class="form-grid">
+        <form method="POST" action="/reset-password" class="form-grid" onsubmit="return validatePasswords(event);">
+          <input type="hidden" name="token" value="<%= token %>" />
           <div class="form-field">
-            <label for="username">Username</label>
-            <input id="username" name="username" type="text" required />
+            <label for="password">New password</label>
+            <input id="password" name="password" type="password" required minlength="6" />
           </div>
           <div class="form-field">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" required />
+            <label for="confirm">Confirm new password</label>
+            <input id="confirm" name="confirm" type="password" required minlength="6" />
           </div>
-          <button type="submit" class="btn btn--primary btn--large">Sign in</button>
-          <a class="btn btn--link" href="/forgot-password" style="text-align:center;">Forgot password?</a>
+          <button type="submit" class="btn btn--primary btn--large">Reset password</button>
+          <a class="btn btn--link" href="/login" style="text-align:center;">Back to login</a>
         </form>
       </div>
     </div>
@@ -87,7 +87,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Ella Rises. All rights reserved.</p>
+      <p>Ac 2025 Ella Rises. All rights reserved.</p>
     </div>
   </footer>
 
@@ -100,6 +100,18 @@
       navLinks.classList.toggle("nav-links--open");
       navToggle.classList.toggle("nav-toggle--open");
     });
+
+    // Basic confirm check
+    function validatePasswords(event) {
+      const pwd = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+      if (pwd !== confirm) {
+        alert('Passwords do not match.');
+        event.preventDefault();
+        return false;
+      }
+      return true;
+    }
   </script>
 </body>
 </html>

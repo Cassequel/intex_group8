@@ -10,6 +10,7 @@
   "author": "Group 8",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
@@ -18,6 +19,8 @@
     "helmet": "^8.1.0",
     "knex": "^3.1.0",
     "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.11",
     "path": "^0.12.7",
     "pg": "^8.16.3",
     "session": "^0.1.0",

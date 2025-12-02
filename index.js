@@ -22,6 +22,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
 const helmet = require('helmet');
+const { sendPasswordReset, sendNewDeviceAlert, sendEventReminder} = require('./email/emailService');
+const crypto = require('crypto'); 
 
 
 app.use(session({
@@ -30,13 +32,245 @@ app.use(session({
     saveUninitialized: false
 }));
 
+app.get('/test-email', async (req, res) => {
+  try {
+    const user = { email: 'apierceswan@gmail.com', firstName: 'Aiden' };
+    const event = {
+      name: 'Test Event',
+      startTime: new Date(),
+      location: 'Test Location'
+    };
+
+    await sendEventReminder(user, event);
+    res.send('Test email sent.');
+  } catch (err) {
+    console.error('Test email error:', err);
+    res.status(500).send('Error sending test email.');
+  }
+});
+
+
+// Show forgot password form (you can make a simple EJS view auth/forgot.ejs)
+app.get('/forgot-password', (req, res) => {
+    res.render('auth/forgot', { error_message: null, success_message: null });
+});
+
+// Handle form submit
+app.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.render('auth/forgot', { 
+            error_message: "Please enter your email.", 
+            success_message: null 
+        });
+    }
+
+    try {
+        const user = await knex("users").where({ email }).first();
+        // Always show generic message so you don't leak which emails exist
+        if (!user) {
+            return res.render('auth/forgot', { 
+                error_message: null,
+                success_message: "If that email exists, we've sent a reset link."
+            });
+        }
+
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+        await knex("password_reset_tokens").insert({
+            user_id: user.user_id,
+            token,
+            expires_at: expiresAt
+        });
+
+        await sendPasswordReset(
+            { email: user.email, firstName: user.username || 'User' },
+            token
+        );
+
+        res.render('auth/forgot', { 
+            error_message: null,
+            success_message: "If that email exists, we've sent a reset link."
+        });
+    } catch (error) {
+        console.error("Forgot password error:", error);
+        res.status(500).render('auth/forgot', { 
+            error_message: "Server error. Please try again.",
+            success_message: null 
+        });
+    }
+});
+
+
+// Show reset form
+app.get('/reset-password', async (req, res) => {
+    const { token } = req.query;
+    if (!token) {
+        return res.status(400).send("Missing token.");
+    }
+
+    try {
+        const record = await knex("password_reset_tokens")
+            .where({ token })
+            .andWhere("expires_at", ">", new Date())
+            .andWhere(function () {
+                this.whereNull("used_at");
+            })
+            .first();
+
+        if (!record) {
+            return res.status(400).send("Invalid or expired token.");
+        }
+
+        res.render('auth/reset', { token, error_message: null });
+    } catch (error) {
+        console.error("Reset password GET error:", error);
+        res.status(500).send("Server error.");
+    }
+});
+
+// Handle reset form submit
+app.post('/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+        return res.status(400).render('auth/reset', { 
+            token,
+            error_message: "Password is required."
+        });
+    }
+
+    try {
+        const record = await knex("password_reset_tokens")
+            .where({ token })
+            .andWhere("expires_at", ">", new Date())
+            .andWhere(function () {
+                this.whereNull("used_at");
+            })
+            .first();
+
+        if (!record) {
+            return res.status(400).render('auth/reset', { 
+                token: null,
+                error_message: "Invalid or expired token."
+            });
+        }
+
+        const hashed = await bcrypt.hash(password, 10);
+
+        await knex.transaction(async trx => {
+            await trx("users")
+                .where({ user_id: record.user_id })
+                .update({ password: hashed });
+
+            await trx("password_reset_tokens")
+                .where({ id: record.id })
+                .update({ used_at: new Date() });
+        });
+
+        res.redirect('/login');
+    } catch (error) {
+        console.error("Reset password POST error:", error);
+        res.status(500).render('auth/reset', { 
+            token,
+            error_message: "Server error. Please try again."
+        });
+    }
+});
+
+// Show reset form
+app.get('/reset-password', async (req, res) => {
+    const { token } = req.query;
+    if (!token) {
+        return res.status(400).send("Missing token.");
+    }
+
+    try {
+        const record = await knex("password_reset_tokens")
+            .where({ token })
+            .andWhere("expires_at", ">", new Date())
+            .andWhere(function () {
+                this.whereNull("used_at");
+            })
+            .first();
+
+        if (!record) {
+            return res.status(400).send("Invalid or expired token.");
+        }
+
+        res.render('auth/reset', { token, error_message: null });
+    } catch (error) {
+        console.error("Reset password GET error:", error);
+        res.status(500).send("Server error.");
+    }
+});
+
+// Handle reset form submit
+app.post('/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+        return res.status(400).render('auth/reset', { 
+            token,
+            error_message: "Password is required."
+        });
+    }
+
+    try {
+        const record = await knex("password_reset_tokens")
+            .where({ token })
+            .andWhere("expires_at", ">", new Date())
+            .andWhere(function () {
+                this.whereNull("used_at");
+            })
+            .first();
+
+        if (!record) {
+            return res.status(400).render('auth/reset', { 
+                token: null,
+                error_message: "Invalid or expired token."
+            });
+        }
+
+        const hashed = await bcrypt.hash(password, 10);
+
+        await knex.transaction(async trx => {
+            await trx("users")
+                .where({ user_id: record.user_id })
+                .update({ password: hashed });
+
+            await trx("password_reset_tokens")
+                .where({ id: record.id })
+                .update({ used_at: new Date() });
+        });
+
+        res.redirect('/login');
+    } catch (error) {
+        console.error("Reset password POST error:", error);
+        res.status(500).render('auth/reset', { 
+            token,
+            error_message: "Server error. Please try again."
+        });
+    }
+});
+
+
+
+
 // installs helmet - used to delcare headers to pretect other aspects of the code
 app.use(helmet());
 
+
 // sets up connections for migrations(script to install database)
-const knexConfig = require("./knexfile");
-const environment = process.env.NODE_ENV || "development";
-const knex = require("knex")(knexConfig[environment]);
+// const knexConfig = require("./knexfile");
+// const environment = process.env.NODE_ENV || "development";
+// const knex = require("knex")(knexConfig[environment]);
+
+const knex = require('./db');
+
+
 
 // Root directory for static images
 const uploadRoot = path.join(__dirname, "images");
@@ -465,7 +699,8 @@ app.post('/register', async (req, res) => {
             .insert({
                 email,
                 username,
-                password_hash: hashedPassword,
+                // store hashed password in the DB column that exists
+                password: hashedPassword,
                 level: "U"
             })
             .returning("*");
@@ -506,21 +741,22 @@ app.post('/login', async (req, res) => {
             .select("*")
             .where({ username })
             .first();
+
+        // Fail fast if user not found or hash missing
         if (!user) {
             return res.render('auth/login', { error_message: "Invalid credentials." });
         }
 
-        const users = await knex("users")
-        .where("username", user.username)
-        .first();
+        const storedHash = user.password || user.password_hash;
 
-        if (!users) {
-            return res.render("login", { error_message: "Invalid login" });
+        if (!storedHash) {
+            return res.render('auth/login', { error_message: "Invalid credentials." });
         }
-        let validPassword = await bcrypt.compare(password, users.password_hash);
+
+        const validPassword = await bcrypt.compare(password, storedHash);
 
         if (!validPassword) {
-            return res.render("login", { error_message: "Invalid login" });
+            return res.render('auth/login', { error_message: "Invalid credentials." });
         }
 
         req.session.isLoggedIn = true;
@@ -528,6 +764,18 @@ app.post('/login', async (req, res) => {
         req.session.username = user.username;
         req.session.role = user.role || 'user';
         req.session.level = user.level || 'user';
+
+        const deviceInfo = {
+        device: req.headers['user-agent'] || 'Unknown device',
+        ip: req.ip,
+        time: new Date().toISOString(),
+        };
+
+        // fire-and-forget, don't block the redirect
+        sendNewDeviceAlert(
+        { email: user.email, firstName: user.username || user.first_name || 'User' },
+        deviceInfo
+        ).catch(console.error);
 
         res.redirect('/');
     } catch (error) {
@@ -765,11 +1013,11 @@ app.post('/users/new', requireManager, async (req, res) => {
         });
     }
     try {
-        let password_hash = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         await knex("users").insert({
             username,
             email,
-            password_hash,
+            password: hashedPassword,
             level: level || 'U'
         });
         res.redirect('/users');
@@ -807,13 +1055,13 @@ app.post('/users/:id/edit', requireManager, async (req, res) => {
         });
     }
     try {
-        let password_hash = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         const [updated] = await knex("users")
             .where({ user_id: id })
             .update({
                 username,
                 email,
-                password_hash,
+                password: hashedPassword,
                 level: level || 'U'
             })
             .returning("*");
@@ -1203,6 +1451,11 @@ app.get('/managerDashboard', (req, res) => {
 app.get('/teapot', (req, res) => {
     res.status(418).render('public/418Code');
 });
+
+// start scheduled email jobs
+require('./email/reminderJob');
+
+
 
 app.listen(port, () => {
     console.log("The server is listening");
