@@ -877,11 +877,11 @@ app.get('/events', async (req, res) => {
             .select(
                 "o.*",
                 "t.event_template_id",
-                "t.eventname",
-                "t.eventtype",
-                "t.eventdescription",
-                "t.eventrecurrencepattern",
-                "t.eventdefaultcapacity"
+                "t.event_name",
+                "t.event_type",
+                "t.event_description",
+                "t.event_recurrence_pattern",
+                "t.default_capacity"
             )
             .orderBy("o.event_occurence_id", "asc");
         res.render('events/events', { events });
@@ -949,11 +949,11 @@ app.get('/events/:id', async (req, res) => {
             .select(
                 "o.*",
                 "t.event_template_id",
-                "t.eventname",
-                "t.eventtype",
-                "t.eventdescription",
-                "t.eventrecurrencepattern",
-                "t.eventdefaultcapacity"
+                "t.event_name",
+                "t.event_type",
+                "t.event_description",
+                "t.event_recurrence_pattern",
+                "t.default_capacity"
             )
             .where("o.event_occurence_id", id)
             .first();
@@ -975,11 +975,11 @@ app.get('/events/:id/edit', async (req, res) => {
             .select(
                 "o.*",
                 "t.event_template_id",
-                "t.eventname",
-                "t.eventtype",
-                "t.eventdescription",
-                "t.eventrecurrencepattern",
-                "t.eventdefaultcapacity"
+                "t.event_name",
+                "t.event_type",
+                "t.event_description",
+                "t.event_recurrence_pattern",
+                "t.default_capacity"
             )
             .where("o.event_occurence_id", id)
             .first();
@@ -1049,11 +1049,11 @@ app.post('/events/:id/edit', async (req, res) => {
                 .select(
                     "o.*",
                     "t.event_template_id",
-                    "t.eventname",
-                    "t.eventtype",
-                    "t.eventdescription",
-                    "t.eventrecurrencepattern",
-                    "t.eventdefaultcapacity"
+                    "t.event_name",
+                    "t.event_type",
+                    "t.event_description",
+                    "t.event_recurrence_pattern",
+                    "t.default_capacity"
                 )
                 .where("o.event_occurence_id", id)
                 .first();
@@ -1081,7 +1081,7 @@ app.get('/surveys', async (req, res) => {
     try {
         const surveys = await knex("surveys as s")
             .leftJoin("participants as p", "s.participant_id", "p.participant_id")
-            .leftJoin("events as e", "s.event_occurence_id", "e.event_id")
+            .leftJoin( "s.event_occurence_id", "e.event_id")
             .select(
                 "s.*",
                 knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name"),
