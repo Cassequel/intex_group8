@@ -3,24 +3,138 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
-const workbook = XLSX.readFile('your_data.xlsx');
+const workbook = XLSX.readFile('ellaRisesDatabase.xlsx');
 
 // DEFINE YOUR FOREIGN KEYS HERE
 // Format: { tableName: 'child_table', column: 'foreign_key_column', references: { table: 'parent_table', column: 'parent_column' } }
 const foreignKeys = [
-  // Example: orders.user_id references users.id
-  // { tableName: 'orders', column: 'user_id', references: { table: 'users', column: 'id' } },
-  // { tableName: 'order_items', column: 'order_id', references: { table: 'orders', column: 'id' } },
-  // { tableName: 'order_items', column: 'product_id', references: { table: 'products', column: 'id' } },
+  // event_occurences.event_template_id → event_templates.event_template_id
+  { 
+    tableName: 'event_occurences', 
+    column: 'event_template_id', 
+    references: { table: 'event_templates', column: 'event_template_id' } 
+  },
+  // registrations.participant_id → participants.participant_id
+  { 
+    tableName: 'registrations', 
+    column: 'participant_id', 
+    references: { table: 'participants', column: 'participant_id' } 
+  },
+  // registrations.event_occurence_id → event_occurences.event_occurence_id
+  { 
+    tableName: 'registrations', 
+    column: 'event_occurence_id', 
+    references: { table: 'event_occurences', column: 'event_occurence_id' } 
+  },
+  // surveys.participant_id → participants.participant_id
+  { 
+    tableName: 'surveys', 
+    column: 'participant_id', 
+    references: { table: 'participants', column: 'participant_id' } 
+  },
+  // surveys.event_occurence_id → event_occurences.event_occurence_id
+  { 
+    tableName: 'surveys', 
+    column: 'event_occurence_id', 
+    references: { table: 'event_occurences', column: 'event_occurence_id' } 
+  },
+  // milestones.participant_id → participants.participant_id
+  { 
+    tableName: 'milestones', 
+    column: 'participant_id', 
+    references: { table: 'participants', column: 'participant_id' } 
+  },
 ];
 
-function inferKnexType(samples) {
-  if (samples.every(val => val === null || val === undefined)) return 'string';
-  if (samples.every(val => typeof val === 'number' && Number.isInteger(val))) return 'integer';
-  if (samples.every(val => typeof val === 'number')) return 'decimal';
-  if (samples.every(val => val instanceof Date || !isNaN(Date.parse(val)))) return 'datetime';
-  if (samples.every(val => typeof val === 'boolean')) return 'boolean';
+const manualDateTimeColumns = [
+  'participant_dob',  // Now this will be detected as datetime
+];
+
+function inferKnexType(samples, columnName) {
+  // Filter out null/undefined for type checking
+  const validSamples = samples.filter(val => val !== null && val !== undefined);
+  if (validSamples.length === 0) return 'string';
+  
+  // Check if column is in manual date/time list
+  const sanitizedColumnName = sanitizeColumnName(columnName);
+  const manuallyMarkedAsDate = manualDateTimeColumns
+    .map(col => sanitizeColumnName(col))
+    .includes(sanitizedColumnName);
+  
+  // Check if column name suggests it's a date/time field
+  const dateTimeKeywords = ['date', 'time', 'created', 'updated', 'at', 'on', 'timestamp'];
+  const columnNameLower = columnName.toLowerCase();
+  const likelyDateTime = dateTimeKeywords.some(keyword => columnNameLower.includes(keyword)) || manuallyMarkedAsDate;
+  
+  // Check for booleans first (TRUE/FALSE, true/false, 1/0 pattern)
+  const booleanValues = validSamples.every(val => 
+    typeof val === 'boolean' || 
+    val === 'TRUE' || val === 'FALSE' ||
+    val === 'true' || val === 'false' ||
+    val === 1 || val === 0 || 
+    val === '1' || val === '0'
+  );
+  if (booleanValues) return 'boolean';
+  
+  // Check for Excel date numbers (numbers between 1 and 100000 are likely dates)
+  // Excel dates are days since 1900, so 44000-50000 is roughly 2020-2037
+  const excelDateNumbers = validSamples.every(val => 
+    typeof val === 'number' && val > 1000 && val < 100000
+  );
+  if (excelDateNumbers && likelyDateTime) return 'datetime';
+  
+  // Check for dates (Excel Date objects or parseable date strings)
+  const dateValues = validSamples.every(val => {
+    if (val instanceof Date && !isNaN(val)) return true;
+    
+    // Check for common date patterns in strings
+    if (typeof val === 'string') {
+      const datePatterns = [
+        /^\d{4}-\d{2}-\d{2}$/,           // YYYY-MM-DD
+        /^\d{2}\/\d{2}\/\d{4}$/,         // MM/DD/YYYY
+        /^\d{2}-\d{2}-\d{4}$/,           // MM-DD-YYYY
+        /^\d{4}\/\d{2}\/\d{2}$/,         // YYYY/MM/DD
+      ];
+      return datePatterns.some(pattern => pattern.test(val));
+    }
+    
+    return false;
+  });
+  if (dateValues) return 'datetime';
+  
+  // Check for time values
+  const timeValues = validSamples.every(val => {
+    if (typeof val === 'string') {
+      // Match HH:MM or HH:MM:SS format
+      return /^\d{1,2}:\d{2}(:\d{2})?$/.test(val);
+    }
+    return false;
+  });
+  if (timeValues) return 'time';
+  
+  // Check for integers (whole numbers only)
+  const integerValues = validSamples.every(val => 
+    typeof val === 'number' && Number.isInteger(val) && !isNaN(val)
+  );
+  if (integerValues) return 'integer';
+  
+  // Check for decimals/floats
+  const decimalValues = validSamples.every(val => 
+    typeof val === 'number' && !isNaN(val)
+  );
+  if (decimalValues) return 'decimal';
+  
+  // Default to string for everything else
   return 'string';
+}
+
+// Helper function to convert Excel date number to JavaScript Date
+function excelDateToJSDate(excelDate) {
+  // Excel dates are days since January 1, 1900
+  // JavaScript dates are milliseconds since January 1, 1970
+  const excelEpoch = new Date(1900, 0, 1);
+  const jsDate = new Date(excelEpoch.getTime() + (excelDate - 2) * 24 * 60 * 60 * 1000);
+  return jsDate.toISOString();
 }
 
 function sanitizeColumnName(name) {
@@ -57,7 +171,7 @@ function generateKnexMigration() {
     // Generate column definitions for table creation
     const columnDefs = columns.map(col => {
       const samples = data.slice(0, 100).map(row => row[col]).filter(val => val !== null);
-      const type = inferKnexType(samples);
+      const type = inferKnexType(samples, col);
       const colName = sanitizeColumnName(col);
       
       // Build column definition based on type
@@ -80,7 +194,17 @@ ${columnDefs};
       const sanitizedRow = {};
       Object.keys(row).forEach(key => {
         const sanitizedKey = sanitizeColumnName(key);
-        sanitizedRow[sanitizedKey] = row[key];
+        let value = row[key];
+        
+        // Convert Excel date numbers to proper dates
+        const samples = data.slice(0, 100).map(r => r[key]).filter(v => v !== null);
+        const type = inferKnexType(samples, key);
+        
+        if (type === 'datetime' && typeof value === 'number') {
+          value = excelDateToJSDate(value);
+        }
+        
+        sanitizedRow[sanitizedKey] = value;
       });
       return sanitizedRow;
     });
