@@ -835,10 +835,21 @@ app.post('/users/:id/delete', requireManager, async (req, res) => {
     }
 });
 
-// Events
+// Events (templates + occurrences)
 app.get('/events', async (req, res) => {
     try {
-        const events = await knex("events").select("*").orderBy("event_id", "asc");
+        const events = await knex("eventoccurrences as o")
+            .leftJoin("eventtemplates as t", "o.eventtemplateid", "t.eventtemplateid")
+            .select(
+                "o.*",
+                "t.eventtemplateid",
+                "t.eventname",
+                "t.eventtype",
+                "t.eventdescription",
+                "t.eventrecurrencepattern",
+                "t.eventdefaultcapacity"
+            )
+            .orderBy("o.eventoccurrenceid", "asc");
         res.render('events/events', { events });
     } catch (error) {
         console.error("Error loading events:", error);
@@ -846,55 +857,65 @@ app.get('/events', async (req, res) => {
     }
 });
 
-app.get('/events/new', (req, res) => {
-    res.render('events/eventAdd', { error_message: null });
+app.get('/events/new', async (req, res) => {
+    try {
+        const templates = await knex("eventtemplates").select("*").orderBy("eventtemplateid", "asc");
+        res.render('events/eventAdd', { error_message: null, templates });
+    } catch (error) {
+        console.error("Error loading templates:", error);
+        res.status(500).send("Error loading templates");
+    }
 });
 
 app.post('/events/new', async (req, res) => {
     const {
-        name,
-        type,
-        description,
-        recurrence_pattern,
-        default_capacity,
-        datetime_start,
-        datetime_end,
-        location,
-        capacity,
-        registration_deadline
+        eventtemplateid,
+        eventdatetimestart,
+        eventdatetimeend,
+        eventlocation,
+        eventcapacity,
+        eventregistrationdeadline
     } = req.body;
 
-    if (!name) {
-        return res.status(400).render('events/eventAdd', { error_message: "Name is required." });
-    }
-
     try {
-        const [newEvent] = await knex("events_occurances")
+        if (!eventtemplateid) {
+            const templates = await knex("eventtemplates").select("*");
+            return res.status(400).render('events/eventAdd', { error_message: "Please choose an event template.", templates });
+        }
+        const [created] = await knex("eventoccurrences")
             .insert({
-                name,
-                type,
-                description,
-                recurrence_pattern,
-                default_capacity: default_capacity || null,
-                datetime_start: datetime_start || null,
-                datetime_end: datetime_end || null,
-                location,
-                capacity: capacity || null,
-                registration_deadline: registration_deadline || null
+                eventtemplateid,
+                eventdatetimestart: eventdatetimestart || null,
+                eventdatetimeend: eventdatetimeend || null,
+                eventlocation,
+                eventcapacity: eventcapacity || null,
+                eventregistrationdeadline: eventregistrationdeadline || null
             })
             .returning("*");
-
-        res.redirect(`/events/${newEvent.event_id}`);
+        res.redirect(`/events/${created.eventoccurrenceid}`);
     } catch (error) {
-        console.error("Error creating event:", error);
-        res.status(500).render('events/eventAdd', { error_message: "Could not create event. Please try again." });
+        console.error("Error creating event occurrence:", error);
+        const templates = await knex("eventtemplates").select("*");
+        res.status(500).render('events/eventAdd', { error_message: "Could not create event. Please try again.", templates });
     }
 });
 
 app.get('/events/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const event = await knex("events").where({ event_id: id }).first();
+        const event = await knex("eventoccurrences as o")
+            .leftJoin("eventtemplates as t", "o.eventtemplateid", "t.eventtemplateid")
+            .select(
+                "o.*",
+                "t.eventtemplateid",
+                "t.eventname",
+                "t.eventtype",
+                "t.eventdescription",
+                "t.eventrecurrencepattern",
+                "t.eventdefaultcapacity"
+            )
+            .where("o.eventoccurrenceid", id)
+            .first();
         if (!event) {
             return res.status(404).render('public/418Code');
         }
@@ -908,11 +929,24 @@ app.get('/events/:id', async (req, res) => {
 app.get('/events/:id/edit', async (req, res) => {
     const { id } = req.params;
     try {
-        const event = await knex("events").where({ event_id: id }).first();
+        const event = await knex("eventoccurrences as o")
+            .leftJoin("eventtemplates as t", "o.eventtemplateid", "t.eventtemplateid")
+            .select(
+                "o.*",
+                "t.eventtemplateid",
+                "t.eventname",
+                "t.eventtype",
+                "t.eventdescription",
+                "t.eventrecurrencepattern",
+                "t.eventdefaultcapacity"
+            )
+            .where("o.eventoccurrenceid", id)
+            .first();
         if (!event) {
             return res.status(404).render('public/418Code');
         }
-        res.render('events/eventEdit', { event, error_message: null });
+        const templates = await knex("eventtemplates").select("*").orderBy("eventtemplateid", "asc");
+        res.render('events/eventEdit', { event, templates, error_message: null });
     } catch (error) {
         console.error("Error loading event:", error);
         res.status(500).send("Error loading event");
@@ -922,58 +956,53 @@ app.get('/events/:id/edit', async (req, res) => {
 app.post('/events/:id/edit', async (req, res) => {
     const { id } = req.params;
     const {
-        name,
-        type,
-        description,
-        recurrence_pattern,
-        default_capacity,
-        datetime_start,
-        datetime_end,
-        location,
-        capacity,
-        registration_deadline
+        eventtemplateid,
+        eventdatetimestart,
+        eventdatetimeend,
+        eventlocation,
+        eventcapacity,
+        eventregistrationdeadline
     } = req.body;
 
-    if (!name) {
-        return res.status(400).render('events/eventEdit', {
-            event: {
-                event_id: id,
-                name,
-                type,
-                description,
-                recurrence_pattern,
-                default_capacity,
-                datetime_start,
-                datetime_end,
-                location,
-                capacity,
-                registration_deadline
-            },
-            error_message: "Name is required."
-        });
-    }
-
     try {
-        await knex("events")
-            .where({ event_id: id })
+        if (!eventtemplateid) {
+            const templates = await knex("eventtemplates").select("*");
+            return res.status(400).render('events/eventEdit', {
+                event: { eventoccurrenceid: id, eventtemplateid, eventdatetimestart, eventdatetimeend, eventlocation, eventcapacity, eventregistrationdeadline },
+                templates,
+                error_message: "Please choose an event template."
+            });
+        }
+
+        await knex("eventoccurrences")
+            .where({ eventoccurrenceid: id })
             .update({
-                name,
-                type,
-                description,
-                recurrence_pattern,
-                default_capacity: default_capacity || null,
-                datetime_start: datetime_start || null,
-                datetime_end: datetime_end || null,
-                location,
-                capacity: capacity || null,
-                registration_deadline: registration_deadline || null
+                eventtemplateid,
+                eventdatetimestart: eventdatetimestart || null,
+                eventdatetimeend: eventdatetimeend || null,
+                eventlocation,
+                eventcapacity: eventcapacity || null,
+                eventregistrationdeadline: eventregistrationdeadline || null
             });
         res.redirect(`/events/${id}`);
     } catch (error) {
         console.error("Error updating event:", error);
         try {
-            const event = await knex("events").where({ event_id: id }).first();
-            res.status(500).render('events/eventEdit', { event, error_message: "Could not update event. Please try again." });
+            const event = await knex("eventoccurrences as o")
+                .leftJoin("eventtemplates as t", "o.eventtemplateid", "t.eventtemplateid")
+                .select(
+                    "o.*",
+                    "t.eventtemplateid",
+                    "t.eventname",
+                    "t.eventtype",
+                    "t.eventdescription",
+                    "t.eventrecurrencepattern",
+                    "t.eventdefaultcapacity"
+                )
+                .where("o.eventoccurrenceid", id)
+                .first();
+            const templates = await knex("eventtemplates").select("*");
+            res.status(500).render('events/eventEdit', { event, templates, error_message: "Could not update event. Please try again." });
         } catch (loadErr) {
             res.status(500).send("Error loading event");
         }
@@ -983,7 +1012,7 @@ app.post('/events/:id/edit', async (req, res) => {
 app.post('/events/:id/delete', async (req, res) => {
     const { id } = req.params;
     try {
-        await knex("events").where({ event_id: id }).del();
+        await knex("eventoccurrences").where({ eventoccurrenceid: id }).del();
         res.redirect('/events');
     } catch (error) {
         console.error("Error deleting event:", error);

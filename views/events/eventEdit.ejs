@@ -8,6 +8,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+      background: #f9f5ea;
+      border: 1px solid rgba(153, 183, 198, 0.2);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .info-item span {
+      font-size: 0.9rem;
+      color: var(--color-text-soft);
+    }
+  </style>
 </head>
 <body>
   <!-- NAVBAR -->
@@ -25,6 +45,10 @@
         <ul class="nav-links">
           <li><a href="/">Home</a></li>
           <li><a href="/events">Events</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
         </ul>
       </nav>
     </div>
@@ -36,7 +60,7 @@
     <div class="container hero-content">
       <p class="eyebrow">Programs</p>
       <h1>Edit event</h1>
-      <p class="hero-subtitle">Update details for <%= event.name %>.</p>
+      <p class="hero-subtitle">Select a template and update occurrence details.</p>
     </div>
   </section>
 
@@ -47,49 +71,66 @@
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
-        <form class="form-grid" method="POST" action="/events/<%= event.event_id %>/edit">
+        <form class="form-grid" method="POST" action="/events/<%= event.eventoccurrenceid %>/edit">
           <div class="form-field">
-            <label for="name">Name</label>
-            <input id="name" name="name" type="text" value="<%= event.name || '' %>" required />
+            <label for="eventtemplateid">Template</label>
+            <select id="eventtemplateid" name="eventtemplateid" required>
+              <option value="">Select a template</option>
+              <% templates.forEach((t) => { %>
+                <option value="<%= t.eventtemplateid %>" <%= t.eventtemplateid === event.eventtemplateid ? 'selected' : '' %>><%= t.eventname %></option>
+              <% }) %>
+            </select>
           </div>
-          <div class="form-field">
-            <label for="type">Type</label>
-            <input id="type" name="type" type="text" value="<%= event.type || '' %>" />
+
+          <div class="info-grid" id="templateInfo">
+            <div class="info-item">
+              <span>Name</span>
+              <strong id="tmplName"><%= event.eventname || '' %></strong>
+            </div>
+            <div class="info-item">
+              <span>Type</span>
+              <strong id="tmplType"><%= event.eventtype || '' %></strong>
+            </div>
+            <div class="info-item">
+              <span>Recurrence</span>
+              <strong id="tmplRecurrence"><%= event.eventrecurrencepattern || '' %></strong>
+            </div>
+            <div class="info-item">
+              <span>Default capacity</span>
+              <strong id="tmplCapacity"><%= event.eventdefaultcapacity || '' %></strong>
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+              <span>Description</span>
+              <strong id="tmplDescription"><%= event.eventdescription || '' %></strong>
+            </div>
           </div>
-          <div class="form-field">
-            <label for="description">Description</label>
-            <input id="description" name="description" type="text" value="<%= event.description || '' %>" />
-          </div>
-          <div class="form-field">
-            <label for="recurrence_pattern">Recurrence pattern</label>
-            <input id="recurrence_pattern" name="recurrence_pattern" type="text" value="<%= event.recurrence_pattern || '' %>" />
-          </div>
-          <div class="form-field">
-            <label for="default_capacity">Default capacity</label>
-            <input id="default_capacity" name="default_capacity" type="number" value="<%= event.default_capacity || '' %>" />
-          </div>
-          <div class="form-grid-two">
+
+          <div class="form-grid-two" style="margin-top: 1rem;">
             <div class="form-field">
-              <label for="datetime_start">Start</label>
-              <input id="datetime_start" name="datetime_start" type="datetime-local" value="<%= event.datetime_start ? (event.datetime_start.toISOString ? event.datetime_start.toISOString().slice(0,16) : String(event.datetime_start).slice(0,16)) : '' %>" />
+              <label for="eventdatetimestart">Start</label>
+              <input id="eventdatetimestart" name="eventdatetimestart" type="datetime-local" value="<%= event.eventdatetimestart ? (event.eventdatetimestart.toISOString ? event.eventdatetimestart.toISOString().slice(0,16) : String(event.eventdatetimestart).slice(0,16)) : '' %>" />
             </div>
             <div class="form-field">
-              <label for="datetime_end">End</label>
-              <input id="datetime_end" name="datetime_end" type="datetime-local" value="<%= event.datetime_end ? (event.datetime_end.toISOString ? event.datetime_end.toISOString().slice(0,16) : String(event.datetime_end).slice(0,16)) : '' %>" />
+              <label for="eventdatetimeend">End</label>
+              <input id="eventdatetimeend" name="eventdatetimeend" type="datetime-local" value="<%= event.eventdatetimeend ? (event.eventdatetimeend.toISOString ? event.eventdatetimeend.toISOString().slice(0,16) : String(event.eventdatetimeend).slice(0,16)) : '' %>" />
             </div>
           </div>
+
           <div class="form-field">
-            <label for="location">Location</label>
-            <input id="location" name="location" type="text" value="<%= event.location || '' %>" />
+            <label for="eventlocation">Location</label>
+            <input id="eventlocation" name="eventlocation" type="text" value="<%= event.eventlocation || '' %>" />
           </div>
+
           <div class="form-field">
-            <label for="capacity">Capacity</label>
-            <input id="capacity" name="capacity" type="number" value="<%= event.capacity || '' %>" />
+            <label for="eventcapacity">Capacity</label>
+            <input id="eventcapacity" name="eventcapacity" type="number" value="<%= event.eventcapacity || '' %>" />
           </div>
+
           <div class="form-field">
-            <label for="registration_deadline">Registration deadline</label>
-            <input id="registration_deadline" name="registration_deadline" type="datetime-local" value="<%= event.registration_deadline ? (event.registration_deadline.toISOString ? event.registration_deadline.toISOString().slice(0,16) : String(event.registration_deadline).slice(0,16)) : '' %>" />
+            <label for="eventregistrationdeadline">Registration deadline</label>
+            <input id="eventregistrationdeadline" name="eventregistrationdeadline" type="datetime-local" value="<%= event.eventregistrationdeadline ? (event.eventregistrationdeadline.toISOString ? event.eventregistrationdeadline.toISOString().slice(0,16) : String(event.eventregistrationdeadline).slice(0,16)) : '' %>" />
           </div>
+
           <div class="form-field" style="margin-top: 0.5rem;">
             <button type="submit" class="btn btn--primary btn--large">Save changes</button>
             <a href="/events" class="btn btn--ghost btn--large" style="margin-left: 0.5rem;">Cancel</a>
@@ -105,6 +146,24 @@
     navToggle.addEventListener("click", () => {
       navLinks.classList.toggle("nav-links--open");
       navToggle.classList.toggle("nav-toggle--open");
+    });
+
+    const templates = <%- JSON.stringify(templates || []) %>;
+    const tmplSelect = document.getElementById("eventtemplateid");
+    const tmplName = document.getElementById("tmplName");
+    const tmplType = document.getElementById("tmplType");
+    const tmplRecurrence = document.getElementById("tmplRecurrence");
+    const tmplCapacity = document.getElementById("tmplCapacity");
+    const tmplDescription = document.getElementById("tmplDescription");
+
+    tmplSelect?.addEventListener("change", () => {
+      const selected = templates.find((t) => String(t.eventtemplateid) === tmplSelect.value);
+      if (!selected) return;
+      tmplName.textContent = selected.eventname || "";
+      tmplType.textContent = selected.eventtype || "";
+      tmplRecurrence.textContent = selected.eventrecurrencepattern || "";
+      tmplCapacity.textContent = selected.eventdefaultcapacity || "";
+      tmplDescription.textContent = selected.eventdescription || "";
     });
   </script>
 </body>

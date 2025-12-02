@@ -42,11 +42,11 @@
       <p class="eyebrow">Programs</p>
       <h1>Events</h1>
       <p class="hero-subtitle">Browse and manage scheduled events.</p>
-      <div class="hero-actions">
-        <% if (userLevel !== 'U') { %>
+      <% if (userLevel !== 'U') { %>
+        <div class="hero-actions">
           <a href="/events/new" class="btn btn--primary">Add event</a>
-        <% } %>
-      </div>
+        </div>
+      <% } %>
     </div>
   </section>
 
@@ -87,6 +87,7 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Template</th>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Starts</th>
@@ -99,17 +100,18 @@
               <% if (events && events.length) { %>
                 <% events.forEach((event) => { %>
                   <tr
-                    data-name="<%= (event.name || '').toLowerCase() %>"
-                    data-type="<%= (event.type || '').toLowerCase() %>"
-                    data-capacity="<%= typeof event.capacity !== 'undefined' && event.capacity !== null ? event.capacity : 0 %>"
-                    data-location="<%= (event.location || '').toLowerCase() %>"
+                    data-name="<%= (event.eventname || '').toLowerCase() %>"
+                    data-type="<%= (event.eventtype || '').toLowerCase() %>"
+                    data-capacity="<%= typeof event.eventcapacity !== 'undefined' && event.eventcapacity !== null ? event.eventcapacity : 0 %>"
+                    data-location="<%= (event.eventlocation || '').toLowerCase() %>"
                   >
-                    <td><%= event.event_id %></td>
-                    <td><a href="/events/<%= event.event_id %>"><%= event.name %></a></td>
-                    <td><%= event.type || "—" %></td>
+                    <td><%= event.eventoccurrenceid %></td>
+                    <td><%= event.eventtemplateid %></td>
+                    <td><a href="/events/<%= event.eventoccurrenceid %>"><%= event.eventname %></a></td>
+                    <td><%= event.eventtype || "—" %></td>
                     <td>
                       <%
-                        const start = event.datetime_start;
+                        const start = event.eventdatetimestart;
                         let startDate = "";
                         if (start) {
                           startDate = start.toISOString ? start.toISOString().replace('T', ' ').slice(0,16) : String(start);
@@ -117,12 +119,12 @@
                       %>
                       <%= startDate %>
                     </td>
-                    <td><%= event.location || "—" %></td>
-                    <td><%= typeof event.capacity !== "undefined" && event.capacity !== null ? event.capacity : "—" %></td>
+                    <td><%= event.eventlocation || "—" %></td>
+                    <td><%= typeof event.eventcapacity !== "undefined" && event.eventcapacity !== null ? event.eventcapacity : "—" %></td>
                     <% if (userLevel !== 'U') { %>
                       <td class="table-actions">
-                        <a class="btn btn--outline btn--small" href="/events/<%= event.event_id %>/edit">Edit</a>
-                        <form class="inline-form" method="POST" action="/events/<%= event.event_id %>/delete">
+                        <a class="btn btn--outline btn--small" href="/events/<%= event.eventoccurrenceid %>/edit">Edit</a>
+                        <form class="inline-form" method="POST" action="/events/<%= event.eventoccurrenceid %>/delete">
                           <button type="submit" class="btn btn--ghost btn--small">Delete</button>
                         </form>
                       </td>
@@ -131,7 +133,7 @@
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="<%= userLevel !== 'U' ? 7 : 6 %>" class="empty-row">No events found.</td>
+                  <td colspan="<%= userLevel !== 'U' ? 8 : 7 %>" class="empty-row">No events found.</td>
                 </tr>
               <% } %>
             </tbody>
@@ -176,7 +178,7 @@
           (typeVal === "leadership" && type.includes("leadership")) ||
           (typeVal === "stem" && type.includes("stem"));
         const matchesCapacity = capacity <= capacityVal;
-        const isOnline = location.includes("virtual zoom");
+        const isOnline = location.includes("virtual zoom") || location.includes("online");
         const matchesLocation =
           locVal === "all" ||
           (locVal === "online" && isOnline) ||

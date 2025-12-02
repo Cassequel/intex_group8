@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title><%= event.name %> | Event</title>
+  <title><%= event.eventname %> | Event</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/styles/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -50,6 +50,10 @@
         <ul class="nav-links">
           <li><a href="/">Home</a></li>
           <li><a href="/events">Events</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
         </ul>
       </nav>
     </div>
@@ -60,13 +64,11 @@
     <div class="hero-overlay"></div>
     <div class="container hero-content">
       <p class="eyebrow">Event</p>
-      <h1><%= event.name %></h1>
-      <p class="hero-subtitle">
-        Full details for this event.
-      </p>
+      <h1><%= event.eventname %></h1>
+      <p class="hero-subtitle"><%= event.eventdescription || 'No description' %></p>
       <% if (userLevel !== 'U') { %>
         <div class="hero-actions">
-          <a href="/events/<%= event.event_id %>/edit" class="btn btn--outline">Edit event</a>
+          <a href="/events/<%= event.eventoccurrenceid %>/edit" class="btn btn--outline">Edit event</a>
         </div>
       <% } %>
     </div>
@@ -77,44 +79,44 @@
     <div class="container">
       <div class="detail-grid">
         <div class="detail-card">
-          <h3>Type</h3>
-          <p class="detail-value"><%= event.type || "Not provided" %></p>
+          <h3>Template</h3>
+          <p class="detail-value">ID <%= event.eventtemplateid %></p>
         </div>
         <div class="detail-card">
-          <h3>Description</h3>
-          <p class="detail-value"><%= event.description || "Not provided" %></p>
+          <h3>Type</h3>
+          <p class="detail-value"><%= event.eventtype || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Recurrence</h3>
-          <p class="detail-value"><%= event.recurrence_pattern || "Not provided" %></p>
+          <p class="detail-value"><%= event.eventrecurrencepattern || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Default capacity</h3>
-          <p class="detail-value"><%= event.default_capacity || "Not provided" %></p>
+          <p class="detail-value"><%= event.eventdefaultcapacity || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Start</h3>
-          <p class="detail-value"><%= event.datetime_start ? (event.datetime_start.toISOString ? event.datetime_start.toISOString().replace('T',' ').slice(0,16) : String(event.datetime_start)) : "Not provided" %></p>
+          <p class="detail-value"><%= event.eventdatetimestart ? (event.eventdatetimestart.toISOString ? event.eventdatetimestart.toISOString().replace('T',' ').slice(0,16) : String(event.eventdatetimestart)) : "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>End</h3>
-          <p class="detail-value"><%= event.datetime_end ? (event.datetime_end.toISOString ? event.datetime_end.toISOString().replace('T',' ').slice(0,16) : String(event.datetime_end)) : "Not provided" %></p>
+          <p class="detail-value"><%= event.eventdatetimeend ? (event.eventdatetimeend.toISOString ? event.eventdatetimeend.toISOString().replace('T',' ').slice(0,16) : String(event.eventdatetimeend)) : "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Location</h3>
-          <p class="detail-value"><%= event.location || "Not provided" %></p>
+          <p class="detail-value"><%= event.eventlocation || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Capacity</h3>
-          <p class="detail-value"><%= typeof event.capacity !== "undefined" && event.capacity !== null ? event.capacity : "Not provided" %></p>
+          <p class="detail-value"><%= typeof event.eventcapacity !== "undefined" && event.eventcapacity !== null ? event.eventcapacity : "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Registration deadline</h3>
-          <p class="detail-value"><%= event.registration_deadline ? (event.registration_deadline.toISOString ? event.registration_deadline.toISOString().replace('T',' ').slice(0,16) : String(event.registration_deadline)) : "Not provided" %></p>
+          <p class="detail-value"><%= event.eventregistrationdeadline ? (event.eventregistrationdeadline.toISOString ? event.eventregistrationdeadline.toISOString().replace('T',' ').slice(0,16) : String(event.eventregistrationdeadline)) : "Not provided" %></p>
         </div>
       </div>
       <div style="margin-top: 1.5rem;">
-        <a href="/events" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to list</a>
+        <a href="/events" class="btn btn--ghost">Back to list</a>
       </div>
     </div>
   </section>

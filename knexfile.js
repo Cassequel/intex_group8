@@ -6,7 +6,7 @@ module.exports = {
       connection: {
         host: 'localhost',
         user: 'postgres',
-        password: 'password123',
+        password: 'wiztec12',
         database: 'test_migration',
         port: 5432,
       },

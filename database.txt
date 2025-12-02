@@ -7,10 +7,11 @@ DROP TABLE IF EXISTS donations;
 DROP TABLE IF EXISTS milestones;
 DROP TABLE IF EXISTS survey;
 DROP TABLE IF EXISTS registration;
-DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS event_occurrences;
+DROP TABLE IF EXISTS event_templates;
 DROP TABLE IF EXISTS participants;
 DROP TABLE IF EXISTS event_registrations_raw;
-DROP TABLE IF EXISTS users
+DROP TABLE IF EXISTS users;
 
 --------------------------------------------------
 -- 1. Staging table with ALL raw columns
@@ -124,18 +125,18 @@ INSERT INTO event_registrations_raw (
     TRUE,
     '2024-10-06 10:01:00',
     '2024-09-09 10:00:00',
-    NULL,  -- satisfaction
-    NULL,  -- usefulness
-    NULL,  -- instructor
-    NULL,  -- recommendation
-    NULL,  -- overall
-    NULL,  -- nps_bucket
-    NULL,  -- comments
-    NULL,  -- submission_date
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     'AA in Art & Design; Clinical Data Coordinator',
     '2025-03-07; 2024-11-03',
-    NULL,  -- donation_history
-    NULL   -- total_donations
+    NULL,
+    NULL
 ),
 -- 2) Natalie (no survey, has donation)
 (
@@ -164,14 +165,14 @@ INSERT INTO event_registrations_raw (
     TRUE,
     '2022-04-02 10:01:00',
     '2022-03-30 10:00:00',
-    NULL,  -- satisfaction
-    NULL,  -- usefulness
-    NULL,  -- instructor
-    NULL,  -- recommendation
-    NULL,  -- overall
-    NULL,  -- nps_bucket
-    NULL,  -- comments
-    NULL,  -- submission_date
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     'Middle School Diploma; Published Project',
     '2022-08-29; 2022-11-13',
     '2022-01-06:$257.41',
@@ -302,7 +303,7 @@ INSERT INTO event_registrations_raw (
 -- 3. Normalized tables
 --------------------------------------------------
 
--- Participants (ID used everywhere else)
+-- Participants
 CREATE TABLE participants (
     participant_id       SERIAL PRIMARY KEY,
     email                TEXT NOT NULL UNIQUE,
@@ -319,37 +320,43 @@ CREATE TABLE participants (
     total_donations      NUMERIC(12,2) DEFAULT 0
 );
 
--- Events (ID used in registration & survey)
-CREATE TABLE events (
-    event_id              SERIAL PRIMARY KEY,
-    name                  TEXT NOT NULL,
-    type                  TEXT,
-    description           TEXT,
-    recurrence_pattern    TEXT,
-    default_capacity      INTEGER,
-    datetime_start        TIMESTAMP WITHOUT TIME ZONE,
-    datetime_end          TIMESTAMP WITHOUT TIME ZONE,
-    location              TEXT,
-    capacity              INTEGER,
-    registration_deadline TIMESTAMP WITHOUT TIME ZONE
+-- Event Templates (matches first screenshot headers)
+CREATE TABLE event_templates (
+    EventTemplateID        SERIAL PRIMARY KEY,
+    EventName              TEXT NOT NULL,
+    EventType              TEXT,
+    EventDescription       TEXT,
+    EventRecurrencePattern TEXT,
+    EventDefaultCapacity   INTEGER
 );
 
--- Registration (one per participant x event in your sample)
+-- Event Occurrences (matches second screenshot headers)
+CREATE TABLE event_occurrences (
+    EventOccurenceID          SERIAL PRIMARY KEY,
+    EventTemplateID           INTEGER NOT NULL REFERENCES event_templates(EventTemplateID),
+    EventDateTimeStart        TIMESTAMP WITHOUT TIME ZONE,
+    EventDateTimeEnd          TIMESTAMP WITHOUT TIME ZONE,
+    EventLocation             TEXT,
+    EventCapacity             INTEGER,
+    EventRegistrationDeadline TIMESTAMP WITHOUT TIME ZONE
+);
+
+-- Registration (uses EventOccurenceID)
 CREATE TABLE registration (
     registration_id       SERIAL PRIMARY KEY,
     participant_id        INTEGER NOT NULL REFERENCES participants(participant_id),
-    event_id              INTEGER NOT NULL REFERENCES events(event_id),
+    EventOccurenceID      INTEGER NOT NULL REFERENCES event_occurrences(EventOccurenceID),
     status                TEXT,
     attended_flag         BOOLEAN,
     check_in_time         TIMESTAMP WITHOUT TIME ZONE,
     created_at            TIMESTAMP WITHOUT TIME ZONE
 );
 
--- Survey (linked to participant, event, and optionally registration)
+-- Survey (also uses EventOccurenceID)
 CREATE TABLE survey (
     survey_id             SERIAL PRIMARY KEY,
     participant_id        INTEGER NOT NULL REFERENCES participants(participant_id),
-    event_id              INTEGER NOT NULL REFERENCES events(event_id),
+    EventOccurenceID      INTEGER NOT NULL REFERENCES event_occurrences(EventOccurenceID),
     registration_id       INTEGER REFERENCES registration(registration_id),
     satisfaction_score    NUMERIC(4,2),
     usefulness_score      NUMERIC(4,2),
@@ -361,7 +368,7 @@ CREATE TABLE survey (
     submission_date       TIMESTAMP WITHOUT TIME ZONE
 );
 
--- Milestones (one row per milestone per participant)
+-- Milestones
 CREATE TABLE milestones (
     milestone_id          SERIAL PRIMARY KEY,
     participant_id        INTEGER NOT NULL REFERENCES participants(participant_id),
@@ -369,7 +376,7 @@ CREATE TABLE milestones (
     achieved_date         DATE
 );
 
--- Donations (one row per donation)
+-- Donations
 CREATE TABLE donations (
     donation_id           SERIAL PRIMARY KEY,
     participant_id        INTEGER NOT NULL REFERENCES participants(participant_id),
@@ -377,7 +384,7 @@ CREATE TABLE donations (
     amount                NUMERIC(12,2)
 );
 
--- Users (they who have registered)
+-- Users
 CREATE TABLE users (
     user_id   SERIAL PRIMARY KEY,
     username  TEXT NOT NULL UNIQUE,
@@ -385,7 +392,6 @@ CREATE TABLE users (
     email     TEXT NOT NULL UNIQUE,
     level     CHAR(1) NOT NULL  -- U = user, M = manager/admin
 );
-
 
 --------------------------------------------------
 -- 4. Populate participants & events
@@ -420,30 +426,45 @@ SELECT DISTINCT
     COALESCE(total_donations, 0)
 FROM event_registrations_raw;
 
-INSERT INTO events (
-    name,
-    type,
-    description,
-    recurrence_pattern,
-    default_capacity,
-    datetime_start,
-    datetime_end,
-    location,
-    capacity,
-    registration_deadline
+-- Event templates from raw
+INSERT INTO event_templates (
+    EventName,
+    EventType,
+    EventDescription,
+    EventRecurrencePattern,
+    EventDefaultCapacity
 )
 SELECT DISTINCT
     event_name,
     event_type,
     event_description,
     event_recurrence_pattern,
-    event_default_capacity,
-    event_datetime_start,
-    event_datetime_end,
-    event_location,
-    event_capacity,
-    event_registration_deadline
+    event_default_capacity
 FROM event_registrations_raw;
+
+-- Event occurrences from raw
+INSERT INTO event_occurrences (
+    EventTemplateID,
+    EventDateTimeStart,
+    EventDateTimeEnd,
+    EventLocation,
+    EventCapacity,
+    EventRegistrationDeadline
+)
+SELECT DISTINCT
+    et.EventTemplateID,
+    r.event_datetime_start,
+    r.event_datetime_end,
+    r.event_location,
+    r.event_capacity,
+    r.event_registration_deadline
+FROM event_registrations_raw r
+JOIN event_templates et
+  ON et.EventName              = r.event_name
+ AND et.EventType              = r.event_type
+ AND et.EventDescription       = r.event_description
+ AND et.EventRecurrencePattern = r.event_recurrence_pattern
+ AND et.EventDefaultCapacity   = r.event_default_capacity;
 
 --------------------------------------------------
 -- 5. Populate registration
@@ -451,7 +472,7 @@ FROM event_registrations_raw;
 
 INSERT INTO registration (
     participant_id,
-    event_id,
+    EventOccurenceID,
     status,
     attended_flag,
     check_in_time,
@@ -459,7 +480,7 @@ INSERT INTO registration (
 )
 SELECT
     p.participant_id,
-    e.event_id,
+    eo.EventOccurenceID,
     r.registration_status,
     r.registration_attended_flag,
     r.registration_check_in_time,
@@ -467,9 +488,15 @@ SELECT
 FROM event_registrations_raw r
 JOIN participants p
   ON p.email = r.participant_email
-JOIN events e
-  ON e.name = r.event_name
- AND e.datetime_start = r.event_datetime_start;
+JOIN event_templates et
+  ON et.EventName              = r.event_name
+ AND et.EventType              = r.event_type
+ AND et.EventDescription       = r.event_description
+ AND et.EventRecurrencePattern = r.event_recurrence_pattern
+ AND et.EventDefaultCapacity   = r.event_default_capacity
+JOIN event_occurrences eo
+  ON eo.EventTemplateID    = et.EventTemplateID
+ AND eo.EventDateTimeStart = r.event_datetime_start;
 
 --------------------------------------------------
 -- 6. Populate survey (only rows that have survey data)
@@ -477,7 +504,7 @@ JOIN events e
 
 INSERT INTO survey (
     participant_id,
-    event_id,
+    EventOccurenceID,
     registration_id,
     satisfaction_score,
     usefulness_score,
@@ -490,7 +517,7 @@ INSERT INTO survey (
 )
 SELECT
     p.participant_id,
-    e.event_id,
+    eo.EventOccurenceID,
     reg.registration_id,
     r.survey_satisfaction_score,
     r.survey_usefulness_score,
@@ -503,16 +530,22 @@ SELECT
 FROM event_registrations_raw r
 JOIN participants p
   ON p.email = r.participant_email
-JOIN events e
-  ON e.name = r.event_name
- AND e.datetime_start = r.event_datetime_start
+JOIN event_templates et
+  ON et.EventName              = r.event_name
+ AND et.EventType              = r.event_type
+ And et.EventDescription       = r.event_description
+ AND et.EventRecurrencePattern = r.event_recurrence_pattern
+ AND et.EventDefaultCapacity   = r.event_default_capacity
+JOIN event_occurrences eo
+  ON eo.EventTemplateID    = et.EventTemplateID
+ AND eo.EventDateTimeStart = r.event_datetime_start
 JOIN registration reg
-  ON reg.participant_id = p.participant_id
- AND reg.event_id = e.event_id
+  ON reg.participant_id   = p.participant_id
+ AND reg.EventOccurenceID = eo.EventOccurenceID
 WHERE r.survey_overall_score IS NOT NULL;
 
 --------------------------------------------------
--- 7. Populate milestones (split semicolon-delimited lists)
+-- 7. Populate milestones
 --------------------------------------------------
 
 WITH raw_milestones AS (
@@ -542,7 +575,7 @@ JOIN participants p
   ON p.email = e.participant_email;
 
 --------------------------------------------------
--- 8. Populate donations (parse DonationHistory "YYYY-MM-DD:$amount;...")
+-- 8. Populate donations
 --------------------------------------------------
 
 WITH donations_raw AS (
@@ -569,17 +602,19 @@ FROM parsed
 JOIN participants p
   ON p.email = parsed.participant_email;
 
+--------------------------------------------------
+-- 9. Users
+--------------------------------------------------
+
 INSERT INTO users (username, password, email, level) VALUES
-    ('aiden', 'admin', 'apierceswan@gmail.com', 'M')
-    ('penelope.martinez4', 'pass123', 'penelope.martinez4@studentmail.org', 'U'),
-    ('natalie.torres6',    'pass123', 'natalie.torres6@studentmail.org',     'U'),
-    ('elizabeth.harris7',  'pass123', 'elizabeth.harris7@learners.net',      'U'),
-    ('paisley.jones8',     'pass123', 'paisley.jones8@studentmail.org',      'U'),
-    ('victoria.lee9',      'pass123', 'victoria.lee9@ellarises.org',         'U');
+    ('aiden',             'admin',  'apierceswan@gmail.com',              'M'),
+    ('penelope.martinez4','pass123','penelope.martinez4@studentmail.org', 'U'),
+    ('natalie.torres6',   'pass123','natalie.torres6@studentmail.org',    'U'),
+    ('elizabeth.harris7', 'pass123','elizabeth.harris7@learners.net',    'U'),
+    ('paisley.jones8',    'pass123','paisley.jones8@studentmail.org',    'U'),
+    ('victoria.lee9',     'pass123','victoria.lee9@ellarises.org',       'U');
 
-
-
--- Optional: keep participants.total_donations in sync with donations table
+-- Keep participants.total_donations in sync
 UPDATE participants p
 SET total_donations = d.sum_amount
 FROM (
