@@ -24,10 +24,17 @@ app.use('/styles', express.static(path.join(__dirname, 'styles')));
 const helmet = require('helmet');
 
 
+
 app.use(session({
     secret: process.env.SESSION_SECRET || "devsecret",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
+        httpOnly: true,
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
 }));
 
 // installs helmet - used to delcare headers to pretect other aspects of the code
@@ -63,12 +70,29 @@ const storage = multer.diskStorage({
         cb(null, file.originalname);
     }
 });
-// Create the Multer instance that will handle single-file uploads
-const upload = multer({ storage });
+
+
+// multer class helps secure file structure to make sure malicious files arent uploaded 
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|pdf/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        
+        if (mimetype && extname) {
+            return cb(null, true);
+        }
+        cb(new Error('Invalid file type'));
+    }
+});
 // Expose everything in /images (including uploads) as static assets
 app.use("/images", express.static(uploadRoot));
 
-// process.env.PORT is when you deploy and 3000 is for test
+
+
+
 
 /* Session middleware (Middleware is code that runs between the time the request comes
 to the server and the time the response is sent back. It allows you to intercept and
@@ -94,15 +118,20 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(
-    session(
-        {
-    secret: process.env.SESSION_SECRET || 'fallback-secret-key',
-    resave: false,
-    saveUninitialized: false,
-        }
-    )
-);
+// Password validation function - pass must be 8 char
+function validatePassword(password) {
+    if (password.length < 8) {
+        return "Password must be at least 8 characters";
+    }
+    return null;
+}
+// function to setup level to make sure only managers can access
+const requireManager = (req, res, next) => {
+    if (req.session.level === 'U') {
+        return res.status(403).send("Not authorized");
+    }
+    next();
+};
 
 // Tells Express how to read form data sent in the body of a request
 app.use(express.urlencoded({extended: true}));
@@ -282,7 +311,7 @@ app.post('/donations/:id/edit', async (req, res) => {
     }
 });
 
-app.post('/donations/:id/delete', async (req, res) => {
+app.post('/donations/:id/delete', requireManager, async (req, res) => {
     const { id } = req.params;
     try {
         await knex("donations").where({ donation_id: id }).del();
@@ -456,7 +485,12 @@ app.post('/register', async (req, res) => {
             .first();
 
         if (existingUser) {
-            return res.render('auth/register', { error_message: "That username or email is already in use." });
+            return res.render('auth/register', { error_message: "Registration failed. Please try again with new values." });
+        }
+
+        const pwError = validatePassword(password);
+        if (pwError) {
+            return res.render('auth/register', { error_message: pwError });
         }
 
         let hashedPassword = await bcrypt.hash(password, 10);
@@ -481,7 +515,7 @@ app.post('/register', async (req, res) => {
         console.error("Registration error:", error);
         const duplicateErr = error.code === "23505";
         const message = duplicateErr
-            ? "That username or email is already in use."
+            ? "Registration failed. Cannot use current email."
             : "Server error. Please try again.";
         res.status(500).render('auth/register', { error_message: message });
     }
@@ -603,7 +637,7 @@ app.post('/participants/new', async (req, res) => {
         console.error("Error creating participant:", error);
         const duplicateErr = error.code === "23505";
         const message = duplicateErr
-            ? "That email is already in use."
+            ? "Registration failed. Cannot use current email."
             : "Could not create participant. Please try again.";
         res.status(500).render('participants/parAdd', { error_message: message });
     }
@@ -707,7 +741,7 @@ app.post('/participants/:id/edit', async (req, res) => {
         console.error("Error updating participant:", error);
         const duplicateErr = error.code === "23505";
         const message = duplicateErr
-            ? "That email is already in use."
+            ? "Registration failed. Cannot use current email."
             : "Could not update participant. Please try again.";
 
         try {
@@ -722,7 +756,7 @@ app.post('/participants/:id/edit', async (req, res) => {
     }
 });
 
-app.post('/participants/:id/delete', async (req, res) => {
+app.post('/participants/:id/delete',requireManager, async (req, res) => {
     const { id } = req.params;
     try {
         await knex("participants")
@@ -736,12 +770,6 @@ app.post('/participants/:id/delete', async (req, res) => {
 });
 
 // Users
-const requireManager = (req, res, next) => {
-    if (req.session.level === 'U') {
-        return res.status(403).send("Not authorized");
-    }
-    next();
-};
 
 app.get('/users', requireManager, async (req, res) => {
     try {
@@ -777,7 +805,7 @@ app.post('/users/new', requireManager, async (req, res) => {
         console.error("Error creating user:", error);
         const duplicateErr = error.code === "23505";
         const message = duplicateErr
-            ? "That username or email is already in use."
+            ? "Registration failed. Cannot use username or email."
             : "Could not create user. Please try again.";
         res.status(500).render('userDashboard/userAdd', { error_message: message });
     }
@@ -822,7 +850,7 @@ app.post('/users/:id/edit', requireManager, async (req, res) => {
         console.error("Error updating user:", error);
         const duplicateErr = error.code === "23505";
         const message = duplicateErr
-            ? "That username or email is already in use."
+            ? "Registration failed. Cannot use username or email."
             : "Could not update user. Please try again.";
         try {
             const user = await knex("users").where({ user_id: id }).first();
@@ -989,7 +1017,7 @@ app.post('/events/:id/edit', async (req, res) => {
     }
 });
 
-app.post('/events/:id/delete', async (req, res) => {
+app.post('/events/:id/delete',requireManager, async (req, res) => {
     const { id } = req.params;
     try {
         await knex("events").where({ event_id: id }).del();

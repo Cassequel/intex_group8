@@ -88,14 +88,14 @@
     <div class="container">
       <div>
         <h2 style="margin: 0 0 0.5rem;">Contact</h2>
-        <p style="margin: 0.15rem 0;">Email: <%= participant.email || "Not provided" %></p>
+        <p style="margin: 0.15rem 0;">Email: <%= participant.participant_email || "Not provided" %></p>
         <p style="margin: 0.15rem 0;">Phone: <%= participant.phone || "Not provided" %></p>
       </div>
 
       <div class="detail-grid">
         <div class="detail-card">
           <h3>Date of birth</h3>
-          <p class="detail-value"><%= participant.dob ? (participant.dob.toISOString ? participant.dob.toISOString().slice(0,10) : String(participant.dob).slice(0,10)) : "Not provided" %></p>
+          <p class="detail-value"><%= participant.participant_dob ? (participant.participant_dob.toISOString ? participant.participant_dob.toISOString().slice(0,10) : String(participant.participant_dob).slice(0,10)) : "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>City</h3>
@@ -111,11 +111,11 @@
         </div>
         <div class="detail-card">
           <h3>School / Employer</h3>
-          <p class="detail-value"><%= participant.school || participant.school_or_employer || "Not provided" %></p>
+          <p class="detail-value"><%= participant.school || participant.participant_school_or_employer || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Field of interest</h3>
-          <p class="detail-value"><%= participant.field_of_interest || "Not provided" %></p>
+          <p class="detail-value"><%= participant.participant_field_of_interest || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Role</h3>

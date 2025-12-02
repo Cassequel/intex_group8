@@ -49,7 +49,7 @@
       <p class="eyebrow">Roster</p>
       <h1>Edit participant</h1>
       <p class="hero-subtitle">
-        Update details and profile image for <%= participant.first_name %> <%= participant.last_name %>.
+        Update details and profile image for <%= participant.participant_first_name %> <%= participant.participant_last_name %>.
       </p>
     </div>
   </section>
@@ -66,23 +66,23 @@
           <div class="form-grid-two">
             <div class="form-field">
               <label for="first_name">First name</label>
-              <input id="first_name" name="first_name" type="text" value="<%= participant.first_name || '' %>" required />
+              <input id="first_name" name="first_name" type="text" value="<%= participant.participant_first_name || '' %>" required />
             </div>
             <div class="form-field">
               <label for="last_name">Last name</label>
-              <input id="last_name" name="last_name" type="text" value="<%= participant.last_name || '' %>" required />
+              <input id="last_name" name="last_name" type="text" value="<%= participant.participant_last_name || '' %>" required />
             </div>
           </div>
 
           <div class="form-field">
             <label for="email">Email</label>
-            <input id="email" name="email" type="email" value="<%= participant.email || '' %>" required />
+            <input id="email" name="email" type="email" value="<%= participant.participant_email || '' %>" required />
           </div>
 
           <div class="form-grid-two">
             <div class="form-field">
               <label for="dob">Date of birth</label>
-              <input id="dob" name="dob" type="date" value="<%= participant.dob ? (participant.dob.toISOString ? participant.dob.toISOString().slice(0,10) : String(participant.dob).slice(0,10)) : '' %>" />
+              <input id="dob" name="dob" type="date" value="<%= participant.participant_dob ? (participant.participant_dob.toISOString ? participant.participant_dob.toISOString().slice(0,10) : String(participant.participant_dob).slice(0,10)) : '' %>" />
             </div>
             <div class="form-field">
               <label for="phone">Phone</label>
@@ -108,17 +108,17 @@
           <div class="form-grid-two">
             <div class="form-field">
               <label for="school">School</label>
-              <input id="school" name="school" type="text" value="<%= participant.school || participant.school_or_employer || '' %>" />
+              <input id="school" name="school" type="text" value="<%= participant.school || participant.participant_school_or_employer || '' %>" />
             </div>
             <div class="form-field">
               <label for="employer">Employer</label>
-              <input id="employer" name="employer" type="text" value="<%= participant.employer || '' %>" />
+              <input id="employer" name="employer" type="text" value="<%= participant.participant_employer || '' %>" />
             </div>
           </div>
 
           <div class="form-field">
             <label for="field_of_interest">Field of interest</label>
-            <input id="field_of_interest" name="field_of_interest" type="text" value="<%= participant.field_of_interest || '' %>" />
+            <input id="field_of_interest" name="field_of_interest" type="text" value="<%= participant.participant_field_of_interest || '' %>" />
           </div>
 
           <div class="form-field" style="margin-top: 0.5rem;">
