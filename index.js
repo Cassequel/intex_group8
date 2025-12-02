@@ -283,11 +283,10 @@ app.use(helmet());
 
 
 // sets up connections for migrations(script to install database)
-// const knexConfig = require("./knexfile");
-// const environment = process.env.NODE_ENV || "development";
-// const knex = require("knex")(knexConfig[environment]);
+const knexConfig = require("./knexfile");
+const environment = process.env.NODE_ENV || "development";
+const knex = require("knex")(knexConfig[environment]);
 
-const knex = require('./db');
 
 
 
