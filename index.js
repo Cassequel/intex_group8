@@ -215,7 +215,7 @@ app.post('/reset-password', async (req, res) => {
         await knex.transaction(async trx => {
             await trx("users")
                 .where({ user_id: record.user_id })
-                .update({ password: hashed });
+                .update({ password_hash: hashed });
 
             await trx("password_reset_tokens")
                 .where({ id: record.id })
@@ -662,9 +662,9 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-    const { email, username, password } = req.body;
+    const { email, username, password_hash } = req.body;
 
-    if (!email || !username || !password) {
+    if (!email || !username || !password_hash) {
         return res.render('auth/register', { error_message: "Please enter an email, username, and password." });
     }
 
@@ -691,7 +691,7 @@ app.post('/register', async (req, res) => {
                 email,
                 username,
                 // store hashed password in the DB column that exists
-                password: hashedPassword,
+                password_hash: hashedPassword,
                 level: "U"
             })
             .returning("*");
@@ -999,7 +999,7 @@ app.post('/users/new', requireManager, async (req, res) => {
         await knex("users").insert({
             username,
             email,
-            password: hashedPassword,
+            password_hash: hashedPassword,
             level: level || 'U'
         });
         res.redirect('/users');
@@ -1043,7 +1043,7 @@ app.post('/users/:id/edit', requireManager, async (req, res) => {
             .update({
                 username,
                 email,
-                password: hashedPassword,
+                password_hash: hashedPassword,
                 level: level || 'U'
             })
             .returning("*");
