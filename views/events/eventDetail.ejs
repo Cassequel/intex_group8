@@ -64,6 +64,11 @@
       <p class="hero-subtitle">
         Full details for this event.
       </p>
+      <% if (userLevel !== 'U') { %>
+        <div class="hero-actions">
+          <a href="/events/<%= event.event_id %>/edit" class="btn btn--outline">Edit event</a>
+        </div>
+      <% } %>
     </div>
   </section>
 
@@ -109,7 +114,6 @@
         </div>
       </div>
       <div style="margin-top: 1.5rem;">
-        <a href="/events/<%= event.event_id %>/edit" class="btn btn--outline">Edit event</a>
         <a href="/events" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to list</a>
       </div>
     </div>

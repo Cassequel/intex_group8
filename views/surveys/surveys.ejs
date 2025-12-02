@@ -35,6 +35,10 @@
           <li><a href="/participants">Participants</a></li>
           <li><a href="/events">Events</a></li>
           <li><a href="/surveys">Surveys</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
         </ul>
       </nav>
     </div>
@@ -48,7 +52,9 @@
       <h1>Surveys</h1>
       <p class="hero-subtitle">View participant feedback across events.</p>
       <div class="hero-actions">
-        <a href="/surveys/new" class="btn btn--primary">Add survey</a>
+        <% if (userLevel !== 'U') { %>
+          <a href="/surveys/new" class="btn btn--primary">Add survey</a>
+        <% } %>
       </div>
     </div>
   </section>
@@ -64,24 +70,31 @@
       <div class="table-card">
         <div class="table-card__header">
           <span>Surveys</span>
-          <a href="/surveys/new" class="btn btn--primary btn--small">Add survey</a>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <input type="search" id="surveySearch" placeholder="Search surveys..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
+            <% if (userLevel !== 'U') { %>
+              <a href="/surveys/new" class="btn btn--primary btn--small">Add survey</a>
+            <% } %>
+          </div>
         </div>
         <div class="table-card__body">
           <table class="data-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Participant</th>
                 <th>Event</th>
                 <th>NPS Bucket</th>
                 <th>Submitted</th>
                 <th>Comments</th>
-                <th>Actions</th>
+                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
               <% if (surveys && surveys.length) { %>
                 <% surveys.forEach((survey) => { %>
-                  <tr>
+                  <tr data-name="<%= (survey.participant_name || '').toLowerCase() %>">
+                    <td><%= survey.survey_id %></td>
                     <td><a href="/surveys/<%= survey.survey_id %>"><%= survey.participant_name || "Unknown participant" %></a></td>
                     <td><%= survey.event_name || "Unknown event" %></td>
                     <td><%= survey.survey_nps_bucket || survey.nps_bucket || "—" %></td>
@@ -96,17 +109,19 @@
                       <%= submittedDate %>
                     </td>
                     <td class="comment-preview"><%= survey.survey_comments || survey.comments || "" %></td>
-                    <td class="table-actions">
-                      <a class="btn btn--outline btn--small" href="/surveys/<%= survey.survey_id %>/edit">Edit</a>
-                      <form class="inline-form" method="POST" action="/surveys/<%= survey.survey_id %>/delete">
-                        <button type="submit" class="btn btn--ghost btn--small">Delete</button>
-                      </form>
-                    </td>
+                    <% if (userLevel !== 'U') { %>
+                      <td class="table-actions">
+                        <a class="btn btn--outline btn--small" href="/surveys/<%= survey.survey_id %>/edit">Edit</a>
+                        <form class="inline-form" method="POST" action="/surveys/<%= survey.survey_id %>/delete">
+                          <button type="submit" class="btn btn--ghost btn--small">Delete</button>
+                        </form>
+                      </td>
+                    <% } %>
                   </tr>
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="6" class="empty-row">No surveys found.</td>
+                  <td colspan="<%= userLevel !== 'U' ? 7 : 6 %>" class="empty-row">No surveys found.</td>
                 </tr>
               <% } %>
             </tbody>
@@ -122,6 +137,18 @@
     navToggle.addEventListener("click", () => {
       navLinks.classList.toggle("nav-links--open");
       navToggle.classList.toggle("nav-toggle--open");
+    });
+
+    // Simple search by participant name
+    const surveySearch = document.getElementById("surveySearch");
+    const surveyRows = Array.from(document.querySelectorAll("tbody tr"));
+
+    surveySearch?.addEventListener("input", () => {
+      const term = surveySearch.value.trim().toLowerCase();
+      surveyRows.forEach((row) => {
+        const name = row.dataset.name || "";
+        row.style.display = name.includes(term) ? "" : "none";
+      });
     });
   </script>
 </body>

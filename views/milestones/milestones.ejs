@@ -26,6 +26,9 @@
           <li><a href="/">Home</a></li>
           <li><a href="/participants">Participants</a></li>
           <li><a href="/milestones">Milestones</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
         </ul>
       </nav>
     </div>
@@ -38,6 +41,11 @@
       <p class="eyebrow">Progress</p>
       <h1>Milestones</h1>
       <p class="hero-subtitle">Track achievements by participant.</p>
+      <% if (userLevel !== 'U') { %>
+        <div class="hero-actions">
+          <a href="/milestones/new" class="btn btn--primary">Add milestone</a>
+        </div>
+      <% } %>
     </div>
   </section>
 
@@ -53,8 +61,11 @@
         <div class="table-card__header">
           <span>Milestones</span>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-            <input type="search" id="milestoneSearch" placeholder="Search title..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
-            <a href="/milestones/new" class="btn btn--primary btn--small">Add milestone</a>
+            <input type="search" id="nameSearch" placeholder="Search participant..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
+            <input type="search" id="titleSearch" placeholder="Search title..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
+            <% if (userLevel !== 'U') { %>
+              <a href="/milestones/new" class="btn btn--primary btn--small">Add milestone</a>
+            <% } %>
           </div>
         </div>
         <div class="table-card__body">
@@ -70,7 +81,7 @@
             <tbody>
               <% if (milestones && milestones.length) { %>
                 <% milestones.forEach((m) => { %>
-                  <tr data-title="<%= (m.title || '').toLowerCase() %>">
+                  <tr data-title="<%= (m.title || '').toLowerCase() %>" data-name="<%= (m.participant_name || '').toLowerCase() %>">
                     <td><%= m.milestone_id %></td>
                     <td><a href="/participants/<%= m.participant_id %>?return=milestones"><%= m.participant_name || ('ID ' + m.participant_id) %></a></td>
                     <td><a href="/milestones/<%= m.milestone_id %>?from=milestones"><%= m.title %></a></td>
@@ -106,16 +117,24 @@
       navToggle.classList.toggle("nav-toggle--open");
     });
 
-    // Search by title
-    const milestoneSearch = document.getElementById("milestoneSearch");
+    const nameSearch = document.getElementById("nameSearch");
+    const titleSearch = document.getElementById("titleSearch");
     const milestoneRows = Array.from(document.querySelectorAll("tbody tr"));
-    milestoneSearch?.addEventListener("input", () => {
-      const term = milestoneSearch.value.trim().toLowerCase();
+
+    const applyFilters = () => {
+      const nameTerm = nameSearch?.value.trim().toLowerCase() || "";
+      const titleTerm = titleSearch?.value.trim().toLowerCase() || "";
       milestoneRows.forEach((row) => {
+        const name = row.dataset.name || "";
         const title = row.dataset.title || "";
-        row.style.display = title.includes(term) ? "" : "none";
+        const matchesName = name.includes(nameTerm);
+        const matchesTitle = title.includes(titleTerm);
+        row.style.display = matchesName && matchesTitle ? "" : "none";
       });
-    });
+    };
+
+    nameSearch?.addEventListener("input", applyFilters);
+    titleSearch?.addEventListener("input", applyFilters);
   </script>
 </body>
 </html>

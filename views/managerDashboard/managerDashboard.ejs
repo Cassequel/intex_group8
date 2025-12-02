@@ -66,6 +66,10 @@
           <li><a href="/milestones">Milestones</a></li>
           <li><a href="/donations">Donations</a></li>
           <li><a href="/surveys">Surveys</a></li>
+          <% if (userLevel !== 'U') { %>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+          <% } %>
         </ul>
       </nav>
     </div>

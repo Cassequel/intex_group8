@@ -106,6 +106,7 @@ app.use(express.urlencoded({extended: true}));
 // Expose session flags to views
 app.use((req, res, next) => {
     res.locals.isLoggedIn = !!req.session.isLoggedIn;
+    res.locals.userLevel = req.session.level || 'U';
     next();
 });
 
@@ -136,8 +137,297 @@ app.get('/', (req, res) => {
     res.render('public/landing');
 });
 
-app.get('/donations', (req, res) => {
-    res.render('donations/donations');
+app.get('/donations', async (req, res) => {
+    try {
+        const donations = await knex("donations as d")
+            .leftJoin("participants as p", "d.participant_id", "p.participant_id")
+            .select(
+                "d.*",
+                knex.raw("CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')) as participant_name")
+            )
+            .orderBy("d.donation_id", "asc");
+        res.render('donations/donations', { donations });
+    } catch (error) {
+        console.error("Error loading donations:", error);
+        res.status(500).send("Error loading donations");
+    }
+});
+
+app.get('/donAdd', (req, res) => {
+    res.render('donations/donAdd', { error_message: null });
+});
+
+app.post('/donations/new', async (req, res) => {
+    const { first_name, last_name, email, donation_date, amount } = req.body;
+
+    if (!first_name || !last_name || !email || !amount) {
+        return res.status(400).render('donations/donAdd', { error_message: "Please fill in name, email, and amount." });
+    }
+
+    try {
+        const participant = await knex("participants").where({ email }).first();
+        if (!participant) {
+            return res.status(400).render('donations/donAdd', { error_message: "We couldn't find a participant with that email." });
+        }
+
+        await knex("donations").insert({
+            participant_id: participant.participant_id,
+            donation_date: donation_date || null,
+            amount
+        });
+
+        res.redirect('/donations');
+    } catch (error) {
+        console.error("Error creating donation:", error);
+        res.status(500).render('donations/donAdd', { error_message: "Could not create donation. Please try again." });
+    }
+});
+
+app.get('/donations/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const donation = await knex("donations as d")
+            .leftJoin("participants as p", "d.participant_id", "p.participant_id")
+            .select(
+                "d.*",
+                knex.raw("CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')) as participant_name")
+            )
+            .where("d.donation_id", id)
+            .first();
+        if (!donation) {
+            return res.status(404).render('public/418Code');
+        }
+        res.render('donations/donDetails', { donation });
+    } catch (error) {
+        console.error("Error loading donation:", error);
+        res.status(500).send("Error loading donation");
+    }
+});
+
+app.get('/donations/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const donation = await knex("donations as d")
+            .leftJoin("participants as p", "d.participant_id", "p.participant_id")
+            .select(
+                "d.*",
+                "p.email",
+                "p.first_name",
+                "p.last_name",
+                knex.raw("CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')) as participant_name")
+            )
+            .where("d.donation_id", id)
+            .first();
+        if (!donation) {
+            return res.status(404).render('public/418Code');
+        }
+        res.render('donations/donEdit', { donation, error_message: null });
+    } catch (error) {
+        console.error("Error loading donation:", error);
+        res.status(500).send("Error loading donation");
+    }
+});
+
+app.post('/donations/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    const { first_name, last_name, email, donation_date, amount } = req.body;
+
+    if (!first_name || !last_name || !email || !amount) {
+        return res.status(400).render('donations/donEdit', {
+            donation: { donation_id: id, first_name, last_name, email, donation_date, amount },
+            error_message: "Please fill in name, email, and amount."
+        });
+    }
+
+    try {
+        const participant = await knex("participants").where({ email }).first();
+        if (!participant) {
+            return res.status(400).render('donations/donEdit', {
+                donation: { donation_id: id, first_name, last_name, email, donation_date, amount },
+                error_message: "We couldn't find a participant with that email."
+            });
+        }
+
+        await knex("donations")
+            .where({ donation_id: id })
+            .update({
+                participant_id: participant.participant_id,
+                donation_date: donation_date || null,
+                amount
+            });
+
+        res.redirect(`/donations/${id}`);
+    } catch (error) {
+        console.error("Error updating donation:", error);
+        try {
+            const donation = await knex("donations as d")
+                .leftJoin("participants as p", "d.participant_id", "p.participant_id")
+                .select(
+                    "d.*",
+                    "p.email",
+                    "p.first_name",
+                    "p.last_name",
+                    knex.raw("CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')) as participant_name")
+                )
+                .where("d.donation_id", id)
+                .first();
+            res.status(500).render('donations/donEdit', { donation, error_message: "Could not update donation. Please try again." });
+        } catch (loadErr) {
+            res.status(500).send("Error loading donation");
+        }
+    }
+});
+
+app.post('/donations/:id/delete', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await knex("donations").where({ donation_id: id }).del();
+        res.redirect('/donations');
+    } catch (error) {
+        console.error("Error deleting donation:", error);
+        res.status(500).send("Error deleting donation");
+    }
+});
+
+// Milestones
+app.get('/milestones', async (req, res) => {
+    try {
+        const milestones = await knex("milestones as m")
+            .leftJoin("participants as p", "m.participant_id", "p.participant_id")
+            .select(
+                "m.*",
+                knex.raw("CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')) as participant_name")
+            )
+            .orderBy("m.participant_id", "asc")
+            .orderBy("m.milestone_id", "asc");
+        res.render('milestones/milestones', { milestones });
+    } catch (error) {
+        console.error("Error loading milestones:", error);
+        res.status(500).send("Error loading milestones");
+    }
+});
+
+app.get('/milestones/new', (req, res) => {
+    res.render('milestones/mileAdd', { error_message: null });
+});
+
+app.post('/milestones/new', async (req, res) => {
+    const { email, title, achieved_date } = req.body;
+
+    if (!email || !title) {
+        return res.status(400).render('milestones/mileAdd', { error_message: "Email and title are required." });
+    }
+
+    try {
+        const participant = await knex("participants").where({ email }).first();
+        if (!participant) {
+            return res.status(400).render('milestones/mileAdd', { error_message: "No participant found with that email." });
+        }
+
+        const [newMilestone] = await knex("milestones")
+            .insert({
+                participant_id: participant.participant_id,
+                title,
+                achieved_date: achieved_date || null
+            })
+            .returning("*");
+
+        res.redirect(`/milestones/${newMilestone.milestone_id}`);
+    } catch (error) {
+        console.error("Error creating milestone:", error);
+        res.status(500).render('milestones/mileAdd', { error_message: "Could not create milestone. Please try again." });
+    }
+});
+
+app.get('/milestones/:id', async (req, res) => {
+    const { id } = req.params;
+    const { from } = req.query;
+    try {
+        const milestone = await knex("milestones as m")
+            .leftJoin("participants as p", "m.participant_id", "p.participant_id")
+            .select(
+                "m.*",
+                knex.raw("CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')) as participant_name")
+            )
+            .where("m.milestone_id", id)
+            .first();
+        if (!milestone) {
+            return res.status(404).render('public/418Code');
+        }
+        const milestonesForParticipant = await knex("milestones")
+            .where({ participant_id: milestone.participant_id })
+            .orderBy("achieved_date", "asc")
+            .orderBy("milestone_id", "asc");
+        res.render('milestones/mileDetail', { milestone, milestonesForParticipant, returnTo: from === 'milestones' ? '/milestones' : '/participants' });
+    } catch (error) {
+        console.error("Error loading milestone:", error);
+        res.status(500).send("Error loading milestone");
+    }
+});
+
+app.get('/milestones/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const milestone = await knex("milestones as m")
+            .leftJoin("participants as p", "m.participant_id", "p.participant_id")
+            .select(
+                "m.*",
+                "p.email"
+            )
+            .where("m.milestone_id", id)
+            .first();
+        if (!milestone) {
+            return res.status(404).render('public/418Code');
+        }
+        res.render('milestones/mileEdit', { milestone, error_message: null });
+    } catch (error) {
+        console.error("Error loading milestone:", error);
+        res.status(500).send("Error loading milestone");
+    }
+});
+
+app.post('/milestones/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    const { email, title, achieved_date } = req.body;
+
+    if (!email || !title) {
+        return res.status(400).render('milestones/mileEdit', {
+            milestone: { milestone_id: id, email, title, achieved_date },
+            error_message: "Email and title are required."
+        });
+    }
+
+    try {
+        const participant = await knex("participants").where({ email }).first();
+        if (!participant) {
+            return res.status(400).render('milestones/mileEdit', {
+                milestone: { milestone_id: id, email, title, achieved_date },
+                error_message: "No participant found with that email."
+            });
+        }
+
+        await knex("milestones")
+            .where({ milestone_id: id })
+            .update({
+                participant_id: participant.participant_id,
+                title,
+                achieved_date: achieved_date || null
+            });
+
+        res.redirect(`/milestones/${id}`);
+    } catch (error) {
+        console.error("Error updating milestone:", error);
+        try {
+            const milestone = await knex("milestones as m")
+                .leftJoin("participants as p", "m.participant_id", "p.participant_id")
+                .select("m.*", "p.email")
+                .where("m.milestone_id", id)
+                .first();
+            res.status(500).render('milestones/mileEdit', { milestone, error_message: "Could not update milestone. Please try again." });
+        } catch (loadErr) {
+            res.status(500).send("Error loading milestone");
+        }
+    }
 });
 
 app.get('/register', (req, res) => {
@@ -246,7 +536,7 @@ app.get('/participants', async (req, res) => {
         // Select all columns to avoid missing-column errors if schema differs (e.g., no "school")
         const participants = await knex("participants")
             .select("*")
-            .orderBy("participant_id", "desc");
+            .orderBy("participant_id", "asc");
 
         res.render("participants/participants", { participants });
     } catch (error) {
@@ -310,6 +600,8 @@ app.post('/participants/new', async (req, res) => {
 
 app.get('/participants/:id', async (req, res) => {
     const { id } = req.params;
+    const { return: returnParam, return: returnQuery } = req.query;
+    const returnTo = returnParam || returnQuery;
     try {
         const participant = await knex("participants")
             .select("*")
@@ -320,7 +612,7 @@ app.get('/participants/:id', async (req, res) => {
             return res.status(404).render('public/418Code');
         }
 
-        res.render('participants/parDetail', { participant });
+        res.render('participants/parDetail', { participant, returnTo });
     } catch (error) {
         console.error("Error loading participant:", error);
         res.status(500).send("Error loading participant");
@@ -433,7 +725,14 @@ app.post('/participants/:id/delete', async (req, res) => {
 });
 
 // Users
-app.get('/users', async (req, res) => {
+const requireManager = (req, res, next) => {
+    if (req.session.level === 'U') {
+        return res.status(403).send("Not authorized");
+    }
+    next();
+};
+
+app.get('/users', requireManager, async (req, res) => {
     try {
         const users = await knex("users").select("*").orderBy("user_id", "asc");
         res.render('userDashboard/userDashboard', { users });
@@ -443,11 +742,11 @@ app.get('/users', async (req, res) => {
     }
 });
 
-app.get('/users/new', (req, res) => {
+app.get('/users/new', requireManager, (req, res) => {
     res.render('userDashboard/userAdd', { error_message: null });
 });
 
-app.post('/users/new', async (req, res) => {
+app.post('/users/new', requireManager, async (req, res) => {
     const { username, email, password, level } = req.body;
     if (!username || !email || !password) {
         return res.status(400).render('userDashboard/userAdd', {
@@ -472,7 +771,7 @@ app.post('/users/new', async (req, res) => {
     }
 });
 
-app.get('/users/:id/edit', async (req, res) => {
+app.get('/users/:id/edit', requireManager, async (req, res) => {
     const { id } = req.params;
     try {
         const user = await knex("users").where({ user_id: id }).first();
@@ -486,7 +785,7 @@ app.get('/users/:id/edit', async (req, res) => {
     }
 });
 
-app.post('/users/:id/edit', async (req, res) => {
+app.post('/users/:id/edit', requireManager, async (req, res) => {
     const { id } = req.params;
     const { username, email, password, level } = req.body;
     if (!username || !email || !password) {
@@ -521,7 +820,7 @@ app.post('/users/:id/edit', async (req, res) => {
     }
 });
 
-app.post('/users/:id/delete', async (req, res) => {
+app.post('/users/:id/delete', requireManager, async (req, res) => {
     const { id } = req.params;
     try {
         await knex("users").where({ user_id: id }).del();
@@ -535,7 +834,7 @@ app.post('/users/:id/delete', async (req, res) => {
 // Events
 app.get('/events', async (req, res) => {
     try {
-        const events = await knex("events").select("*").orderBy("event_id", "desc");
+        const events = await knex("events").select("*").orderBy("event_id", "asc");
         res.render('events/events', { events });
     } catch (error) {
         console.error("Error loading events:", error);
@@ -686,6 +985,177 @@ app.post('/events/:id/delete', async (req, res) => {
         console.error("Error deleting event:", error);
         res.status(500).send("Error deleting event");
     }
+});
+
+// Surveys
+app.get('/surveys', async (req, res) => {
+    try {
+        const surveys = await knex("survey as s")
+            .leftJoin("participants as p", "s.participant_id", "p.participant_id")
+            .leftJoin("events as e", "s.event_id", "e.event_id")
+            .select(
+                "s.*",
+                knex.raw("CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')) as participant_name"),
+                "e.name as event_name"
+            )
+            .orderBy("s.survey_id", "asc");
+        res.render('surveys/surveys', { surveys });
+    } catch (error) {
+        console.error("Error loading surveys:", error);
+        res.status(500).send("Error loading surveys");
+    }
+});
+
+app.get('/surveys/new', (req, res) => {
+    res.render('surveys/surAdd', { error_message: null });
+});
+
+app.post('/surveys/new', async (req, res) => {
+    const {
+        participant_id,
+        event_id,
+        satisfaction_score,
+        usefulness_score,
+        instructor_score,
+        recommendation_score,
+        nps_bucket,
+        comments,
+        submission_date
+    } = req.body;
+
+    if (!participant_id || !event_id) {
+        return res.status(400).render('surveys/surAdd', { error_message: "Participant and event are required." });
+    }
+
+    try {
+        const [newSurvey] = await knex("survey")
+            .insert({
+                participant_id,
+                event_id,
+                satisfaction_score: satisfaction_score || null,
+                usefulness_score: usefulness_score || null,
+                instructor_score: instructor_score || null,
+                recommendation_score: recommendation_score || null,
+                nps_bucket,
+                comments,
+                submission_date: submission_date || null
+            })
+            .returning("*");
+        res.redirect(`/surveys/${newSurvey.survey_id}`);
+    } catch (error) {
+        console.error("Error creating survey:", error);
+        res.status(500).render('surveys/surAdd', { error_message: "Could not create survey. Please try again." });
+    }
+});
+
+app.get('/surveys/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const survey = await knex("survey as s")
+            .leftJoin("participants as p", "s.participant_id", "p.participant_id")
+            .leftJoin("events as e", "s.event_id", "e.event_id")
+            .select(
+                "s.*",
+                knex.raw("CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')) as participant_name"),
+                "e.name as event_name"
+            )
+            .where("s.survey_id", id)
+            .first();
+        if (!survey) {
+            return res.status(404).render('public/418Code');
+        }
+        res.render('surveys/surDetail', { survey });
+    } catch (error) {
+        console.error("Error loading survey:", error);
+        res.status(500).send("Error loading survey");
+    }
+});
+
+app.get('/surveys/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const survey = await knex("survey").where({ survey_id: id }).first();
+        if (!survey) {
+            return res.status(404).render('public/418Code');
+        }
+        res.render('surveys/surEdit', { survey, error_message: null });
+    } catch (error) {
+        console.error("Error loading survey:", error);
+        res.status(500).send("Error loading survey");
+    }
+});
+
+app.post('/surveys/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    const {
+        participant_id,
+        event_id,
+        satisfaction_score,
+        usefulness_score,
+        instructor_score,
+        recommendation_score,
+        nps_bucket,
+        comments,
+        submission_date
+    } = req.body;
+
+    if (!participant_id || !event_id) {
+        return res.status(400).render('surveys/surEdit', {
+            survey: {
+                survey_id: id,
+                participant_id,
+                event_id,
+                satisfaction_score,
+                usefulness_score,
+                instructor_score,
+                recommendation_score,
+                nps_bucket,
+                comments,
+                submission_date
+            },
+            error_message: "Participant and event are required."
+        });
+    }
+
+    try {
+        await knex("survey")
+            .where({ survey_id: id })
+            .update({
+                participant_id,
+                event_id,
+                satisfaction_score: satisfaction_score || null,
+                usefulness_score: usefulness_score || null,
+                instructor_score: instructor_score || null,
+                recommendation_score: recommendation_score || null,
+                nps_bucket,
+                comments,
+                submission_date: submission_date || null
+            });
+        res.redirect(`/surveys/${id}`);
+    } catch (error) {
+        console.error("Error updating survey:", error);
+        try {
+            const survey = await knex("survey").where({ survey_id: id }).first();
+            res.status(500).render('surveys/surEdit', { survey, error_message: "Could not update survey. Please try again." });
+        } catch (loadErr) {
+            res.status(500).send("Error loading survey");
+        }
+    }
+});
+
+app.post('/surveys/:id/delete', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await knex("survey").where({ survey_id: id }).del();
+        res.redirect('/surveys');
+    } catch (error) {
+        console.error("Error deleting survey:", error);
+        res.status(500).send("Error deleting survey");
+    }
+});
+
+app.get('/managerDashboard', (req, res) => {
+    res.render('managerDashboard/managerDashboard');
 });
 
 app.get('/teapot', (req, res) => {

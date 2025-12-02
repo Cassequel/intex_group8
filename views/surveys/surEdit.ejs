@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Survey | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
+
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/surveys">Surveys</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Feedback</p>
+      <h1>Edit survey</h1>
+      <p class="hero-subtitle">Update response details.</p>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="form-card">
+        <% if (typeof error_message !== "undefined" && error_message) { %>
+          <div class="alert alert--error"><%= error_message %></div>
+        <% } %>
+        <form class="form-grid" method="POST" action="/surveys/<%= survey.survey_id %>/edit">
+          <div class="form-field">
+            <label for="participant_id">Participant ID</label>
+            <input id="participant_id" name="participant_id" type="number" value="<%= survey.participant_id || '' %>" required />
+          </div>
+          <div class="form-field">
+            <label for="event_id">Event ID</label>
+            <input id="event_id" name="event_id" type="number" value="<%= survey.event_id || '' %>" required />
+          </div>
+          <div class="form-grid-two">
+            <div class="form-field">
+              <label for="satisfaction_score">Satisfaction score</label>
+              <input id="satisfaction_score" name="satisfaction_score" type="number" step="0.01" value="<%= survey.satisfaction_score || '' %>" />
+            </div>
+            <div class="form-field">
+              <label for="usefulness_score">Usefulness score</label>
+              <input id="usefulness_score" name="usefulness_score" type="number" step="0.01" value="<%= survey.usefulness_score || '' %>" />
+            </div>
+          </div>
+          <div class="form-grid-two">
+            <div class="form-field">
+              <label for="instructor_score">Instructor score</label>
+              <input id="instructor_score" name="instructor_score" type="number" step="0.01" value="<%= survey.instructor_score || '' %>" />
+            </div>
+            <div class="form-field">
+              <label for="recommendation_score">Recommendation score</label>
+              <input id="recommendation_score" name="recommendation_score" type="number" step="0.01" value="<%= survey.recommendation_score || '' %>" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="nps_bucket">NPS bucket</label>
+            <input id="nps_bucket" name="nps_bucket" type="text" value="<%= survey.nps_bucket || '' %>" />
+          </div>
+          <div class="form-field">
+            <label for="comments">Comments</label>
+            <textarea id="comments" name="comments" rows="4"><%= survey.comments || survey.survey_comments || '' %></textarea>
+          </div>
+          <div class="form-field">
+            <label for="submission_date">Submission date</label>
+            <input id="submission_date" name="submission_date" type="datetime-local" value="<%= survey.submission_date ? (survey.submission_date.toISOString ? survey.submission_date.toISOString().slice(0,16) : String(survey.submission_date).slice(0,16)) : '' %>" />
+          </div>
+          <div class="form-field" style="margin-top: 0.5rem;">
+            <button type="submit" class="btn btn--primary btn--large">Save changes</button>
+            <a href="/surveys" class="btn btn--ghost btn--large" style="margin-left: 0.5rem;">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>
