@@ -65,24 +65,24 @@
 
           <div class="form-grid-two">
             <div class="form-field">
-              <label for=" participant_first_name">First name</label>
-              <input id=" participant_first_name" name=" participant_first_name" type="text" value="<%= participant.participant_first_name || '' %>" required />
+              <label for="participant_first_name">First name</label>
+              <input id="participant_first_name" name="participant_first_name" type="text" value="<%= participant.participant_first_name || '' %>" required />
             </div>
             <div class="form-field">
               <label for=" participant_last_name">Last name</label>
-              <input id=" participant_last_name" name=" participant_last_name" type="text" value="<%= participant.participant_last_name || '' %>" required />
+              <input id="participant_last_name" name="participant_last_name" type="text" value="<%= participant.participant_last_name || '' %>" required />
             </div>
           </div>
 
           <div class="form-field">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" value="<%= participant.participant_email || '' %>" required />
+            <label for="participant_email">Email</label>
+            <input id="participant_email" name="participant_email" type="participant_email" value="<%= participant.participant_email || '' %>" required />
           </div>
 
           <div class="form-grid-two">
             <div class="form-field">
-              <label for=" participant_dob">Date of birth</label>
-              <input id=" participant_dob" name=" participant_dob" type="date" value="<%= participant.participant_dob ? (participant.participant_dob.toISOString ? participant.participant_dob.toISOString().slice(0,10) : String(participant.participant_dob).slice(0,10)) : '' %>" />
+              <label for="participant_dob">Date of birth</label>
+              <input id="participant_dob" name="participant_dob" type="date" value="<%= participant.participant_dob ? (participant.participant_dob.toISOString ? participant.participant_dob.toISOString().slice(0,10) : String(participant.participant_dob).slice(0,10)) : '' %>" />
             </div>
             <div class="form-field">
               <label for="phone">Phone</label>
@@ -107,18 +107,19 @@
 
           <div class="form-grid-two">
             <div class="form-field">
-              <label for="school">School</label>
-              <input id="school" name="school" type="text" value="<%= participant.school || participant.participant_school_or_employer || '' %>" />
-            </div>
-            <div class="form-field">
-              <label for="employer">Employer</label>
-              <input id="employer" name="employer" type="text" value="<%= participant.participant_employer || '' %>" />
+              <label for="participant_school_or_employer">School or Employer</label>
+              <input id="participant_school_or_employer" name="participant_school_or_employer" type="text"value="<%= participant.participant_school_or_employer || '' %>" />
             </div>
           </div>
 
           <div class="form-field">
-            <label for="field_of_interest">Field of interest</label>
-            <input id="field_of_interest" name="field_of_interest" type="text" value="<%= participant.participant_field_of_interest || '' %>" />
+            <label for="participant_field_of_interest">Field of interest</label>
+            <select id="participant_field_of_interest" name="participant_field_of_interest">
+              <option value="" <%= participant.participant_field_of_interest === '' ? 'selected' : '' %>>-- Select one --</option>
+              <option value="STEM" <%= participant.participant_field_of_interest === 'STEM' ? 'selected' : '' %>>STEM</option>
+              <option value="Arts" <%= participant.participant_field_of_interest === 'Arts' ? 'selected' : '' %>>Arts</option>
+              <option value="Both" <%= participant.participant_field_of_interest === 'Both' ? 'selected' : '' %>>Both</option>
+            </select>
           </div>
 
           <div class="form-field" style="margin-top: 0.5rem;">

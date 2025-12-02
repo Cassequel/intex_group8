@@ -5,26 +5,21 @@
 // - clicking on event names loops back, i think it doesn't go to detail view 
 // - havent been able to test delte, no event i want to delete yet 
 
-// SURVEYS 
-// - Event ID in edit doesnt show up
-// - add survey doesnt work, sayd relation events doesnt exist
-// (Error: Error loading survey: error: select "s".*, CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name, "e"."name" as "event_name" from "surveys" as "s" left join "participants" as "p" on "s"."participant_id" = "p"."participant_id" left join "events" as "e" on "s"."event_occurence_id" = "e"."event_id" where "s"."survey_id" = $1 limit $2 - relation "events" does not exist)
-// Delete cant be tested
+// SURVEYS - CRUD FUNCTIONAL 
+// Search function searches participant name, 
+// No way to look at survey details 
 
-//USERS - COMPLETELY FUNCITONAL 
+//USERS - COMPLETELY FUNCTIONAL 
+//PARTICIPANTS - COMPLETLY FUNCTIONAL 
 
-//PARTICIPANTS 
-// add Particpant doenst work,
-// Delete cant be tested until add works 
+// MILESTONES - CRUD FUNCTIONAL 
+// NO delte milestone, idk if we need that
 
-// MILESTONES
-// ADD doesnt work, says fill in info, but info was filled in 
-// NO edit or delte, idk if we need that 
+//DONATIONS - CURD FUNCTIONAL 
+// Maybe add functionality to have donate tab auto populate?
 
+// Make all headers the same across pages? 
 
-//DONATIONS 
-// Cannot Add, says needs to fill in info but info was filled in ()
-// no delete
 
 
 
@@ -206,14 +201,14 @@ app.get('/donAdd', (req, res) => {
 });
 
 app.post('/donations/new', async (req, res) => {
-    const {  participant_first_name,  participant_last_name, email, donation_date, donation_amount } = req.body;
+    const {  participant_first_name,  participant_last_name, participant_email, donation_date, donation_amount } = req.body;
 
-    if (! participant_first_name || ! participant_last_name || !email || !donation_amount) {
+    if (! participant_first_name || ! participant_last_name || !participant_email || !donation_amount) {
         return res.status(400).render('donations/donAdd', { error_message: "Please fill in name, email, and donation_amount." });
     }
 
     try {
-        const participant = await knex("participants").where({ participant_email: email }).first();
+        const participant = await knex("participants").where({ participant_email: participant_email }).first();
         if (!participant) {
             return res.status(400).render('donations/donAdd', { error_message: "We couldn't find a participant with that email." });
         }
@@ -278,20 +273,20 @@ app.get('/donations/:id/edit', async (req, res) => {
 
 app.post('/donations/:id/edit', async (req, res) => {
     const { id } = req.params;
-    const {  participant_first_name,  participant_last_name, email, donation_date, donation_amount } = req.body;
+    const {  participant_first_name,  participant_last_name, participant_email, donation_date, donation_amount } = req.body;
 
-    if (! participant_first_name || ! participant_last_name || !email || !donation_amount) {
+    if (! participant_first_name || ! participant_last_name || !participant_email || !donation_amount) {
         return res.status(400).render('donations/donEdit', {
-            donation: { donation_id: id,  participant_first_name,  participant_last_name, email, donation_date, donation_amount },
+            donation: { donation_id: id,  participant_first_name,  participant_last_name, participant_email, donation_date, donation_amount },
             error_message: "Please fill in name, email, and donation_amount."
         });
     }
 
     try {
-        const participant = await knex("participants").where({ participant_email: email }).first();
+        const participant = await knex("participants").where({ participant_email: participant_email }).first();
         if (!participant) {
             return res.status(400).render('donations/donEdit', {
-                donation: { donation_id: id,  participant_first_name,  participant_last_name, email, donation_date, donation_amount },
+                donation: { donation_id: id,  participant_first_name,  participant_last_name, participant_email, donation_date, donation_amount },
                 error_message: "We couldn't find a participant with that email."
             });
         }
@@ -312,7 +307,7 @@ app.post('/donations/:id/edit', async (req, res) => {
                 .leftJoin("participants as p", "d.participant_id", "p.participant_id")
                 .select(
                     "d.*",
-                    "p.email",
+                    "p.participant_email",
                     "p.participant_first_name",
                     "p.participant_last_name",
                     knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name")
@@ -360,14 +355,14 @@ app.get('/milestones/new', (req, res) => {
 });
 
 app.post('/milestones/new', async (req, res) => {
-    const { email, milestone_title, milestone_date } = req.body;
+    const { participant_email, milestone_title, milestone_date } = req.body;
 
-    if (!email || !milestone_title) {
+    if (!participant_email || !milestone_title) {
         return res.status(400).render('milestones/mileAdd', { error_message: "Email and title are required." });
     }
 
     try {
-        const participant = await knex("participants").where({ participant_email: email }).first();
+        const participant = await knex("participants").where({ participant_email: participant_email }).first();
         if (!participant) {
             return res.status(400).render('milestones/mileAdd', { error_message: "No participant found with that email." });
         }
@@ -436,20 +431,20 @@ app.get('/milestones/:id/edit', async (req, res) => {
 
 app.post('/milestones/:id/edit', async (req, res) => {
     const { id } = req.params;
-    const { email, milestone_title, milestone_date } = req.body;
+    const { participant_email, milestone_title, milestone_date } = req.body;
 
-    if (!email || !milestone_title) {
+    if (!participant_email || !milestone_title) {
         return res.status(400).render('milestones/mileEdit', {
-            milestone: { milestone_id: id, email, milestone_title, milestone_date },
+            milestone: { milestone_id: milestone_id, participant_email, milestone_title, milestone_date },
             error_message: "Email and title are required."
         });
     }
 
     try {
-        const participant = await knex("participants").where({ participant_email: email }).first();
+        const participant = await knex("participants").where({ participant_email: participant_email }).first();
         if (!participant) {
             return res.status(400).render('milestones/mileEdit', {
-                milestone: { milestone_id: id, email, milestone_title, milestone_date },
+                milestone: { milestone_id: milestone_id, participant_email, milestone_title, milestone_date },
                 error_message: "No participant found with that email."
             });
         }
@@ -575,7 +570,7 @@ app.post('/login', async (req, res) => {
         req.session.isLoggedIn = true;
         req.session.userId = user.user_id;
         req.session.username = user.username;
-        req.session.role = user.role || 'user';
+        req.session.email = user.participant_email;
         req.session.level = user.level || 'user';
 
         res.redirect('/');
@@ -623,7 +618,7 @@ app.post('/participants/new', async (req, res) => {
         participant_field_of_interest
     } = req.body;
 
-    if (! participant_first_name || ! participant_last_name || !email) {
+    if (! participant_first_name || ! participant_last_name || !participant_email) {
         return res.status(400).render('participants/parAdd', {
             error_message: "First name, last name, and email are required."
         });
@@ -1118,7 +1113,7 @@ app.get('/surveys/new', (req, res) => {
 app.post('/surveys/new', async (req, res) => {
     const {
         participant_id,
-        event_id,
+        event_occurence_id,
         satisfaction_score,
         usefulness_score,
         instructor_score,
@@ -1127,7 +1122,7 @@ app.post('/surveys/new', async (req, res) => {
         submission_date
     } = req.body;
 
-    if (!participant_id || !event_id) {
+    if (!participant_id || !event_occurence_id) {
         return res.status(400).render('surveys/surAdd', { error_message: "Participant and event are required." });
     }
 
@@ -1135,7 +1130,7 @@ app.post('/surveys/new', async (req, res) => {
         const [newSurvey] = await knex("surveys")
             .insert({
                 participant_id,
-                event_occurence_id: event_id,
+                event_occurence_id: event_occurence_id,
                 satisfaction_score: satisfaction_score || null,
                 usefulness_score: usefulness_score || null,
                 instructor_score: instructor_score || null,
@@ -1155,15 +1150,16 @@ app.get('/surveys/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const survey = await knex("surveys as s")
-            .leftJoin("participants as p", "s.participant_id", "p.participant_id")
-            .leftJoin("events as e", "s.event_occurence_id", "e.event_id")
-            .select(
-                "s.*",
-                knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name"),
-                "e.name as event_name"
-            )
-            .where("s.survey_id", id)
-            .first();
+        .leftJoin("participants as p", "s.participant_id", "p.participant_id")
+        .leftJoin("event_occurences as o", "s.event_occurence_id", "o.event_occurence_id")
+        .leftJoin("event_templates as e", "o.event_template_id", "e.event_template_id")
+        .select(
+            "s.*",
+            knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name"),
+            "e.event_name"
+        )
+        .where("s.survey_id", id)
+        .first();
         if (!survey) {
             return res.status(404).render('public/418Code');
         }
@@ -1192,7 +1188,7 @@ app.post('/surveys/:id/edit', async (req, res) => {
     const { id } = req.params;
     const {
         participant_id,
-        event_id,
+        event_occurence_id,
         satisfaction_score,
         usefulness_score,
         instructor_score,
@@ -1201,12 +1197,12 @@ app.post('/surveys/:id/edit', async (req, res) => {
         submission_date
     } = req.body;
 
-    if (!participant_id || !event_id) {
+    if (!participant_id || !event_occurence_id) {
         return res.status(400).render('surveys/surEdit', {
             survey: {
                 survey_id: id,
                 participant_id,
-                event_id,
+                event_occurence_id,
                 satisfaction_score,
                 usefulness_score,
                 instructor_score,
@@ -1223,7 +1219,7 @@ app.post('/surveys/:id/edit', async (req, res) => {
             .where({ survey_id: id })
             .update({
                 participant_id,
-                event_occurence_id: event_id,
+                event_occurence_id: event_occurence_id,
                 satisfaction_score: satisfaction_score || null,
                 usefulness_score: usefulness_score || null,
                 instructor_score: instructor_score || null,

@@ -49,17 +49,17 @@
         <% } %>
         <form class="form-grid" method="POST" action="/milestones/new">
           <div class="form-field">
-            <label for="email">Participant email</label>
-            <input id="email" name="email" type="email" required />
+            <label for="participant_email">Participant email</label>
+            <input id="participant_email" name="participant_email" type="email" required />
             <small>We’ll look up the participant by this email.</small>
           </div>
           <div class="form-field">
-            <label for="title">Title</label>
-            <input id="title" name="title" type="text" required />
+            <label for="milestone_title">Title</label>
+            <input id="milestone_title" name="milestone_title" type="text" required />
           </div>
           <div class="form-field">
-            <label for="achieved_date">Achieved date</label>
-            <input id="achieved_date" name="achieved_date" type="date" />
+            <label for="milestone_date">Achieved date</label>
+            <input id="milestone_date" name="milestone_date" type="date" />
           </div>
           <div class="form-field" style="margin-top: 0.5rem;">
             <button type="submit" class="btn btn--primary btn--large">Save milestone</button>
