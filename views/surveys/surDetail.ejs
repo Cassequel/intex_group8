@@ -78,7 +78,7 @@
         </div>
         <div class="detail-card">
           <h3>Event</h3>
-          <p class="detail-value"><%= survey.event_name || `ID ${survey.event_id}` %></p>
+          <p class="detail-value"><%= survey.event_name || `ID ${survey.event_occurance_id}` %></p>
         </div>
         <div class="detail-card">
           <h3>Satisfaction score</h3>
@@ -95,10 +95,6 @@
         <div class="detail-card">
           <h3>Recommendation score</h3>
           <p class="detail-value"><%= survey.recommendation_score ?? "Not provided" %></p>
-        </div>
-        <div class="detail-card">
-          <h3>NPS bucket</h3>
-          <p class="detail-value"><%= survey.nps_bucket || "Not provided" %></p>
         </div>
         <div class="detail-card">
           <h3>Submitted</h3>

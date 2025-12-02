@@ -84,7 +84,6 @@
                 <th>ID</th>
                 <th>Participant</th>
                 <th>Event</th>
-                <th>NPS Bucket</th>
                 <th>Submitted</th>
                 <th>Comments</th>
                 <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
@@ -97,7 +96,6 @@
                     <td><%= survey.survey_id %></td>
                     <td><a href="/surveys/<%= survey.survey_id %>"><%= survey.participant_name || "Unknown participant" %></a></td>
                     <td><%= survey.event_name || "Unknown event" %></td>
-                    <td><%= survey.survey_nps_bucket || survey.nps_bucket || "—" %></td>
                     <td>
                       <%
                         const submitted = survey.survey_submission_date || survey.submission_date;

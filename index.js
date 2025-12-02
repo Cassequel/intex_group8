@@ -1081,13 +1081,14 @@ app.get('/surveys', async (req, res) => {
     try {
         const surveys = await knex("surveys as s")
             .leftJoin("participants as p", "s.participant_id", "p.participant_id")
-            .leftJoin( "s.event_occurence_id", "e.event_id")
+            .leftJoin("event_occurences as o", "s.event_occurence_id", "o.event_occurence_id")
+            .leftJoin("event_templates as e", "o.event_template_id", "e.event_template_id")
             .select(
                 "s.*",
                 knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name"),
-                "e.name as event_name"
+                "e.event_name"
             )
-            .orderBy("s.survey_id", "asc");
+             .orderBy("s.survey_id", "asc");
         res.render('surveys/surveys', { surveys });
     } catch (error) {
         console.error("Error loading surveys:", error);
