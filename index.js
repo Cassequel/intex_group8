@@ -1,7 +1,5 @@
 // TO DO 
 // EVENTS 
-// -Fix Events Location - add new migration to rename table to events location 
-// -in Add event, figure out how to pull in template and other information - test add
 // - clicking on event names loops back, i think it doesn't go to detail view 
 // - havent been able to test delte, no event i want to delete yet 
 
@@ -920,12 +918,12 @@ app.post('/events/new', async (req, res) => {
         event_capacity,
         event_registration_deadline
     } = {
-        event_template_id: req.body.eventtemplateid,
-        event_date_time_start: req.body.eventdatetimestart,
-        event_date_time_end: req.body.eventdatetimeend,
-        even_location: req.body.eventlocation,
-        event_capacity: req.body.eventcapacity,
-        event_registration_deadline: req.body.eventregistrationdeadline
+        event_template_id: req.body.event_template_id,
+        event_date_time_start: req.body.event_date_time_start,
+        event_date_time_end: req.body.event_date_time_end,
+        even_location: req.body.event_location,
+        event_capacity: req.body.event_capacity,
+        event_registration_deadline: req.body.event_registration_deadline
     };
 
     try {
@@ -1014,12 +1012,12 @@ app.post('/events/:id/edit', async (req, res) => {
         event_capacity,
         event_registration_deadline
     } = {
-        event_template_id: req.body.eventtemplateid,
-        event_date_time_start: req.body.eventdatetimestart,
-        event_date_time_end: req.body.eventdatetimeend,
-        even_location: req.body.eventlocation,
-        event_capacity: req.body.eventcapacity,
-        event_registration_deadline: req.body.eventregistrationdeadline
+        event_template_id: req.body.event_template_id,
+        event_date_time_start: req.body.event_date_time_start,
+        event_date_time_end: req.body.event_date_time_end,
+        even_location: req.body.event_location,
+        event_capacity: req.body.event_capacity,
+        event_registration_deadline: req.body.event_registration_deadline
     };
 
     try {
