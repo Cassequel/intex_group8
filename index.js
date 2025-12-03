@@ -1,27 +1,23 @@
 // TO DO 
-// EVENTS 
-// - clicking on event names loops back, i think it doesn't go to detail view 
-// - havent been able to test delte, no event i want to delete yet 
+// EVENTS - CRUD FUNCTIONAL 
+// Lines are like two pixels off 
 
 // SURVEYS - CRUD FUNCTIONAL 
 // Search function searches participant name, 
 // No way to look at survey details 
 
 //USERS - COMPLETELY FUNCTIONAL 
+// confirmation for delete for users 
+
 //PARTICIPANTS - COMPLETLY FUNCTIONAL 
 
 // MILESTONES - CRUD FUNCTIONAL 
 // NO delte milestone, idk if we need that
 
 //DONATIONS - CURD FUNCTIONAL 
-// Maybe add functionality to have donate tab auto populate?
+// Add autopopulate to donations to only put in donation number
 
-// Make all headers the same across pages? 
-
-
-
-
-
+// Make all headers the same across pages? - fix nav bar 
 
 // requrirements to set up all dev and production stuff
 require('dotenv').config();
