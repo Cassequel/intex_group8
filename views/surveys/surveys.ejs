@@ -29,7 +29,7 @@
       <h1>Surveys</h1>
       <p class="hero-subtitle">View participant feedback across events.</p>
       <div class="hero-actions">
-        <% if (userLevel !== 'U') { %>
+        <% if (userLevel === 'M') { %>
           <a href="/surveys/new" class="btn btn--primary">Add survey</a>
         <% } %>
       </div>
@@ -57,7 +57,7 @@
               Max date
               <input type="date" id="maxDate" style="padding: 0.35rem 0.5rem; border: 1px solid var(--color-border); border-radius: 8px;" />
             </label>
-            <% if (userLevel !== 'U') { %>
+            <% if (userLevel === 'M') { %>
               <a href="/surveys/new" class="btn btn--primary btn--small">Add survey</a>
             <% } %>
           </div>
@@ -71,7 +71,7 @@
                 <th>Event</th>
                 <th>Submitted</th>
                 <th>Comments</th>
-                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
+                <% if (userLevel === 'M') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
@@ -95,7 +95,7 @@
                       <%= submittedDate %>
                     </td>
                     <td class="comment-preview"><%= survey.survey_comments || survey.comments || "" %></td>
-                    <% if (userLevel !== 'U') { %>
+                    <% if (userLevel === 'M') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/surveys/<%= survey.survey_id %>/edit">Edit</a>
                         <form class="inline-form" method="POST" action="/surveys/<%= survey.survey_id %>/delete">
@@ -107,7 +107,7 @@
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="<%= userLevel !== 'U' ? 7 : 6 %>" class="empty-row">No surveys found.</td>
+                  <td colspan="<%= userLevel === 'M' ? 7 : 6 %>" class="empty-row">No surveys found.</td>
                 </tr>
               <% } %>
             </tbody>

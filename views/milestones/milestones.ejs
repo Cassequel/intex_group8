@@ -20,7 +20,7 @@
       <p class="eyebrow">Progress</p>
       <h1>Milestones</h1>
       <p class="hero-subtitle">Track achievements by participant.</p>
-      <% if (userLevel !== 'U') { %>
+      <% if (userLevel === 'M') { %>
         <div class="hero-actions">
           <a href="/milestones/new" class="btn btn--primary">Add milestone</a>
         </div>
@@ -42,7 +42,7 @@
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
             <input type="search" id="nameSearch" placeholder="Search participant..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
             <input type="search" id="titleSearch" placeholder="Search title..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
-            <% if (userLevel !== 'U') { %>
+            <% if (userLevel === 'M') { %>
               <a href="/milestones/new" class="btn btn--primary btn--small">Add milestone</a>
             <% } %>
           </div>
@@ -55,7 +55,7 @@
                 <th>Participant</th>
                 <th>Title</th>
                 <th>Achieved date</th>
-                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
+                <% if (userLevel === 'M') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
@@ -75,7 +75,7 @@
                       %>
                       <%= formattedDate %>
                     </td>
-                    <% if (userLevel !== 'U') { %>
+                    <% if (userLevel === 'M') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/milestones/<%= m.milestone_id %>/edit">Edit</a>
                         <form class="inline-form" method="POST" action="/milestones/<%= m.milestone_id %>/delete">
@@ -87,7 +87,7 @@
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="<%= userLevel !== 'U' ? 5 : 4 %>" class="empty-row">No milestones found.</td>
+                  <td colspan="<%= userLevel === 'M' ? 5 : 4 %>" class="empty-row">No milestones found.</td>
                 </tr>
               <% } %>
             </tbody>

@@ -20,7 +20,7 @@
       <p class="eyebrow">Programs</p>
       <h1>Events</h1>
       <p class="hero-subtitle">Browse and manage scheduled events.</p>
-      <% if (userLevel !== 'U') { %>
+      <% if (userLevel === 'M') { %>
         <div class="hero-actions">
           <a href="/events/new" class="btn btn--primary">Add event</a>
         </div>
@@ -57,7 +57,7 @@
               <option value="online">Online</option>
               <option value="inperson">In person</option>
             </select>
-            <% if (userLevel !== 'U') { %>
+            <% if (userLevel === 'M') { %>
               <a href="/events/new" class="btn btn--primary btn--small">Add event</a>
             <% } %>
           </div>
@@ -72,7 +72,7 @@
                 <th>Starts</th>
                 <th>Location</th>
                 <th>Capacity</th>
-                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
+                <% if (userLevel === 'M') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
@@ -99,7 +99,7 @@
                     </td>
                     <td><%= event.event_location || "—" %></td>
                     <td><%= typeof event.event_capacity !== "undefined" && event.event_capacity !== null ? event.event_capacity : "—" %></td>
-                    <% if (userLevel !== 'U') { %>
+                    <% if (userLevel === 'M') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/events/<%= event.event_occurence_id %>/edit">Edit</a>
                         <form class="inline-form" method="POST" action="/events/<%= event.event_occurence_id %>/delete">
@@ -111,7 +111,7 @@
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="<%= userLevel !== 'U' ? 8 : 7 %>" class="empty-row">No events found.</td>
+                  <td colspan="<%= userLevel === 'M' ? 8 : 7 %>" class="empty-row">No events found.</td>
                 </tr>
               <% } %>
             </tbody>

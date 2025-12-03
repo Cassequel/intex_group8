@@ -109,7 +109,7 @@
       </div>
 
       <div style="margin-top: 1rem;">
-        <% if (userLevel !== 'U') { %>
+        <% if (userLevel === 'M') { %>
           <a href="/milestones/<%= milestone.milestone_id %>/edit" class="btn btn--outline">Edit milestone</a>
         <% } %>
         <a href="<%= returnTo || '/milestones' %>" class="btn btn--ghost" style="margin-left: 0.5rem;">Back</a>

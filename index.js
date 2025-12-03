@@ -2,9 +2,12 @@
 //DONATIONS - CURD FUNCTIONAL 
 // Maybe add functionality to have donate tab auto populate?
 // dollar signs
+// total donations
 // make them a participant at a d level
 
-// Make all headers the same across pages? 
+// Add thank you for donating 
+// Add Community partners and sponsors
+// Loops
 
 // requrirements to set up all dev and production stuff
 require('dotenv').config();
@@ -765,7 +768,7 @@ app.post('/login', async (req, res) => {
         req.session.userId = user.user_id;
         req.session.username = user.username;
         req.session.email = user.participant_email;
-        req.session.level = user.level || 'user';
+        req.session.level = user.level || 'U';
 
         const deviceInfo = {
         device: req.headers['user-agent'] || 'Unknown device',

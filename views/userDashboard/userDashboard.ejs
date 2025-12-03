@@ -39,7 +39,7 @@
       <div class="table-card">
         <div class="table-card__header">
           <span>Users</span>
-          <% if (userLevel !== 'U') { %>
+          <% if (userLevel === 'M') { %>
             <a href="/users/new" class="btn btn--primary btn--small">Add user</a>
           <% } %>
         </div>
@@ -50,7 +50,7 @@
                 <th>Username</th>
                 <th>Email</th>
                 <th>Level</th>
-                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
+                <% if (userLevel === 'M') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
@@ -60,7 +60,7 @@
                     <td><%= user.username %></td>
                     <td><%= user.email %></td>
                     <td><%= user.level || 'U' %></td>
-                    <% if (userLevel !== 'U') { %>
+                    <% if (userLevel === 'M') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/users/<%= user.user_id %>/edit">Edit</a>
                         <form class="inline-form" method="POST" action="/users/<%= user.user_id %>/delete">
@@ -72,7 +72,7 @@
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="<%= userLevel !== 'U' ? 4 : 3 %>" class="empty-row">No users found.</td>
+                  <td colspan="<%= userLevel === 'M' ? 4 : 3 %>" class="empty-row">No users found.</td>
                 </tr>
               <% } %>
             </tbody>

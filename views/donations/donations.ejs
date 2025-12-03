@@ -79,7 +79,7 @@
                 <th>Participant</th>
                 <th>donation_amount</th>
                 <th>Date</th>
-                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
+                <% if (userLevel === 'M') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
@@ -103,7 +103,7 @@
                       %>
                       <%= formattedDate %>
                     </td>
-                    <% if (userLevel !== 'U') { %>
+                    <% if (userLevel === 'M') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/donations/<%= donation.donation_id %>/edit">Edit</a>
                         <form class="inline-form" method="POST" action="/donations/<%= donation.donation_id %>/delete">
@@ -115,7 +115,7 @@
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="<%= userLevel !== 'U' ? 5 : 4 %>" class="empty-row">No donations found.</td>
+                  <td colspan="<%= userLevel === 'M' ? 5 : 4 %>" class="empty-row">No donations found.</td>
                 </tr>
               <% } %>
             </tbody>
