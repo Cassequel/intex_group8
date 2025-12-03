@@ -11,29 +11,7 @@
 </head>
 <body>
   <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
-
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/participants">Participants</a></li>
-          <li><a href="/events">Events</a></li>
-          <% if (userLevel !== 'U') { %>
-            <li><a href="/users">Users</a></li>
-            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
-          <% } %>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <%- include('../partials/navbar') %>
 
   <!-- HERO -->
   <section class="hero">
@@ -67,6 +45,8 @@
               <option value="all">All types</option>
               <option value="leadership">Leadership</option>
               <option value="stem">STEM</option>
+              <option value="arts">Arts</option>
+              <option value="annual-conference">Annual Conference</option>
             </select>
             <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.9rem;">
               Capacity ≤ <span id="capacityValue">500</span>
@@ -87,7 +67,6 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Template</th>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Starts</th>
@@ -106,7 +85,6 @@
                     data-location="<%= (event.event_location || '').toLowerCase() %>"
                   >
                     <td><%= event.event_occurence_id %></td>
-                    <td><%= event.event_template_id %></td>
                     <td><a href="/events/<%= event.event_occurence_id %>"><%= event.event_name %></a></td>
                     <td><%= event.event_type || "—" %></td>
                     <td>
@@ -168,15 +146,19 @@
 
       eventRows.forEach((row) => {
         const name = row.dataset.name || "";
+        const template = row.dataset.template || "";
         const type = row.dataset.type || "";
         const capacity = parseInt(row.dataset.capacity || "0", 10);
         const location = row.dataset.location || "";
+        const rowText = row.textContent.toLowerCase();
 
-        const matchesSearch = name.includes(term);
-        const matchesType =
-          typeVal === "all" ||
-          (typeVal === "leadership" && type.includes("leadership")) ||
-          (typeVal === "stem" && type.includes("stem"));
+        const matchesSearch = !term || name.includes(term) || type.includes(term) || template.includes(term) || rowText.includes(term);
+      const matchesType =
+        typeVal === "all" ||
+        (typeVal === "leadership" && type.includes("leadership")) ||
+        (typeVal === "stem" && type.includes("stem")) ||
+        (typeVal === "arts" && type.includes("art")) ||
+        (typeVal === "annual-conference" && type.includes("annual") && type.includes("conference"));
         const matchesCapacity = capacity <= capacityVal;
         const isOnline = location.includes("virtual zoom") || location.includes("online");
         const matchesLocation =

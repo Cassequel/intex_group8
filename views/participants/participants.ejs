@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/styles/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     .modal-overlay {
       position: fixed;
@@ -46,25 +46,7 @@
 </head>
 <body>
   <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
-
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="#participants">Participants</a></li>
-          <li><a href="#actions">Actions</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <%- include('../partials/navbar') %>
 
   <!-- HERO -->
   <section class="hero">
@@ -115,15 +97,15 @@
             <tbody>
               <% if (participants && participants.length) { %>
                 <% participants.forEach((participant) => { %>
-                  <tr data-name="<%= `${participant. participant_first_name} ${participant. participant_last_name}`.toLowerCase() %>">
+                  <tr data-name="<%= `${participant.participant_first_name || ''} ${participant.participant_last_name || ''}`.trim().toLowerCase() %>">
                     <td><%= participant.participant_id %></td>
-                    <td><a href="/participants/<%= participant.participant_id %>"><%= participant.participatn_first_name %> <%= participant.participant_last_name %></a></td>
+                    <td><a href="/participants/<%= participant.participant_id %>"><%= participant.participant_first_name %> <%= participant.participant_last_name %></a></td>
                     <td><%= participant.participant_email %></td>
                     <td><%= participant.phone %></td>
                     <% if (userLevel !== 'U') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/participants/<%= participant.participant_id %>/edit">Edit</a>
-                        <button type="button" class="btn btn--ghost btn--small delete-btn" data-id="<%= participant.participant_id %>" data-name="<%= participant. participant_first_name %> <%= participant. participant_last_name %>">Delete</button>
+                        <button type="button" class="btn btn--ghost btn--small delete-btn" data-id="<%= participant.participant_id %>" data-name="<%= participant.participant_first_name %> <%= participant.participant_last_name %>">Delete</button>
                       </td>
                     <% } %>
                   </tr>

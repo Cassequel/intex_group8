@@ -11,28 +11,7 @@
 </head>
 <body>
   <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
-
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/participants">Participants</a></li>
-          <li><a href="/milestones">Milestones</a></li>
-          <% if (userLevel !== 'U') { %>
-            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
-          <% } %>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <%- include('../partials/navbar') %>
 
   <!-- HERO -->
   <section class="hero">
@@ -76,6 +55,7 @@
                 <th>Participant</th>
                 <th>Title</th>
                 <th>Achieved date</th>
+                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
@@ -83,7 +63,7 @@
                 <% milestones.forEach((m) => { %>
                   <tr data-title="<%= (m.milestone_title || '').toLowerCase() %>" data-name="<%= (m.participant_name || '').toLowerCase() %>">
                     <td><%= m.milestone_id %></td>
-                    <td><a href="/participants/<%= m.participant_id %>?return=milestones"><%= m.participant_name || ('ID ' + m.participant_id) %></a></td>
+                    <td><a href="/milestones/participant/<%= m.participant_id %>"><%= m.participant_name || ('ID ' + m.participant_id) %></a></td>
                     <td><a href="/milestones/<%= m.milestone_id %>?from=milestones"><%= m.milestone_title %></a></td>
                     <td>
                       <%
@@ -95,11 +75,19 @@
                       %>
                       <%= formattedDate %>
                     </td>
+                    <% if (userLevel !== 'U') { %>
+                      <td class="table-actions">
+                        <a class="btn btn--outline btn--small" href="/milestones/<%= m.milestone_id %>/edit">Edit</a>
+                        <form class="inline-form" method="POST" action="/milestones/<%= m.milestone_id %>/delete">
+                          <button type="submit" class="btn btn--ghost btn--small">Delete</button>
+                        </form>
+                      </td>
+                    <% } %>
                   </tr>
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="4" class="empty-row">No milestones found.</td>
+                  <td colspan="<%= userLevel !== 'U' ? 5 : 4 %>" class="empty-row">No milestones found.</td>
                 </tr>
               <% } %>
             </tbody>

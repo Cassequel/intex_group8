@@ -8,27 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .input-error {
+      border-color: #d14343 !important;
+      background: rgba(209, 67, 67, 0.08) !important;
+    }
+  </style>
 </head>
 <body>
   <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
-
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/users">Users</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <%- include('../partials/navbar') %>
 
   <!-- HERO -->
   <section class="hero">
@@ -44,25 +33,29 @@
   <section class="section section--light">
     <div class="container">
       <div class="form-card">
+        <%
+          const errorField = typeof error_field !== "undefined" ? error_field : null;
+          const values = (typeof formValues !== "undefined" && formValues) ? formValues : { username: "", email: "", password: "", level: "U" };
+        %>
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
         <form class="form-grid" method="POST" action="/users/new">
           <div class="form-field">
             <label for="username">Username</label>
-            <input id="username" name="username" type="text" required />
+            <input id="username" name="username" type="text" required class="<%= errorField === 'username' ? 'input-error' : '' %>" value="<%= values.username || '' %>" />
           </div>
           <div class="form-field">
             <label for="email">Email</label>
-            <input id="email" name="email" type="email" required />
+            <input id="email" name="email" type="email" required class="<%= errorField === 'email' ? 'input-error' : '' %>" value="<%= values.email || '' %>" />
           </div>
           <div class="form-field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="text" required />
+            <input id="password" name="password" type="text" required class="<%= errorField === 'password' ? 'input-error' : '' %>" value="<%= values.password || '' %>" />
           </div>
           <div class="form-field">
             <label for="level">Level (U or M)</label>
-            <input id="level" name="level" type="text" maxlength="1" value="U" />
+            <input id="level" name="level" type="text" maxlength="1" class="<%= errorField === 'level' ? 'input-error' : '' %>" value="<%= values.level || 'U' %>" />
           </div>
           <div class="form-field" style="margin-top: 0.5rem;">
             <button type="submit" class="btn btn--primary btn--large">Save user</button>
