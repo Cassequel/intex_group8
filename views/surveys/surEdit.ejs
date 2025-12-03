@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Edit Survey | Ella Rises</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/images/favicon.png" />
   <link rel="stylesheet" href="/styles/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,24 +12,7 @@
 </head>
 <body>
   <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
-
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/surveys">Surveys</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <%- include('../partials/navbar') %>
 
   <!-- HERO -->
   <section class="hero">

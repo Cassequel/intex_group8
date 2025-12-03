@@ -6,7 +6,6 @@
 // Loops
 
 // Enroll doesn't do anything, just loops make page
-// Add a D level - migration to make past donors become donors/participants 
 
 // requirements to set up all dev and production stuff
 require('dotenv').config();
@@ -320,6 +319,26 @@ app.use((req, res, next) => {
     next();
 });
 
+// Middleware to expose participantRole to views
+app.use(async (req, res, next) => {
+    try {
+        res.locals.participantRole = null;
+
+        if (req.session.userEmail) {
+            const participant = await knex("participants")
+                .where({ participant_email: req.session.userEmail })
+                .first();
+
+            if (participant) {
+                res.locals.participantRole = participant.role;
+            }
+        }
+    } catch (err) {
+        console.error("Error loading participant role:", err);
+    }
+    next();
+});
+
 // Global authentication middleware - runs on EVERY request
 app.use((req, res, next) => {
     // Skip authentication for login routes
@@ -327,7 +346,11 @@ app.use((req, res, next) => {
         req.path === '/register'||
         req.path === '/donations'||
         req.path === '/index' ||
-        req.path === '/teapot') {
+        req.path === '/teapot' ||
+        req.path === '/donAdd'||
+        req.path === '/donations/select' ||
+        req.path === '/donations/participant-info'||
+        req.path === '/donations/complete') {
         //continue with the request path
         return next();
     }
@@ -347,16 +370,39 @@ app.get('/', (req, res) => {
     res.render('public/landing');
 });
 
-app.get('/donations', requireManager, async (req, res) => {
+app.get('/donations', async (req, res) => {
     try {
-        const donations = await knex("donations as d")
-            .leftJoin("participants as p", "d.participant_id", "p.participant_id")
-            .select(
-                "d.*",
-                knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name")
-            )
-            .orderBy("d.donation_id", "desc");
-        res.render('donations/donations', { donations });
+        // If user is a manager, show all donations
+        if (req.session.level === 'M') {
+            const donations = await knex("donations as d")
+                .leftJoin("participants as p", "d.participant_id", "p.participant_id")
+                .select(
+                    "d.*",
+                    knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name")
+                )
+                .orderBy("d.donation_id", "desc");
+            return res.render('donations/donations', { donations });
+        }
+
+        // For regular users, show only their own donations
+        const email = req.session.userEmail;
+        if (!email) {
+            return res.render('donations/donations', { donations: [] });
+        }
+
+        const participant = await knex("participants")
+            .where({ participant_email: email })
+            .first();
+
+        if (!participant) {
+            return res.render('donations/donations', { donations: [] });
+        }
+
+        const donations = await knex("donations")
+            .where({ participant_id: participant.participant_id })
+            .orderBy("donation_id", "desc");
+
+        return res.render('donations/donations', { donations });
     } catch (error) {
         console.error("Error loading donations:", error);
         res.status(500).send("Error loading donations");
@@ -727,14 +773,38 @@ app.post('/donations/:id/delete', requireManager, async (req, res) => {
 // Milestones
 app.get('/milestones', async (req, res) => {
     try {
-        const milestones = await knex("milestones as m")
-            .leftJoin("participants as p", "m.participant_id", "p.participant_id")
-            .select(
-                "m.*",
-                knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name")
-            )
-            .orderBy("m.milestone_id", "asc");
-        res.render('milestones/milestones', { milestones });
+        // If manager, show all milestones
+        if (req.session.level === 'M') {
+            const milestones = await knex("milestones as m")
+                .leftJoin("participants as p", "m.participant_id", "p.participant_id")
+                .select(
+                    "m.*",
+                    knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name")
+                )
+                .orderBy("m.milestone_id", "desc");
+
+            return res.render('milestones/milestones', { milestones });
+        }
+
+        // If user, show only their own milestones
+        const email = req.session.userEmail;
+        if (!email) {
+            return res.render('milestones/milestones', { milestones: [] });
+        }
+
+        const participant = await knex("participants")
+            .where({ participant_email: email })
+            .first();
+
+        if (!participant) {
+            return res.render('milestones/milestones', { milestones: [] });
+        }
+
+        const milestones = await knex("milestones")
+            .where({ participant_id: participant.participant_id })
+            .orderBy("milestone_id", "desc");
+
+        return res.render('milestones/milestones', { milestones });
     } catch (error) {
         console.error("Error loading milestones:", error);
         res.status(500).send("Error loading milestones");
@@ -1093,9 +1163,8 @@ app.post('/participants/new', async (req, res) => {
 
 app.get('/participants/:id', async (req, res) => {
     const { id } = req.params;
-    // Support multiple query parameter names that might be used to indicate where
-    // the user came from. Use the first present value.
     const returnTo = req.query.return || req.query.returnTo || req.query.from || null;
+
     try {
         const participant = await knex("participants as p")
             .leftJoin("donations as d", "p.participant_id", "d.participant_id")
@@ -1109,6 +1178,11 @@ app.get('/participants/:id', async (req, res) => {
 
         if (!participant) {
             return res.status(404).render('public/418Code');
+        }
+
+        // If user is not manager, block access
+        if (req.session.level !== 'M') {
+            return res.status(403).send("Not authorized");
         }
 
         res.render('participants/parDetail', { participant, returnTo });
@@ -1564,19 +1638,50 @@ app.post('/events/:id/delete',requireManager, async (req, res) => {
 // Surveys
 app.get('/surveys', async (req, res) => {
     try {
+        // MANAGER: show all surveys (join through occurrences -> templates to get template.event_name)
+        if (req.session.level === 'M') {
+            const surveys = await knex("surveys as s")
+                .leftJoin("participants as p", "s.participant_id", "p.participant_id")
+                .leftJoin("event_occurences as o", "s.event_occurence_id", "o.event_occurence_id")
+                .leftJoin("event_templates as e", "o.event_template_id", "e.event_template_id")
+                .select(
+                    "s.*",
+                    knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) AS participant_name"),
+                    "e.event_name as event_name"
+                )
+                .orderBy("s.survey_id", "desc");
+
+            return res.render("surveys/surveys", { surveys, userLevel: req.session.level });
+        }
+
+        // USER: show ONLY their own surveys
+        const email = req.session.userEmail;
+        if (!email) {
+            return res.render("surveys/surveys", { surveys: [], userLevel: req.session.level });
+        }
+
+        const participant = await knex("participants")
+            .where({ participant_email: email })
+            .first();
+
+        if (!participant) {
+            return res.render("surveys/surveys", { surveys: [], userLevel: req.session.level });
+        }
+
         const surveys = await knex("surveys as s")
-            .leftJoin("participants as p", "s.participant_id", "p.participant_id")
             .leftJoin("event_occurences as o", "s.event_occurence_id", "o.event_occurence_id")
             .leftJoin("event_templates as e", "o.event_template_id", "e.event_template_id")
             .select(
                 "s.*",
-                knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name"),
-                "e.event_name"
+                "e.event_name as event_name"
             )
-             .orderBy("s.survey_id", "asc");
-        res.render('surveys/surveys', { surveys });
+            .where("s.participant_id", participant.participant_id)
+            .orderBy("s.survey_id", "desc");
+
+        return res.render("surveys/surveys", { surveys, userLevel: req.session.level });
+
     } catch (error) {
-        console.error("Error loading surveys:", error);
+        console.error("SURVEY LOAD ERROR:", error);
         res.status(500).send("Error loading surveys");
     }
 });
