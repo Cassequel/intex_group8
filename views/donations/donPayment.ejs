@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Payment | Ella Rises</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/styles/styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+    .payment-placeholder {
+        text-align: center;
+        padding: 3rem;
+        background: #f9f9f9;
+        border-radius: 12px;
+        margin: 2rem 0;
+    }
+    
+    .payment-placeholder h2 {
+        color: #2c5f2d;
+        margin-bottom: 1rem;
+    }
+    
+    .donation-summary {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin: 2rem 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .donation-summary .amount {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2c5f2d;
+    }
+    
+    .donor-info {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e0e0e0;
+        text-align: left;
+    }
+    
+    .donor-info p {
+        margin: 0.5rem 0;
+    }
+</style>
+</head>
+<body>
+<!-- NAVBAR -->
+<header class="site-header">
+<div class="container nav-container">
+<a href="/" class="logo">
+<span class="logo-mark">ER</span>
+<span class="logo-text">Ella Rises</span>
+</a>
+<nav class="nav">
+<button class="nav-toggle" aria-label="Toggle navigation">
+<span></span><span></span><span></span>
+</button>
+<ul class="nav-links">
+<li><a href="/">Home</a></li>
+<li><a href="/donations">Donations</a></li>
+</ul>
+</nav>
+</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-overlay"></div>
+<div class="container hero-content">
+<p class="eyebrow">Final Step</p>
+<h1>Complete Your Donation</h1>
+<p class="hero-subtitle">Payment processing coming soon</p>
+</div>
+</section>
+
+<!-- PAYMENT SECTION -->
+<section class="section section--light">
+<div class="container">
+<div class="form-card">
+<div class="donation-summary">
+<p class="amount">$<%= donationAmount %></p>
+<div class="donor-info">
+<p><strong><%= participantFirstName %> <%= participantLastName %></strong></p>
+<p><%= participantEmail %></p>
+<% if (participantPhone) { %>
+<p><%= participantPhone %></p>
+<% } %>
+</div>
+</div>
+
+<div class="payment-placeholder">
+<h2>🚧 Payment Integration Coming Soon 🚧</h2>
+<p style="margin: 1rem 0;">This is where payment processing (Stripe, PayPal, etc.) will be integrated.</p>
+<p style="color: #666; font-size: 0.9rem;">For now, we'll record your donation in our system.</p>
+</div>
+
+<form method="POST" action="/donations/complete" style="text-align: center;">
+<input type="hidden" name="donation_amount" value="<%= donationAmount %>" />
+<% if (participantId) { %>
+<!-- Existing participant -->
+<input type="hidden" name="participant_id" value="<%= participantId %>" />
+<% } else { %>
+<!-- New participant - pass all info to create record -->
+<input type="hidden" name="participant_email" value="<%= participantEmail %>" />
+<input type="hidden" name="participant_first_name" value="<%= participantFirstName %>" />
+<input type="hidden" name="participant_last_name" value="<%= participantLastName %>" />
+<input type="hidden" name="phone" value="<%= participantPhone || '' %>" />
+<input type="hidden" name="create_participant" value="true" />
+<% } %>
+<button type="submit" class="btn btn--primary btn--large">Complete Donation (Test)</button>
+<a href="/donations" class="btn btn--ghost btn--large" style="margin-left: 0.5rem;">Cancel</a>
+</form>
+</div>
+</div>
+</section>
+
+<script>
+const navToggle = document.querySelector(".nav-toggle");
+const navLinks = document.querySelector(".nav-links");
+navToggle.addEventListener("click", () => {
+    navLinks.classList.toggle("nav-links--open");
+    navToggle.classList.toggle("nav-toggle--open");
+});
+</script>
+</body>
+</html>

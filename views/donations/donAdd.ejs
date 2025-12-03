@@ -1,94 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Add Donation | Ella Rises</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/styles/styles.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8" />
+<title>Make a Donation | Ella Rises</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/styles/styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+    .donation-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .donation-option {
+        background: white;
+        border: 3px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .donation-option:hover {
+        border-color: #666;
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .donation-option.selected {
+        border-color: #2c5f2d;
+        background: #f0f8f0;
+        box-shadow: 0 4px 16px rgba(44, 95, 45, 0.2);
+    }
+    
+    .donation-option .amount {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c5f2d;
+        margin: 0;
+    }
+    
+    .donation-option .label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.5rem;
+    }
+    
+    .custom-amount-wrapper {
+        display: none;
+        margin-top: 1rem;
+    }
+    
+    .custom-amount-wrapper.active {
+        display: block;
+    }
+    
+    .custom-input {
+        font-size: 1.5rem;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        width: 100%;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .custom-input:focus {
+        border-color: #2c5f2d;
+        outline: none;
+    }
+    
+    .confirm-section {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .btn--confirm {
+        font-size: 1.2rem;
+        padding: 1rem 3rem;
+    }
+    
+    .selected-amount-display {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c5f2d;
+        margin-bottom: 1rem;
+    }
+</style>
 </head>
 <body>
-  <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
+<!-- NAVBAR -->
+<header class="site-header">
+<div class="container nav-container">
+<a href="/" class="logo">
+<span class="logo-mark">ER</span>
+<span class="logo-text">Ella Rises</span>
+</a>
+<nav class="nav">
+<button class="nav-toggle" aria-label="Toggle navigation">
+<span></span><span></span><span></span>
+</button>
+<ul class="nav-links">
+<li><a href="/">Home</a></li>
+<% if (isLoggedIn) { %>
+<li><a href="/participants">Participants</a></li>
+<li><a href="/events">Events</a></li>
+<% } %>
+<li><a href="/donations">Donations</a></li>
+</ul>
+</nav>
+</div>
+</header>
 
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/donations">Donations</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+<!-- HERO -->
+<section class="hero">
+<div class="hero-overlay"></div>
+<div class="container hero-content">
+<p class="eyebrow">Give</p>
+<h1>Make a Donation</h1>
+<p class="hero-subtitle">Select an amount to support Ella Rises</p>
+</div>
+</section>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-overlay"></div>
-    <div class="container hero-content">
-      <p class="eyebrow">Give</p>
-      <h1>Make a donation</h1>
-      <p class="hero-subtitle">Enter your info and gift donation_amount. We’ll match your email to an existing participant record.</p>
-    </div>
-  </section>
+<!-- DONATION SELECTION -->
+<section class="section section--light">
+<div class="container">
+<div class="form-card">
+<% if (typeof error_message !== "undefined" && error_message) { %>
+<div class="alert alert--error"><%= error_message %></div>
+<% } %>
 
-  <!-- FORM -->
-  <section class="section section--light">
-    <div class="container">
-      <div class="form-card">
-        <% if (typeof error_message !== "undefined" && error_message) { %>
-          <div class="alert alert--error"><%= error_message %></div>
-        <% } %>
-        <form class="form-grid" method="POST" action="/donations/new">
-          <div class="form-grid-two">
-            <div class="form-field">
-              <label for="participant_first_name">First name</label>
-              <input id="participant_first_name" name="participant_first_name" type="text" required />
-            </div>
-            <div class="form-field">
-              <label for="participant_last_name">Last name</label>
-              <input id="participant_last_name" name="participant_last_name" type="text" required />
-            </div>
-          </div>
-          <div class="form-field">
-            <label for="participant_email">Email</label>
-            <input id="participant_email" name="participant_email" type="email" required />
-            <small>We’ll use this to find your participant record.</small>
-          </div>
-          <div class="form-grid-two">
-            <div class="form-field">
-              <label for="donation_date">Donation date</label>
-              <input id="donation_date" name="donation_date" type="date" />
-            </div>
-            <div class="form-field">
-              <label for="donation_amount">donation_amount (USD)</label>
-              <input id="donation_amount" name="donation_amount" type="number" step="0.01" required />
-            </div>
-          </div>
-          <div class="form-field" style="margin-top: 0.5rem;">
-            <button type="submit" class="btn btn--primary btn--large">Submit donation</button>
-            <a href="/donations" class="btn btn--ghost btn--large" style="margin-left: 0.5rem;">Cancel</a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
+<form id="donationForm" method="POST" action="/donations/select">
+<div class="donation-grid">
+<div class="donation-option" data-amount="5">
+<p class="amount">$5</p>
+<p class="label">Small Gift</p>
+</div>
+<div class="donation-option" data-amount="25">
+<p class="amount">$25</p>
+<p class="label">Supporter</p>
+</div>
+<div class="donation-option" data-amount="50">
+<p class="amount">$50</p>
+<p class="label">Contributor</p>
+</div>
+<div class="donation-option" data-amount="custom">
+<p class="amount">$?</p>
+<p class="label">Custom Amount</p>
+</div>
+</div>
 
-  <script>
-    const navToggle = document.querySelector(".nav-toggle");
-    const navLinks = document.querySelector(".nav-links");
-    navToggle.addEventListener("click", () => {
-      navLinks.classList.toggle("nav-links--open");
-      navToggle.classList.toggle("nav-toggle--open");
+<div class="custom-amount-wrapper" id="customAmountWrapper">
+<input type="number" 
+                       id="customAmountInput" 
+                       class="custom-input" 
+                       placeholder="Enter amount" 
+                       step="0.01" 
+                       min="1" />
+</div>
+
+<input type="hidden" name="donation_amount" id="donationAmountInput" required />
+
+<div class="confirm-section">
+<div id="selectedAmountDisplay" class="selected-amount-display" style="display: none;"></div>
+<button type="submit" class="btn btn--primary btn--large btn--confirm" id="confirmBtn" disabled>
+Confirm Donation
+</button>
+</div>
+</form>
+</div>
+</div>
+</section>
+
+<script>
+const navToggle = document.querySelector(".nav-toggle");
+const navLinks = document.querySelector(".nav-links");
+navToggle.addEventListener("click", () => {
+    navLinks.classList.toggle("nav-links--open");
+    navToggle.classList.toggle("nav-toggle--open");
+});
+
+// Donation selection logic
+const donationOptions = document.querySelectorAll('.donation-option');
+const customWrapper = document.getElementById('customAmountWrapper');
+const customInput = document.getElementById('customAmountInput');
+const donationAmountInput = document.getElementById('donationAmountInput');
+const confirmBtn = document.getElementById('confirmBtn');
+const selectedAmountDisplay = document.getElementById('selectedAmountDisplay');
+let selectedAmount = null;
+
+donationOptions.forEach(option => {
+    option.addEventListener('click', function() {
+        // Remove selected class from all options
+        donationOptions.forEach(opt => opt.classList.remove('selected'));
+        
+        // Add selected class to clicked option
+        this.classList.add('selected');
+        
+        const amount = this.dataset.amount;
+        
+        if (amount === 'custom') {
+            customWrapper.classList.add('active');
+            customInput.focus();
+            selectedAmount = null;
+            donationAmountInput.value = '';
+            confirmBtn.disabled = true;
+            selectedAmountDisplay.style.display = 'none';
+        } else {
+            customWrapper.classList.remove('active');
+            selectedAmount = amount;
+            donationAmountInput.value = amount;
+            confirmBtn.disabled = false;
+            selectedAmountDisplay.textContent = `You're donating $${amount}`;
+            selectedAmountDisplay.style.display = 'block';
+        }
     });
-  </script>
+});
+
+// Handle custom amount input
+customInput.addEventListener('input', function() {
+    const customValue = parseFloat(this.value);
+    if (customValue && customValue > 0) {
+        selectedAmount = customValue;
+        donationAmountInput.value = customValue;
+        confirmBtn.disabled = false;
+        selectedAmountDisplay.textContent = `You're donating $${customValue.toFixed(2)}`;
+        selectedAmountDisplay.style.display = 'block';
+    } else {
+        selectedAmount = null;
+        donationAmountInput.value = '';
+        confirmBtn.disabled = true;
+        selectedAmountDisplay.style.display = 'none';
+    }
+});
+
+// Prevent form submission if no amount selected
+document.getElementById('donationForm').addEventListener('submit', function(e) {
+    if (!donationAmountInput.value) {
+        e.preventDefault();
+        alert('Please select or enter a donation amount');
+    }
+});
+</script>
 </body>
 </html>

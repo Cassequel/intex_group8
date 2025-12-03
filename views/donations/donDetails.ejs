@@ -71,11 +71,15 @@
       <div class="detail-grid">
         <div class="detail-card">
           <h3>Participant</h3>
-          <p class="detail-value"><%= donation.participant_name || ('ID ' + donation.participant_id) %></p>
+          <p class="detail-value">
+            <a href="/participants/<%= donation.participant_id %>">
+              <%= donation.participant_name || ('ID ' + donation.participant_id) %>
+            </a>
+          </p>
         </div>
         <div class="detail-card">
-          <h3>donation_amount</h3>
-          <p class="detail-value"><%= donation.donation_amount %></p>
+          <h3>Donation Amount</h3>
+          <p class="detail-value">$<%= donation.donation_amount %></p>
         </div>
         <div class="detail-card">
           <h3>Date</h3>
