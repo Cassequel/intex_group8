@@ -15,7 +15,7 @@ cron.schedule('*/5 * * * *', async () => {
       .join('event_templates as t', 't.event_template_id', 'o.event_template_id')
       .whereRaw("DATE(o.event_date_time_start) = CURRENT_DATE + INTERVAL '7 days'")
       .andWhere(function () {
-        this.where('r.attended_flag', false).orWhereNull('r.attended_flag');
+        this.where('r.registration_attended_flag', false).orWhereNull('r.registration_attended_flag');
       })
       .andWhere(function () {
         this.where('r.reminder_week_sent', false).orWhereNull('r.reminder_week_sent');
@@ -53,7 +53,7 @@ cron.schedule('*/5 * * * *', async () => {
       .join('event_templates as t', 't.event_template_id', 'o.event_template_id')
       .whereRaw("DATE(o.event_date_time_start) = CURRENT_DATE + INTERVAL '1 day'")
       .andWhere(function () {
-        this.where('r.attended_flag', false).orWhereNull('r.attended_flag');
+        this.where('r.registration_attended_flag', false).orWhereNull('r.registration_attended_flag');
       })
       .andWhere(function () {
         this.where('r.reminder_day_sent', false).orWhereNull('r.reminder_day_sent');
