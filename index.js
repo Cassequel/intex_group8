@@ -1,16 +1,14 @@
 // TO DO 
 
 // make them a participant at a d level
-// Add thank you for donating 
+
 // Add Community partners and sponsors
 // Loops
 
-// Enroll doesn't do anything, just loops 
+// Enroll doesn't do anything, just loops make page
 // Add a D level - migration to make past donors become donors/participants 
 
-
-
-// requrirements to set up all dev and production stuff
+// requirements to set up all dev and production stuff
 require('dotenv').config();
 const express = require("express");
 const session = require("express-session");
@@ -357,7 +355,7 @@ app.get('/donations', requireManager, async (req, res) => {
                 "d.*",
                 knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name")
             )
-            .orderBy("d.donation_id", "asc");
+            .orderBy("d.donation_id", "desc");
         res.render('donations/donations', { donations });
     } catch (error) {
         console.error("Error loading donations:", error);
