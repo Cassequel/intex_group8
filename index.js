@@ -17,13 +17,11 @@
 
 
 //DONATIONS - CURD FUNCTIONAL 
-// Add autopopulate to donations to only put in donation number
 // No numbers have dollar signs 
 
 
 // Make all headers the same across pages? - fix nav bar 
 // Enroll doesn't do anything, just loops 
-// Get 
 //add other migrations 
 
 
@@ -362,7 +360,7 @@ app.get('/', (req, res) => {
     res.render('public/landing');
 });
 
-app.get('/donations', async (req, res) => {
+app.get('/donations', requireManager, async (req, res) => {
     try {
         const donations = await knex("donations as d")
             .leftJoin("participants as p", "d.participant_id", "p.participant_id")
@@ -379,142 +377,328 @@ app.get('/donations', async (req, res) => {
 });
 
 
-app.get('/donAdd', async (req, res) => {
-    try {
-        // Check if manual lookup is requested
-        const manualLookup = req.query.manual === 'true';
-        const lookupEmail = req.query.email;
+// app.get('/donAdd', async (req, res) => {
+//     try {
+//         // Check if manual lookup is requested
+//         const manualLookup = req.query.manual === 'true';
+//         const lookupEmail = req.query.email;
         
-        let participant = null;
-        let error_message = null;
+//         let participant = null;
+//         let error_message = null;
         
-        // If manual lookup requested and no email provided, show the email form
-        if (manualLookup && !lookupEmail) {
-            return res.render('donations/donAdd', { 
-                error_message: null,
-                participant: null,
-                showManualForm: true,
-                today: new Date().toISOString().split('T')[0]
-            });
-        }
+//         // If manual lookup requested and no email provided, show the email form
+//         if (manualLookup && !lookupEmail) {
+//             return res.render('donations/donAdd', { 
+//                 error_message: null,
+//                 participant: null,
+//                 showManualForm: true,
+//                 today: new Date().toISOString().split('T')[0]
+//             });
+//         }
         
-        // If email provided in query (manual lookup), use that
-        if (lookupEmail) {
-            participant = await knex("participants")
-                .where({ participant_email: lookupEmail })
-                .first();
+//         // If email provided in query (manual lookup), use that
+//         if (lookupEmail) {
+//             participant = await knex("participants")
+//                 .where({ participant_email: lookupEmail })
+//                 .first();
             
-            if (!participant) {
-                error_message = "We couldn't find a participant with that email. Please try again.";
-            }
-        }
-        // Otherwise, try to get email from session
-        else if (req.session && req.session.userEmail) {
-            participant = await knex("participants")
+//             if (!participant) {
+//                 error_message = "We couldn't find a participant with that email. Please try again.";
+//             }
+//         }
+//         // Otherwise, try to get email from session
+//         else if (req.session && req.session.userEmail) {
+//             participant = await knex("participants")
+//                 .where({ participant_email: req.session.userEmail })
+//                 .first();
+            
+//             // If session email doesn't match a participant, show manual form
+//             if (!participant) {
+//                 return res.render('donations/donAdd', { 
+//                     error_message: "We couldn't find your record. Please enter your email.",
+//                     participant: null,
+//                     showManualForm: true,
+//                     today: new Date().toISOString().split('T')[0]
+//                 });
+//             }
+//         }
+//         // No session email, show manual form
+//         else {
+//             return res.render('donations/donAdd', { 
+//                 error_message: null,
+//                 participant: null,
+//                 showManualForm: true,
+//                 today: new Date().toISOString().split('T')[0]
+//             });
+//         }
+        
+//         // Render with participant info
+//         res.render('donations/donAdd', { 
+//             error_message,
+//             participant,
+//             showManualForm: false,
+//             today: new Date().toISOString().split('T')[0]
+//         });
+        
+//     } catch (error) {
+//         console.error("Error loading donation form:", error);
+//         res.status(500).render('donations/donAdd', { 
+//             error_message: "An error occurred. Please try again.",
+//             participant: null,
+//             showManualForm: true,
+//             today: new Date().toISOString().split('T')[0]
+//         });
+//     }
+// });
+
+// app.post('/donations/new', async (req, res) => {
+//     const { participant_id, participant_email, participant_first_name, participant_last_name, donation_date, donation_amount } = req.body;
+    
+//     if (!donation_amount) {
+//         return res.status(400).render('donations/donAdd', { 
+//             error_message: "Please enter a donation amount.",
+//             participant: participant_id ? {
+//                 participant_id,
+//                 participant_email,
+//                 participant_first_name,
+//                 participant_last_name
+//             } : null,
+//             showManualForm: !participant_id,
+//             today: new Date().toISOString().split('T')[0]
+//         });
+//     }
+    
+//     try {
+//         // Use the participant_id from the form if available
+//         let finalParticipantId = participant_id;
+        
+//         // If no participant_id, look up by email (fallback)
+//         if (!finalParticipantId && participant_email) {
+//             const participant = await knex("participants")
+//                 .where({ participant_email: participant_email })
+//                 .first();
+            
+//             if (!participant) {
+//                 return res.status(400).render('donations/donAdd', { 
+//                     error_message: "We couldn't find a participant with that email.",
+//                     participant: null,
+//                     showManualForm: true,
+//                     today: new Date().toISOString().split('T')[0]
+//                 });
+//             }
+//             finalParticipantId = participant.participant_id;
+//         }
+        
+//         // Use today's date if no date provided
+//         const finalDonationDate = donation_date || new Date().toISOString().split('T')[0];
+        
+//         await knex("donations").insert({
+//             participant_id: finalParticipantId,
+//             donation_date: finalDonationDate,
+//             donation_amount: donation_amount
+//         });
+        
+//         res.redirect('/donations');
+        
+//     } catch (error) {
+//         console.error("Error creating donation:", error);
+//         res.status(500).render('donations/donAdd', { 
+//             error_message: "Could not create donation. Please try again.",
+//             participant: participant_id ? {
+//                 participant_id,
+//                 participant_email,
+//                 participant_first_name,
+//                 participant_last_name
+//             } : null,
+//             showManualForm: !participant_id,
+//             today: new Date().toISOString().split('T')[0]
+//         });
+//     }
+// });
+
+// Replace the existing /donations GET route with this:
+app.get('/donAdd', (req, res) => {
+    res.render('donations/donAdd', { 
+        error_message: null,
+        isLoggedIn: req.session.isLoggedIn || false
+    });
+});
+// Handle donation amount selection
+app.post('/donations/select', async (req, res) => {
+    const { donation_amount } = req.body;
+    
+    if (!donation_amount || donation_amount <= 0) {
+        return res.render('donations/donations', { 
+            error_message: "Please select a valid donation amount.",
+            isLoggedIn: req.session.isLoggedIn || false
+        });
+    }
+    
+    try {
+        // Check if user is logged in
+        if (req.session.isLoggedIn && req.session.userEmail) {
+            // Check if they're a participant
+            const participant = await knex("participants")
                 .where({ participant_email: req.session.userEmail })
                 .first();
             
-            // If session email doesn't match a participant, show manual form
-            if (!participant) {
-                return res.render('donations/donAdd', { 
-                    error_message: "We couldn't find your record. Please enter your email.",
-                    participant: null,
-                    showManualForm: true,
-                    today: new Date().toISOString().split('T')[0]
+            if (participant) {
+                // Existing participant - go straight to payment
+                return res.render('donations/donPayment', {
+                    donationAmount: parseFloat(donation_amount).toFixed(2),
+                    participantId: participant.participant_id,
+                    participantFirstName: participant.participant_first_name,
+                    participantLastName: participant.participant_last_name,
+                    participantEmail: participant.participant_email,
+                    participantPhone: participant.phone
+                });
+            } else {
+                // Logged in but not a participant - collect info with email pre-filled
+                return res.render('donations/donParticipantInfo', {
+                    donationAmount: parseFloat(donation_amount).toFixed(2),
+                    userEmail: req.session.userEmail,
+                    error_message: null
                 });
             }
         }
-        // No session email, show manual form
-        else {
-            return res.render('donations/donAdd', { 
-                error_message: null,
-                participant: null,
-                showManualForm: true,
-                today: new Date().toISOString().split('T')[0]
-            });
-        }
         
-        // Render with participant info
-        res.render('donations/donAdd', { 
-            error_message,
-            participant,
-            showManualForm: false,
-            today: new Date().toISOString().split('T')[0]
+        // Not logged in - collect all info including email
+        res.render('donations/donParticipantInfo', {
+            donationAmount: parseFloat(donation_amount).toFixed(2),
+            userEmail: null,
+            error_message: null
         });
         
     } catch (error) {
-        console.error("Error loading donation form:", error);
-        res.status(500).render('donations/donAdd', { 
+        console.error("Error processing donation selection:", error);
+        res.status(500).render('donations/donations', { 
             error_message: "An error occurred. Please try again.",
-            participant: null,
-            showManualForm: true,
-            today: new Date().toISOString().split('T')[0]
+            isLoggedIn: req.session.isLoggedIn || false
         });
     }
 });
 
-app.post('/donations/new', async (req, res) => {
-    const { participant_id, participant_email, participant_first_name, participant_last_name, donation_date, donation_amount } = req.body;
+// Handle participant info submission
+app.post('/donations/participant-info', async (req, res) => {
+    const { donation_amount, participant_email, participant_first_name, participant_last_name, phone } = req.body;
     
-    if (!donation_amount) {
-        return res.status(400).render('donations/donAdd', { 
-            error_message: "Please enter a donation amount.",
-            participant: participant_id ? {
-                participant_id,
-                participant_email,
-                participant_first_name,
-                participant_last_name
-            } : null,
-            showManualForm: !participant_id,
-            today: new Date().toISOString().split('T')[0]
+    // Validate required fields
+    if (!donation_amount || !participant_email || !participant_first_name || !participant_last_name) {
+        return res.render('donations/donParticipantInfo', {
+            donationAmount: donation_amount,
+            userEmail: req.session.userEmail || null,
+            error_message: "Email, first name, and last name are required."
         });
     }
     
     try {
-        // Use the participant_id from the form if available
-        let finalParticipantId = participant_id;
+        // Check if participant already exists
+        let participant = await knex("participants")
+            .where({ participant_email })
+            .first();
         
-        // If no participant_id, look up by email (fallback)
-        if (!finalParticipantId && participant_email) {
-            const participant = await knex("participants")
-                .where({ participant_email: participant_email })
-                .first();
-            
-            if (!participant) {
-                return res.status(400).render('donations/donAdd', { 
-                    error_message: "We couldn't find a participant with that email.",
-                    participant: null,
-                    showManualForm: true,
-                    today: new Date().toISOString().split('T')[0]
-                });
-            }
-            finalParticipantId = participant.participant_id;
+        if (participant) {
+            // Existing participant - go to payment with their ID
+            return res.render('donations/donPayment', {
+                donationAmount: parseFloat(donation_amount).toFixed(2),
+                participantId: participant.participant_id,
+                participantFirstName: participant.participant_first_name,
+                participantLastName: participant.participant_last_name,
+                participantEmail: participant.participant_email,
+                participantPhone: participant.phone
+            });
+        } else {
+            // New participant - go to payment page with info to create participant on confirmation
+            return res.render('donations/donPayment', {
+                donationAmount: parseFloat(donation_amount).toFixed(2),
+                participantId: null, // Signal that we need to create participant
+                participantFirstName: participant_first_name,
+                participantLastName: participant_last_name,
+                participantEmail: participant_email,
+                participantPhone: phone
+            });
         }
         
-        // Use today's date if no date provided
-        const finalDonationDate = donation_date || new Date().toISOString().split('T')[0];
+    } catch (error) {
+        console.error("Error processing participant info:", error);
+        res.status(500).render('donations/donParticipantInfo', {
+            donationAmount: donation_amount,
+            userEmail: req.session.userEmail || null,
+            error_message: "An error occurred. Please try again."
+        });
+    }
+});
+
+// Complete the donation
+app.post('/donations/complete', async (req, res) => {
+    const { 
+        donation_amount, 
+        participant_id, 
+        create_participant,
+        participant_email,
+        participant_first_name,
+        participant_last_name,
+        phone
+    } = req.body;
+    
+    if (!donation_amount) {
+        return res.redirect('/donations');
+    }
+    
+    try {
+        let finalParticipantId = participant_id;
         
+        // If we need to create a new participant
+        if (create_participant === 'true' && !participant_id) {
+            const [newParticipant] = await knex("participants")
+                .insert({
+                    participant_email,
+                    participant_first_name,
+                    participant_last_name,
+                    phone: phone || null,
+                    role: "donor"
+                })
+                .returning("*");
+            
+            finalParticipantId = newParticipant.participant_id;
+        }
+        
+        // Create the donation record
         await knex("donations").insert({
             participant_id: finalParticipantId,
-            donation_date: finalDonationDate,
-            donation_amount: donation_amount
+            donation_date: new Date().toISOString().split('T')[0],
+            donation_amount: parseFloat(donation_amount)
         });
         
-        res.redirect('/donations');
+        // Redirect to success page
+        res.redirect('/?donation_success=true');
         
     } catch (error) {
-        console.error("Error creating donation:", error);
-        res.status(500).render('donations/donAdd', { 
-            error_message: "Could not create donation. Please try again.",
-            participant: participant_id ? {
-                participant_id,
-                participant_email,
-                participant_first_name,
-                participant_last_name
-            } : null,
-            showManualForm: !participant_id,
-            today: new Date().toISOString().split('T')[0]
-        });
+        console.error("Error completing donation:", error);
+        
+        // Check for duplicate email error
+        if (error.code === '23505' && error.constraint === 'participants_participant_email_unique') {
+            // Email already exists - try to get the participant and create donation anyway
+            try {
+                const participant = await knex("participants")
+                    .where({ participant_email })
+                    .first();
+                
+                if (participant) {
+                    await knex("donations").insert({
+                        participant_id: participant.participant_id,
+                        donation_date: new Date().toISOString().split('T')[0],
+                        donation_amount: parseFloat(donation_amount)
+                    });
+                    
+                    return res.redirect('/?donation_success=true');
+                }
+            } catch (retryError) {
+                console.error("Error on retry:", retryError);
+            }
+        }
+        
+        res.status(500).send("Error completing donation. Please contact support.");
     }
 });
 
@@ -693,7 +877,7 @@ app.get('/milestones/:id', async (req, res) => {
             .where({ participant_id: milestone.participant_id })
             .orderBy("milestone_date", "asc")
             .orderBy("milestone_id", "asc");
-        res.render('milestones/mileDetail', { milestone, milestonesForParticipant, returnTo: from === 'milestones' ? '/milestones' : '/participants' });
+        res.render('milestones/mileDetail', { milestone, milestonesForParticipant, returnTo: `/milestones/${id}` });
     } catch (error) {
         console.error("Error loading milestone:", error);
         res.status(500).send("Error loading milestone");
@@ -962,8 +1146,9 @@ app.post('/participants/new', async (req, res) => {
 
 app.get('/participants/:id', async (req, res) => {
     const { id } = req.params;
-    const { return: returnParam, return: returnQuery } = req.query;
-    const returnTo = returnParam || returnQuery;
+    // Support multiple query parameter names that might be used to indicate where
+    // the user came from. Use the first present value.
+    const returnTo = req.query.return || req.query.returnTo || req.query.from || null;
     try {
         const participant = await knex("participants")
             .select("*")

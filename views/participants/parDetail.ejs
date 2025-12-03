@@ -128,10 +128,10 @@
       </div>
       <div style="margin-top: 1.5rem;">
         <a href="/participants/<%= participant.participant_id %>/edit" class="btn btn--outline">Edit participant</a>
-        <% if (typeof returnTo !== "undefined" && returnTo === "/milestones") { %>
-          <a href="/milestones" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to milestones</a>
+        <% if (returnTo) { %>
+          <a href="<%= returnTo %>" class="btn btn--ghost" style="margin-left: 0.5rem;">Back</a>
         <% } else { %>
-          <a href="/participants" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to list</a>
+          <a href="/participants" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to participants</a>
         <% } %>
       </div>
     </div>
