@@ -14,17 +14,11 @@
 // MILESTONES - CRUD FUNCTIONAL 
 // NO delte milestone, idk if we need that
 
-
-
-//DONATIONS - CURD FUNCTIONAL 
-// No numbers have dollar signs 
+//DONATIONS - COMPLETLY FUNCTIONAL 
 
 
 // Make all headers the same across pages? - fix nav bar 
 // Enroll doesn't do anything, just loops 
-//add other migrations 
-
-
 
 // requrirements to set up all dev and production stuff
 require('dotenv').config();

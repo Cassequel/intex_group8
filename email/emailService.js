@@ -3,7 +3,7 @@ const sgMail = require('./transporter');
 async function sendMail({ to, subject, html }) {
   // SendGrid API uses sgMail.send (array or single object)
   await sgMail.send({
-    from: process.env.FROM_EMAIL || '"Ella Rises (No Reply)" <no-reply@ellarises.org>',
+    from: process.env.FROM_EMAIL || '"Ella Rises (No Reply)" <no-reply@ella-rises.com>',
     to,
     subject,
     html,
