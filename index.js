@@ -1,19 +1,9 @@
 // TO DO 
-//DONATIONS - CURD FUNCTIONAL 
-// Maybe add functionality to have donate tab auto populate?
-// dollar signs
-// total donations
-// make them a participant at a d level
 
+// make them a participant at a d level
 // Add thank you for donating 
 // Add Community partners and sponsors
 // Loops
-// EVENTS - CRUD FUNCTIONAL 
-// SURVEYS - CRUD FUNCTIONAL 
-//USERS - COMPLETELY FUNCTIONAL 
-//PARTICIPANTS - COMPLETLY FUNCTIONAL 
-// MILESTONES - CRUD FUNCTIONAL 
-//DONATIONS - COMPLETLY FUNCTIONAL 
 
 // Enroll doesn't do anything, just loops 
 // Add a D level - migration to make past donors become donors/participants 
@@ -375,145 +365,6 @@ app.get('/donations', requireManager, async (req, res) => {
     }
 });
 
-
-// app.get('/donAdd', async (req, res) => {
-//     try {
-//         // Check if manual lookup is requested
-//         const manualLookup = req.query.manual === 'true';
-//         const lookupEmail = req.query.email;
-        
-//         let participant = null;
-//         let error_message = null;
-        
-//         // If manual lookup requested and no email provided, show the email form
-//         if (manualLookup && !lookupEmail) {
-//             return res.render('donations/donAdd', { 
-//                 error_message: null,
-//                 participant: null,
-//                 showManualForm: true,
-//                 today: new Date().toISOString().split('T')[0]
-//             });
-//         }
-        
-//         // If email provided in query (manual lookup), use that
-//         if (lookupEmail) {
-//             participant = await knex("participants")
-//                 .where({ participant_email: lookupEmail })
-//                 .first();
-            
-//             if (!participant) {
-//                 error_message = "We couldn't find a participant with that email. Please try again.";
-//             }
-//         }
-//         // Otherwise, try to get email from session
-//         else if (req.session && req.session.userEmail) {
-//             participant = await knex("participants")
-//                 .where({ participant_email: req.session.userEmail })
-//                 .first();
-            
-//             // If session email doesn't match a participant, show manual form
-//             if (!participant) {
-//                 return res.render('donations/donAdd', { 
-//                     error_message: "We couldn't find your record. Please enter your email.",
-//                     participant: null,
-//                     showManualForm: true,
-//                     today: new Date().toISOString().split('T')[0]
-//                 });
-//             }
-//         }
-//         // No session email, show manual form
-//         else {
-//             return res.render('donations/donAdd', { 
-//                 error_message: null,
-//                 participant: null,
-//                 showManualForm: true,
-//                 today: new Date().toISOString().split('T')[0]
-//             });
-//         }
-        
-//         // Render with participant info
-//         res.render('donations/donAdd', { 
-//             error_message,
-//             participant,
-//             showManualForm: false,
-//             today: new Date().toISOString().split('T')[0]
-//         });
-        
-//     } catch (error) {
-//         console.error("Error loading donation form:", error);
-//         res.status(500).render('donations/donAdd', { 
-//             error_message: "An error occurred. Please try again.",
-//             participant: null,
-//             showManualForm: true,
-//             today: new Date().toISOString().split('T')[0]
-//         });
-//     }
-// });
-
-// app.post('/donations/new', async (req, res) => {
-//     const { participant_id, participant_email, participant_first_name, participant_last_name, donation_date, donation_amount } = req.body;
-    
-//     if (!donation_amount) {
-//         return res.status(400).render('donations/donAdd', { 
-//             error_message: "Please enter a donation amount.",
-//             participant: participant_id ? {
-//                 participant_id,
-//                 participant_email,
-//                 participant_first_name,
-//                 participant_last_name
-//             } : null,
-//             showManualForm: !participant_id,
-//             today: new Date().toISOString().split('T')[0]
-//         });
-//     }
-    
-//     try {
-//         // Use the participant_id from the form if available
-//         let finalParticipantId = participant_id;
-        
-//         // If no participant_id, look up by email (fallback)
-//         if (!finalParticipantId && participant_email) {
-//             const participant = await knex("participants")
-//                 .where({ participant_email: participant_email })
-//                 .first();
-            
-//             if (!participant) {
-//                 return res.status(400).render('donations/donAdd', { 
-//                     error_message: "We couldn't find a participant with that email.",
-//                     participant: null,
-//                     showManualForm: true,
-//                     today: new Date().toISOString().split('T')[0]
-//                 });
-//             }
-//             finalParticipantId = participant.participant_id;
-//         }
-        
-//         // Use today's date if no date provided
-//         const finalDonationDate = donation_date || new Date().toISOString().split('T')[0];
-        
-//         await knex("donations").insert({
-//             participant_id: finalParticipantId,
-//             donation_date: finalDonationDate,
-//             donation_amount: donation_amount
-//         });
-        
-//         res.redirect('/donations');
-        
-//     } catch (error) {
-//         console.error("Error creating donation:", error);
-//         res.status(500).render('donations/donAdd', { 
-//             error_message: "Could not create donation. Please try again.",
-//             participant: participant_id ? {
-//                 participant_id,
-//                 participant_email,
-//                 participant_first_name,
-//                 participant_last_name
-//             } : null,
-//             showManualForm: !participant_id,
-//             today: new Date().toISOString().split('T')[0]
-//         });
-//     }
-// });
 
 // Replace the existing /donations GET route with this:
 app.get('/donAdd', (req, res) => {
