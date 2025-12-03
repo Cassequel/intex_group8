@@ -10,13 +10,14 @@
 // No way to look at survey details 
 
 //USERS - COMPLETELY FUNCTIONAL 
-//PARTICIPANTS - COMPLETLY FUNCTIONAL 
+//PARTICIPANTS - change name to first and last name
 
 // MILESTONES - CRUD FUNCTIONAL 
-// NO delte milestone, idk if we need that
+// NO delete milestone, idk if we need that
 
 //DONATIONS - CURD FUNCTIONAL 
 // Maybe add functionality to have donate tab auto populate?
+// dollar signs
 
 // Make all headers the same across pages? 
 
@@ -300,12 +301,13 @@ app.use((req, res, next) => {
   // This allows Chrome DevTools to connect to localhost:3000
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self' http://localhost:* ws://localhost:* wss://localhost:*; " +
-    "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*; " +
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+    "default-src 'self' http://localhost:* ws://localhost:* wss://localhost:* https://public.tableau.com http://public.tableau.com; " +
+    "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:* https://public.tableau.com http://public.tableau.com; " +
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://public.tableau.com http://public.tableau.com; " +
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://public.tableau.com http://public.tableau.com https://fonts.googleapis.com; " +
+    "frame-src 'self' https://public.tableau.com http://public.tableau.com; " +
     "img-src 'self' data: https:; " +
-    "font-src 'self' https://cdn.jsdelivr.net;"
+    "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com;"
   );
   next();
 });
