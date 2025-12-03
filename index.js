@@ -1,29 +1,23 @@
 // TO DO 
-// EVENTS 
-// -Fix Events Location - add new migration to rename table to events location 
-// -in Add event, figure out how to pull in template and other information - test add
-// - clicking on event names loops back, i think it doesn't go to detail view 
-// - havent been able to test delte, no event i want to delete yet 
+// EVENTS - CRUD FUNCTIONAL 
+// Lines are like two pixels off 
 
 // SURVEYS - CRUD FUNCTIONAL 
 // Search function searches participant name, 
 // No way to look at survey details 
 
 //USERS - COMPLETELY FUNCTIONAL 
+// confirmation for delete for users 
+
 //PARTICIPANTS - COMPLETLY FUNCTIONAL 
 
 // MILESTONES - CRUD FUNCTIONAL 
 // NO delte milestone, idk if we need that
 
 //DONATIONS - CURD FUNCTIONAL 
-// Maybe add functionality to have donate tab auto populate?
+// Add autopopulate to donations to only put in donation number
 
-// Make all headers the same across pages? 
-
-
-
-
-
+// Make all headers the same across pages? - fix nav bar 
 
 // requrirements to set up all dev and production stuff
 require('dotenv').config();
@@ -1109,16 +1103,16 @@ app.post('/events/new', async (req, res) => {
         event_template_id,
         event_date_time_start,
         event_date_time_end,
-        even_location,
+        event_location,
         event_capacity,
         event_registration_deadline
     } = {
-        event_template_id: req.body.eventtemplateid,
-        event_date_time_start: req.body.eventdatetimestart,
-        event_date_time_end: req.body.eventdatetimeend,
-        even_location: req.body.eventlocation,
-        event_capacity: req.body.eventcapacity,
-        event_registration_deadline: req.body.eventregistrationdeadline
+        event_template_id: req.body.event_template_id,
+        event_date_time_start: req.body.event_date_time_start,
+        event_date_time_end: req.body.event_date_time_end,
+        event_location: req.body.event_location,
+        event_capacity: req.body.event_capacity,
+        event_registration_deadline: req.body.event_registration_deadline
     };
 
     try {
@@ -1131,7 +1125,7 @@ app.post('/events/new', async (req, res) => {
                 event_template_id,
                 event_date_time_start: event_date_time_start || null,
                 event_date_time_end: event_date_time_end || null,
-                even_location,
+                event_location,
                 event_capacity: event_capacity || null,
                 event_registration_deadline: event_registration_deadline || null
             })
@@ -1203,16 +1197,16 @@ app.post('/events/:id/edit', async (req, res) => {
         event_template_id,
         event_date_time_start,
         event_date_time_end,
-        even_location,
+        event_location,
         event_capacity,
         event_registration_deadline
     } = {
-        event_template_id: req.body.eventtemplateid,
-        event_date_time_start: req.body.eventdatetimestart,
-        event_date_time_end: req.body.eventdatetimeend,
-        even_location: req.body.eventlocation,
-        event_capacity: req.body.eventcapacity,
-        event_registration_deadline: req.body.eventregistrationdeadline
+        event_template_id: req.body.event_template_id,
+        event_date_time_start: req.body.event_date_time_start,
+        event_date_time_end: req.body.event_date_time_end,
+        event_location: req.body.event_location,
+        event_capacity: req.body.event_capacity,
+        event_registration_deadline: req.body.event_registration_deadline
     };
 
     try {
@@ -1224,7 +1218,7 @@ app.post('/events/:id/edit', async (req, res) => {
                     event_template_id,
                     event_date_time_start,
                     event_date_time_end,
-                    even_location,
+                    event_location,
                     event_capacity,
                     event_registration_deadline
                 },
@@ -1239,7 +1233,7 @@ app.post('/events/:id/edit', async (req, res) => {
                 event_template_id,
                 event_date_time_start: event_date_time_start || null,
                 event_date_time_end: event_date_time_end || null,
-                even_location,
+                event_location,
                 event_capacity: event_capacity || null,
                 event_registration_deadline: event_registration_deadline || null
             });
