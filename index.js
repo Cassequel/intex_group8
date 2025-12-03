@@ -996,7 +996,7 @@ app.post('/login', async (req, res) => {
         req.session.isLoggedIn = true;
         req.session.userId = user.user_id;
         req.session.username = user.username;
-        req.session.email = user.participant_email;
+        req.session.userEmail = user.email;
         req.session.level = user.level || 'U';
 
 

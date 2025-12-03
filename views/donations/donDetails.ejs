@@ -1,104 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Your Information | Ella Rises</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="stylesheet" href="/styles/styles.css" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <title>Donation | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .detail-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.2rem 1.3rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(153, 183, 198, 0.18);
+    }
+    .detail-card h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1rem;
+      color: var(--color-primary-dark);
+    }
+    .detail-value {
+      margin: 0;
+      color: var(--color-text-soft);
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-<!-- NAVBAR -->
-<header class="site-header">
-<div class="container nav-container">
-<a href="/" class="logo">
-<span class="logo-mark">ER</span>
-<span class="logo-text">Ella Rises</span>
-</a>
-<nav class="nav">
-<button class="nav-toggle" aria-label="Toggle navigation">
-<span></span><span></span><span></span>
-</button>
-<ul class="nav-links">
-<li><a href="/">Home</a></li>
-<li><a href="/donations">Donations</a></li>
-</ul>
-</nav>
-</div>
-</header>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <span class="logo-mark">ER</span>
+        <span class="logo-text">Ella Rises</span>
+      </a>
 
-<!-- HERO -->
-<section class="hero">
-<div class="hero-overlay"></div>
-<div class="container hero-content">
-<p class="eyebrow">Almost There</p>
-<h1>Your Information</h1>
-<p class="hero-subtitle">We just need a few details to complete your $<%= donationAmount %> donation</p>
-</div>
-</section>
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/donations">Donations</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-<!-- FORM -->
-<section class="section section--light">
-<div class="container">
-<div class="form-card">
-<% if (typeof error_message !== "undefined" && error_message) { %>
-<div class="alert alert--error"><%= error_message %></div>
-<% } %>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Donation</p>
+      <h1>Gift #<%= donation.donation_id %></h1>
+      <p class="hero-subtitle"><%= donation.participant_name || ('Participant ID ' + donation.participant_id) %></p>
+    </div>
+  </section>
 
-<form class="form-grid" method="POST" action="/donations/participant-info">
-<input type="hidden" name="donation_amount" value="<%= donationAmount %>" />
+  <!-- DETAILS -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="detail-grid">
+        <div class="detail-card">
+          <h3>Participant</h3>
+          <p class="detail-value">
+            <a href="/participants/<%= donation.participant_id %>">
+              <%= donation.participant_name || ('ID ' + donation.participant_id) %>
+            </a>
+          </p>
+        </div>
+        <div class="detail-card">
+          <h3>Donation Amount</h3>
+          <p class="detail-value">$<%= donation.donation_amount %></p>
+        </div>
+        <div class="detail-card">
+          <h3>Date</h3>
+          <p class="detail-value">
+            <%
+              const d = donation.donation_date;
+              let formattedDate = "";
+              if (d) {
+                formattedDate = d.toISOString ? d.toISOString().slice(0,10) : String(d).slice(0,10);
+              }
+            %>
+            <%= formattedDate || "Not provided" %>
+          </p>
+        </div>
+      </div>
+      <div style="margin-top: 1.5rem;">
+        <% if (userLevel !== 'U') { %>
+          <a href="/donations/<%= donation.donation_id %>/edit" class="btn btn--outline">Edit donation</a>
+        <% } %>
+        <a href="/donations" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to list</a>
+      </div>
+    </div>
+  </section>
 
-<% if (userEmail) { %>
-<!-- Logged in user - show their email (read-only) -->
-<div class="form-field">
-<label for="participant_email">Email</label>
-<input id="participant_email" name="participant_email" type="email" value="<%= userEmail %>" readonly style="background-color: #f5f5f5;" />
-<small>From your account</small>
-</div>
-<% } else { %>
-<!-- Not logged in - allow email entry -->
-<div class="form-field">
-<label for="participant_email">Email</label>
-<input id="participant_email" name="participant_email" type="email" required autofocus />
-<small>We'll check if you're already in our system</small>
-</div>
-<% } %>
-
-<div class="form-grid-two">
-<div class="form-field">
-<label for="participant_first_name">First Name</label>
-<input id="participant_first_name" name="participant_first_name" type="text" required <%= userEmail ? 'autofocus' : '' %> />
-</div>
-<div class="form-field">
-<label for="participant_last_name">Last Name</label>
-<input id="participant_last_name" name="participant_last_name" type="text" required />
-</div>
-</div>
-
-<div class="form-field">
-<label for="phone">Phone Number</label>
-<input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" />
-<small>Optional - helps us stay in touch</small>
-</div>
-
-<div class="form-field" style="margin-top: 1rem;">
-<button type="submit" class="btn btn--primary btn--large">Continue to Payment</button>
-<a href="/donations" class="btn btn--ghost btn--large" style="margin-left: 0.5rem;">Cancel</a>
-</div>
-</form>
-</div>
-</div>
-</section>
-
-<script>
-const navToggle = document.querySelector(".nav-toggle");
-const navLinks = document.querySelector(".nav-links");
-navToggle.addEventListener("click", () => {
-    navLinks.classList.toggle("nav-links--open");
-    navToggle.classList.toggle("nav-toggle--open");
-});
-</script>
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
 </body>
 </html>
