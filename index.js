@@ -477,8 +477,7 @@ app.post('/donations/participant-info', async (req, res) => {
     }
 });
 
-// Complete the donation
-// Complete the donation
+
 app.post('/donations/complete', async (req, res) => {
     const { 
         donation_amount, 
@@ -499,7 +498,7 @@ app.post('/donations/complete', async (req, res) => {
         let finalParticipantEmail = participant_email;
         let finalParticipantName = '';
         
-        // If we need to create a new participant
+        // If we need to create a new participant (they're a NEW donor, not an existing participant)
         if (create_participant === 'true' && !participant_id) {
             const [newParticipant] = await knex("participants")
                 .insert({
@@ -507,7 +506,7 @@ app.post('/donations/complete', async (req, res) => {
                     participant_first_name,
                     participant_last_name,
                     phone: phone || null,
-                    role: "participant"
+                    role: "donor"  // Brand new donors get just "donor" role
                 })
                 .returning("*");
             
@@ -523,6 +522,20 @@ app.post('/donations/complete', async (req, res) => {
             if (participant) {
                 finalParticipantEmail = participant.participant_email;
                 finalParticipantName = `${participant.participant_first_name} ${participant.participant_last_name}`;
+                
+                // Update EXISTING participant's role to include donor
+                const currentRole = participant.role || 'participant';
+                
+                // Only update if they don't already have donor in their role
+                if (!currentRole.includes('donor')) {
+                    const newRole = currentRole === 'participant' 
+                        ? 'participant/donor' 
+                        : `${currentRole}/donor`;
+                    
+                    await knex("participants")
+                        .where({ participant_id: finalParticipantId })
+                        .update({ role: newRole });
+                }
             }
         }
         
@@ -555,13 +568,25 @@ app.post('/donations/complete', async (req, res) => {
         
         // Check for duplicate email error
         if (error.code === '23505' && error.constraint === 'participants_participant_email_unique') {
-            // Email already exists - try to get the participant and create donation anyway
+            // Email already exists - they must be an existing participant, so add donor role
             try {
                 const participant = await knex("participants")
                     .where({ participant_email })
                     .first();
                 
                 if (participant) {
+                    // Update their role to include donor if needed
+                    const currentRole = participant.role || 'participant';
+                    if (!currentRole.includes('donor')) {
+                        const newRole = currentRole === 'participant' 
+                            ? 'participant/donor' 
+                            : `${currentRole}/donor`;
+                        
+                        await knex("participants")
+                            .where({ participant_id: participant.participant_id })
+                            .update({ role: newRole });
+                    }
+                    
                     const donationDate = new Date().toISOString().split('T')[0];
                     await knex("donations").insert({
                         participant_id: participant.participant_id,
