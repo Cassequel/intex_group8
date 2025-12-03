@@ -105,9 +105,9 @@
                     data-capacity="<%= typeof event.event_capacity !== 'undefined' && event.event_capacity !== null ? event.event_capacity : 0 %>"
                     data-location="<%= (event.event_location || '').toLowerCase() %>"
                   >
-                    <td><%= event.event_occurrence_id %></td>
+                    <td><%= event.event_occurence_id %></td>
                     <td><%= event.event_template_id %></td>
-                    <td><a href="/events/<%= event.event_occurrence_id %>"><%= event.event_name %></a></td>
+                    <td><a href="/events/<%= event.event_occurence_id %>"><%= event.event_name %></a></td>
                     <td><%= event.event_type || "—" %></td>
                     <td>
                       <%
@@ -123,8 +123,8 @@
                     <td><%= typeof event.event_capacity !== "undefined" && event.event_capacity !== null ? event.event_capacity : "—" %></td>
                     <% if (userLevel !== 'U') { %>
                       <td class="table-actions">
-                        <a class="btn btn--outline btn--small" href="/events/<%= event.event_occurrence_id %>/edit">Edit</a>
-                        <form class="inline-form" method="POST" action="/events/<%= event.event_occurrence_id %>/delete">
+                        <a class="btn btn--outline btn--small" href="/events/<%= event.event_occurence_id %>/edit">Edit</a>
+                        <form class="inline-form" method="POST" action="/events/<%= event.event_occurence_id %>/delete">
                           <button type="submit" class="btn btn--ghost btn--small">Delete</button>
                         </form>
                       </td>
