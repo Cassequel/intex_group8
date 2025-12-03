@@ -16,10 +16,13 @@
 
 //DONATIONS - CURD FUNCTIONAL 
 // Add autopopulate to donations to only put in donation number
+// No numbers have dollar signs 
+
 
 // Make all headers the same across pages? - fix nav bar 
 // Enroll doesn't do anything, just loops 
 // Get 
+//add other migrations 
 
 // requrirements to set up all dev and production stuff
 require('dotenv').config();
@@ -296,8 +299,8 @@ app.use((req, res, next) => {
   // This allows Chrome DevTools to connect to localhost:3000
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self' http://localhost:* ws://localhost:* wss://localhost:*; " +
-    "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*; " +
+    "default-src 'self' https://ella-rises.com https://www.ella-rises.com; " +
+    "connect-src 'self' https://ella-rises.com https://www.ella-rises.com; " +
     "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
     "img-src 'self' data: https:; " +
