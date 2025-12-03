@@ -12,7 +12,7 @@ async function sendMail({ to, subject, html }) {
 
 // --------------- transactional ---------------
 async function sendPasswordReset(user, token) {
-  const resetLink = `${process.env.APP_URL}/reset-password?token=${token}`;
+  const resetLink = `ella-rises.com/reset-password?token=${token}`;
 
 
   return sendMail({

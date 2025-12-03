@@ -18,6 +18,8 @@
 // Add autopopulate to donations to only put in donation number
 
 // Make all headers the same across pages? - fix nav bar 
+// Enroll doesn't do anything, just loops 
+// Get 
 
 // requrirements to set up all dev and production stuff
 require('dotenv').config();
@@ -46,10 +48,6 @@ app.use(session({
     saveUninitialized: false
 }));
 
-// sets up connections for migrations(script to install database)
-const knexConfig = require("./knexfile");
-const environment = process.env.NODE_ENV || "development";
-const knex = require("knex")(knexConfig[environment]);
 
 app.get('/test-email', async (req, res) => {
   try {
