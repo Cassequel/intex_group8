@@ -19,30 +19,7 @@
 </head>
 <body>
   <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
-
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/participants">Participants</a></li>
-          <li><a href="/events">Events</a></li>
-          <li><a href="/surveys">Surveys</a></li>
-          <% if (userLevel !== 'U') { %>
-            <li><a href="/users">Users</a></li>
-            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
-          <% } %>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <%- include('../partials/navbar') %>
 
   <!-- HERO -->
   <section class="hero">
@@ -52,7 +29,7 @@
       <h1>Surveys</h1>
       <p class="hero-subtitle">View participant feedback across events.</p>
       <div class="hero-actions">
-        <% if (userLevel !== 'U') { %>
+        <% if (userLevel === 'M') { %>
           <a href="/surveys/new" class="btn btn--primary">Add survey</a>
         <% } %>
       </div>
@@ -71,8 +48,16 @@
         <div class="table-card__header">
           <span>Surveys</span>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-            <input type="search" id="surveySearch" placeholder="Search surveys..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
-            <% if (userLevel !== 'U') { %>
+            <input type="search" id="surveySearch" placeholder="Search participant or event..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 220px;" />
+            <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem;">
+              Min date
+              <input type="date" id="minDate" style="padding: 0.35rem 0.5rem; border: 1px solid var(--color-border); border-radius: 8px;" />
+            </label>
+            <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem;">
+              Max date
+              <input type="date" id="maxDate" style="padding: 0.35rem 0.5rem; border: 1px solid var(--color-border); border-radius: 8px;" />
+            </label>
+            <% if (userLevel === 'M') { %>
               <a href="/surveys/new" class="btn btn--primary btn--small">Add survey</a>
             <% } %>
           </div>
@@ -86,13 +71,16 @@
                 <th>Event</th>
                 <th>Submitted</th>
                 <th>Comments</th>
-                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
+                <% if (userLevel === 'M') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
               <% if (surveys && surveys.length) { %>
                 <% surveys.forEach((survey) => { %>
-                  <tr data-name="<%= (survey.participant_name || '').toLowerCase() %>">
+                  <tr
+                    data-name="<%= (survey.participant_name || '').toLowerCase() %>"
+                    data-event="<%= (survey.event_name || '').toLowerCase() %>"
+                    data-date="<%= (() => { const d = survey.survey_submission_date || survey.submission_date; try { return d ? new Date(d).toISOString() : ''; } catch(e) { return ''; } })() %>">
                     <td><%= survey.survey_id %></td>
                     <td><a href="/surveys/<%= survey.survey_id %>"><%= survey.participant_name || "Unknown participant" %></a></td>
                     <td><%= survey.event_name || "Unknown event" %></td>
@@ -107,7 +95,7 @@
                       <%= submittedDate %>
                     </td>
                     <td class="comment-preview"><%= survey.survey_comments || survey.comments || "" %></td>
-                    <% if (userLevel !== 'U') { %>
+                    <% if (userLevel === 'M') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/surveys/<%= survey.survey_id %>/edit">Edit</a>
                         <form class="inline-form" method="POST" action="/surveys/<%= survey.survey_id %>/delete">
@@ -119,7 +107,7 @@
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="<%= userLevel !== 'U' ? 7 : 6 %>" class="empty-row">No surveys found.</td>
+                  <td colspan="<%= userLevel === 'M' ? 7 : 6 %>" class="empty-row">No surveys found.</td>
                 </tr>
               <% } %>
             </tbody>
@@ -137,17 +125,36 @@
       navToggle.classList.toggle("nav-toggle--open");
     });
 
-    // Simple search by participant name
+    // Search by participant, event, and date range
     const surveySearch = document.getElementById("surveySearch");
+    const minDateInput = document.getElementById("minDate");
+    const maxDateInput = document.getElementById("maxDate");
     const surveyRows = Array.from(document.querySelectorAll("tbody tr"));
 
-    surveySearch?.addEventListener("input", () => {
+    const applySurveyFilters = () => {
       const term = surveySearch.value.trim().toLowerCase();
+      const minDate = minDateInput.value ? new Date(minDateInput.value).getTime() : null;
+      const maxDate = maxDateInput.value ? new Date(maxDateInput.value).getTime() + 24 * 60 * 60 * 1000 - 1 : null; // end of day
+
       surveyRows.forEach((row) => {
         const name = row.dataset.name || "";
-        row.style.display = name.includes(term) ? "" : "none";
+        const eventName = row.dataset.event || "";
+        const rowText = row.textContent.toLowerCase();
+        const dateValue = row.dataset.date ? new Date(row.dataset.date).getTime() : null;
+
+        const matchesTerm = !term || name.includes(term) || eventName.includes(term) || rowText.includes(term);
+        const matchesMin = minDate === null || (dateValue !== null && dateValue >= minDate);
+        const matchesMax = maxDate === null || (dateValue !== null && dateValue <= maxDate);
+
+        row.style.display = matchesTerm && matchesMin && matchesMax ? "" : "none";
       });
-    });
+    };
+
+    surveySearch?.addEventListener("input", applySurveyFilters);
+    minDateInput?.addEventListener("change", applySurveyFilters);
+    maxDateInput?.addEventListener("change", applySurveyFilters);
+
+    applySurveyFilters();
   </script>
 </body>
 </html>

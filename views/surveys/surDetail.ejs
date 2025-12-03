@@ -115,7 +115,7 @@
         </div>
       </div>
       <div style="margin-top: 1.5rem;">
-        <% if (userLevel !== 'U') { %>
+        <% if (userLevel === 'M') { %>
           <a href="/surveys/<%= survey.survey_id %>/edit" class="btn btn--outline">Edit survey</a>
         <% } %>
         <a href="/surveys" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to list</a>

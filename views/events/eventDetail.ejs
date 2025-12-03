@@ -50,7 +50,7 @@
         <ul class="nav-links">
           <li><a href="/">Home</a></li>
           <li><a href="/events">Events</a></li>
-          <% if (userLevel !== 'U') { %>
+          <% if (userLevel === 'M') { %>
             <li><a href="/users">Users</a></li>
             <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
           <% } %>
@@ -66,7 +66,7 @@
       <p class="eyebrow">Event</p>
       <h1><%= event.event_name %></h1>
       <p class="hero-subtitle"><%= event.event_description || 'No description' %></p>
-      <% if (userLevel !== 'U') { %>
+      <% if (userLevel === 'M') { %>
         <div class="hero-actions">
           <a href="/events/<%= event.event_occurrence_id %>/edit" class="btn btn--outline">Edit event</a>
         </div>

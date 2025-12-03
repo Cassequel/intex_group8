@@ -1,0 +1,32 @@
+<header class="site-header">
+  <div class="container nav-container">
+    <a href="/" class="logo">
+      <span class="logo-mark">ER</span>
+      <span class="logo-text">Ella Rises</span>
+    </a>
+
+    <nav class="nav">
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#programs">Programs</a></li>
+        <li><a href="/events">Events</a></li>
+        <li><a href="/surveys">Surveys</a></li>
+        <% if (userLevel === 'M') { %><li><a href="/users">Users</a></li><% } %>
+        <li><a href="/participants">Participants</a></li>
+        <li><a href="/milestones">Milestones</a></li>
+        <% if (userLevel === 'M') { %>
+          <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
+        <% } %>
+        <li><a href="/donations" class="btn btn--outline">Donate</a></li>
+        <% if (isLoggedIn) { %>
+          <li><a href="/logout" class="btn btn--outline">Logout</a></li>
+        <% } else { %>
+          <li><a href="/login" class="btn btn--primary">Login</a></li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+</header>

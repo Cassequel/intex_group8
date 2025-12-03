@@ -11,29 +11,7 @@
 </head>
 <body>
   <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
-
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/participants">Participants</a></li>
-          <li><a href="/events">Events</a></li>
-          <% if (userLevel !== 'U') { %>
-            <li><a href="/users">Users</a></li>
-            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
-          <% } %>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <%- include('../partials/navbar') %>
 
   <!-- HERO -->
   <section class="hero">
@@ -42,7 +20,7 @@
       <p class="eyebrow">Programs</p>
       <h1>Events</h1>
       <p class="hero-subtitle">Browse and manage scheduled events.</p>
-      <% if (userLevel !== 'U') { %>
+      <% if (userLevel === 'M') { %>
         <div class="hero-actions">
           <a href="/events/new" class="btn btn--primary">Add event</a>
         </div>
@@ -67,6 +45,8 @@
               <option value="all">All types</option>
               <option value="leadership">Leadership</option>
               <option value="stem">STEM</option>
+              <option value="arts">Arts</option>
+              <option value="annual-conference">Annual Conference</option>
             </select>
             <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.9rem;">
               Capacity ≤ <span id="capacityValue">500</span>
@@ -77,7 +57,7 @@
               <option value="online">Online</option>
               <option value="inperson">In person</option>
             </select>
-            <% if (userLevel !== 'U') { %>
+            <% if (userLevel === 'M') { %>
               <a href="/events/new" class="btn btn--primary btn--small">Add event</a>
             <% } %>
           </div>
@@ -87,13 +67,12 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Template</th>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Starts</th>
                 <th>Location</th>
                 <th>Capacity</th>
-                <% if (userLevel !== 'U') { %><th>Actions</th><% } %>
+                <% if (userLevel === 'M') { %><th>Actions</th><% } %>
               </tr>
             </thead>
             <tbody>
@@ -106,7 +85,6 @@
                     data-location="<%= (event.event_location || '').toLowerCase() %>"
                   >
                     <td><%= event.event_occurence_id %></td>
-                    <td><%= event.event_template_id %></td>
                     <td><a href="/events/<%= event.event_occurence_id %>"><%= event.event_name %></a></td>
                     <td><%= event.event_type || "—" %></td>
                     <td>
@@ -121,7 +99,7 @@
                     </td>
                     <td><%= event.event_location || "—" %></td>
                     <td><%= typeof event.event_capacity !== "undefined" && event.event_capacity !== null ? event.event_capacity : "—" %></td>
-                    <% if (userLevel !== 'U') { %>
+                    <% if (userLevel === 'M') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/events/<%= event.event_occurence_id %>/edit">Edit</a>
                         <form class="inline-form" method="POST" action="/events/<%= event.event_occurence_id %>/delete">
@@ -133,7 +111,7 @@
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="<%= userLevel !== 'U' ? 8 : 7 %>" class="empty-row">No events found.</td>
+                  <td colspan="<%= userLevel === 'M' ? 8 : 7 %>" class="empty-row">No events found.</td>
                 </tr>
               <% } %>
             </tbody>
@@ -168,15 +146,19 @@
 
       eventRows.forEach((row) => {
         const name = row.dataset.name || "";
+        const template = row.dataset.template || "";
         const type = row.dataset.type || "";
         const capacity = parseInt(row.dataset.capacity || "0", 10);
         const location = row.dataset.location || "";
+        const rowText = row.textContent.toLowerCase();
 
-        const matchesSearch = name.includes(term);
-        const matchesType =
-          typeVal === "all" ||
-          (typeVal === "leadership" && type.includes("leadership")) ||
-          (typeVal === "stem" && type.includes("stem"));
+        const matchesSearch = !term || name.includes(term) || type.includes(term) || template.includes(term) || rowText.includes(term);
+      const matchesType =
+        typeVal === "all" ||
+        (typeVal === "leadership" && type.includes("leadership")) ||
+        (typeVal === "stem" && type.includes("stem")) ||
+        (typeVal === "arts" && type.includes("art")) ||
+        (typeVal === "annual-conference" && type.includes("annual") && type.includes("conference"));
         const matchesCapacity = capacity <= capacityVal;
         const isOnline = location.includes("virtual zoom") || location.includes("online");
         const matchesLocation =

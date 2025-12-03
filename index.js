@@ -1,4 +1,13 @@
 // TO DO 
+//DONATIONS - CURD FUNCTIONAL 
+// Maybe add functionality to have donate tab auto populate?
+// dollar signs
+// total donations
+// make them a participant at a d level
+
+// Add thank you for donating 
+// Add Community partners and sponsors
+// Loops
 // EVENTS - CRUD FUNCTIONAL 
 // SURVEYS - CRUD FUNCTIONAL 
 //USERS - COMPLETELY FUNCTIONAL 
@@ -286,12 +295,17 @@ app.use((req, res, next) => {
   // This allows Chrome DevTools to connect to localhost:3000
   res.setHeader(
     'Content-Security-Policy',
+    "default-src 'self' http://localhost:* ws://localhost:* wss://localhost:* https://public.tableau.com http://public.tableau.com; " +
+    "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:* https://public.tableau.com http://public.tableau.com; " +
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://public.tableau.com http://public.tableau.com; " +
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://public.tableau.com http://public.tableau.com https://fonts.googleapis.com; " +
+    "frame-src 'self' https://public.tableau.com http://public.tableau.com; " +
     "default-src 'self' https://ella-rises.com https://www.ella-rises.com; " +
     "connect-src 'self' https://ella-rises.com https://www.ella-rises.com; " +
     "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
     "img-src 'self' data: https:; " +
-    "font-src 'self' https://cdn.jsdelivr.net;"
+    "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com;"
   );
   next();
 });
@@ -844,7 +858,6 @@ app.get('/milestones', async (req, res) => {
                 "m.*",
                 knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name")
             )
-            .orderBy("m.participant_id", "asc")
             .orderBy("m.milestone_id", "asc");
         res.render('milestones/milestones', { milestones });
     } catch (error) {
@@ -911,6 +924,25 @@ app.get('/milestones/:id', async (req, res) => {
     }
 });
 
+app.get('/milestones/participant/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const participant = await knex("participants")
+            .select("*")
+            .where({ participant_id: id })
+            .first();
+
+        if (!participant) {
+            return res.status(404).render('public/418Code');
+        }
+
+        res.render('milestones/milestonePartcipant', { participant, returnTo: '/milestones' });
+    } catch (error) {
+        console.error("Error loading milestone participant:", error);
+        res.status(500).send("Error loading milestone participant");
+    }
+});
+
 app.get('/milestones/:id/edit', async (req, res) => {
     const { id } = req.params;
     try {
@@ -973,6 +1005,19 @@ app.post('/milestones/:id/edit', async (req, res) => {
         } catch (loadErr) {
             res.status(500).send("Error loading milestone");
         }
+    }
+});
+
+app.post('/milestones/:id/delete', requireManager, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await knex("milestones")
+            .where({ milestone_id: id })
+            .del();
+        res.redirect('/milestones');
+    } catch (error) {
+        console.error("Error deleting milestone:", error);
+        res.status(500).send("Error deleting milestone");
     }
 });
 
@@ -1076,8 +1121,8 @@ app.post('/login', async (req, res) => {
         req.session.isLoggedIn = true;
         req.session.userId = user.user_id;
         req.session.username = user.username;
-        req.session.userEmail = user.email;
-        req.session.level = user.level || 'user';
+        req.session.email = user.participant_email;
+        req.session.level = user.level || 'U';
 
 
         const deviceInfo = {
@@ -1314,17 +1359,47 @@ app.get('/users', requireManager, async (req, res) => {
 });
 
 app.get('/users/new', requireManager, (req, res) => {
-    res.render('userDashboard/userAdd', { error_message: null });
+    res.render('userDashboard/userAdd', {
+        error_message: null,
+        error_field: null,
+        formValues: { username: "", email: "", password: "", level: "U" }
+    });
 });
 
 app.post('/users/new', requireManager, async (req, res) => {
     const { username, email, password, level } = req.body;
+    const formValues = { username, email, password, level: level || 'U' };
     if (!username || !email || !password) {
         return res.status(400).render('userDashboard/userAdd', {
-            error_message: "Username, email, and password are required."
+            error_message: "Username, email, and password are required.",
+            error_field: !username ? "username" : !email ? "email" : "password",
+            formValues
+        });
+    }
+    if (password.length < 8) {
+        return res.status(400).render('userDashboard/userAdd', {
+            error_message: "Password is too short.",
+            error_field: "password",
+            formValues
         });
     }
     try {
+        const existing = await knex("users").where({ username }).first();
+        if (existing) {
+            return res.status(400).render('userDashboard/userAdd', {
+                error_message: "That username has already been taken.",
+                error_field: "username",
+                formValues
+            });
+        }
+        const existingEmail = await knex("users").where({ email }).first();
+        if (existingEmail) {
+            return res.status(400).render('userDashboard/userAdd', {
+                error_message: "That email is already registered.",
+                error_field: "email",
+                formValues
+            });
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
         await knex("users").insert({
             username,
@@ -1337,9 +1412,9 @@ app.post('/users/new', requireManager, async (req, res) => {
         console.error("Error creating user:", error);
         const duplicateErr = error.code === "23505";
         const message = duplicateErr
-            ? "Registration failed. Cannot use username or email."
+            ? "That username or email is already registered."
             : "Could not create user. Please try again.";
-        res.status(500).render('userDashboard/userAdd', { error_message: message });
+        res.status(500).render('userDashboard/userAdd', { error_message: message, error_field: "username", formValues });
     }
 });
 

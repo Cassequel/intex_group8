@@ -10,70 +10,58 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --tableau-scale: 0.9;
+    }
     .dashboard-shell {
       background: #ffffff;
       border-radius: 16px;
       box-shadow: var(--shadow-soft);
       min-height: 60vh;
-      display: grid;
-      place-items: center;
-      padding: 2rem;
+      padding: 1.5rem;
       border: 1px solid rgba(153, 183, 198, 0.2);
     }
-    .placeholder {
-      text-align: center;
-      max-width: 620px;
-      color: var(--color-text-soft);
-    }
-    .placeholder h2 {
-      margin: 0 0 0.6rem;
+    .dashboard-shell h2 {
+      margin: 0 0 0.5rem;
       font-family: "DM Serif Display", "Montserrat", serif;
       color: var(--color-primary-dark);
     }
-    .placeholder p {
+    .dashboard-shell p {
       margin: 0 0 1rem;
+      color: var(--color-text-soft);
     }
-    .placeholder .block {
-      height: 220px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(153,183,198,0.2), rgba(247,176,146,0.2));
-      border: 1px dashed rgba(58,63,59,0.25);
-      display: grid;
-      place-items: center;
-      color: rgba(58,63,59,0.7);
-      font-weight: 600;
-      letter-spacing: 0.02em;
+    .tableau-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 70vh;
+      max-height: 90vh;
+      border-radius: 12px;
+      border: 1px dashed rgba(58, 63, 59, 0.2);
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(153,183,198,0.12), rgba(247,176,146,0.12));
+    }
+    .tableau-wrapper .tableauPlaceholder,
+    .tableau-wrapper iframe,
+    .tableau-wrapper object,
+    .tableau-wrapper embed {
+      width: calc(100% / var(--tableau-scale)) !important;
+      height: calc(100% / var(--tableau-scale)) !important;
+      transform: scale(var(--tableau-scale));
+      transform-origin: top left;
+      display: block;
+      position: absolute;
+      inset: 0;
+    }
+    @media (max-width: 768px) {
+      .tableau-wrapper {
+        min-height: 60vh;
+      }
     }
   </style>
 </head>
 <body>
   <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo">
-        <span class="logo-mark">ER</span>
-        <span class="logo-text">Ella Rises</span>
-      </a>
-
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/participants">Participants</a></li>
-          <li><a href="/events">Events</a></li>
-          <li><a href="/milestones">Milestones</a></li>
-          <li><a href="/donations">Donations</a></li>
-          <li><a href="/surveys">Surveys</a></li>
-          <% if (userLevel !== 'U') { %>
-            <li><a href="/users">Users</a></li>
-            <li><a href="/managerDashboard" class="btn btn--outline">Dashboard</a></li>
-          <% } %>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <%- include('../partials/navbar') %>
 
   <!-- HERO -->
   <section class="hero">
@@ -85,14 +73,29 @@
     </div>
   </section>
 
-  <!-- DASHBOARD PLACEHOLDER -->
+  <!-- DASHBOARD EMBED -->
   <section class="section section--light">
     <div class="container">
       <div class="dashboard-shell">
-        <div class="placeholder">
-          <h2>Interactive dashboard coming soon</h2>
-          <p>This space will host embedded Tableau or other BI widgets showing real-time KPIs, trends, and drill-downs.</p>
-          <div class="block">Placeholder for Tableau embed</div>
+        <h2>Performance Overview</h2>
+        <p>Explore the live Tableau dashboard below for a consolidated view of current KPIs.</p>
+        <div class="tableau-wrapper">
+          <div class='tableauPlaceholder' id='viz1764779710207' style='position: relative'>
+            <noscript><a href='#'><img alt='1. Summary ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;HQ&#47;HQDY8NS8K&#47;1_rss.png' style='border: none' /></a></noscript>
+            <object class='tableauViz'  style='display:none;'>
+              <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+              <param name='embed_code_version' value='3' />
+              <param name='path' value='shared&#47;HQDY8NS8K' />
+              <param name='toolbar' value='yes' />
+              <param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;HQ&#47;HQDY8NS8K&#47;1.png' />
+              <param name='animate_transition' value='yes' />
+              <param name='display_static_image' value='yes' />
+              <param name='display_spinner' value='yes' />
+              <param name='display_overlay' value='yes' />
+              <param name='display_count' value='yes' />
+              <param name='language' value='en-US' />
+            </object>
+          </div>
         </div>
       </div>
     </div>
@@ -105,6 +108,24 @@
       navLinks.classList.toggle("nav-links--open");
       navToggle.classList.toggle("nav-toggle--open");
     });
+
+    // Initialize Tableau embed with responsive height
+    const divElement = document.getElementById('viz1764779710207');
+    const vizElement = divElement.getElementsByTagName('object')[0];
+    const wrapper = document.querySelector('.tableau-wrapper');
+    const resizeViz = () => {
+      const width = wrapper.offsetWidth || window.innerWidth;
+      const targetHeight = Math.max(window.innerHeight * 0.8, width * 0.65, 720);
+      wrapper.style.height = `${targetHeight}px`;
+      divElement.style.height = `${targetHeight}px`;
+      vizElement.style.width = '100%';
+      vizElement.style.height = `${targetHeight}px`;
+    };
+    resizeViz();
+    window.addEventListener('resize', resizeViz);
+    const scriptElement = document.createElement('script');
+    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+    vizElement.parentNode.insertBefore(scriptElement, vizElement);
   </script>
 </body>
 </html>

@@ -96,7 +96,7 @@
         </div>
       </div>
       <div style="margin-top: 1.5rem;">
-        <% if (userLevel !== 'U') { %>
+        <% if (userLevel === 'M') { %>
           <a href="/donations/<%= donation.donation_id %>/edit" class="btn btn--outline">Edit donation</a>
         <% } %>
         <a href="/donations" class="btn btn--ghost" style="margin-left: 0.5rem;">Back to list</a>
