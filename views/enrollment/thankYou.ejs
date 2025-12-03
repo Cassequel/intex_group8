@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initi<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Registration Confirmed - Ella Rises</title>
+        <link rel="icon" type="image/png" href="/images/favicon.png" />
+        <link rel="stylesheet" href="/styles/styles.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <style>
+            .success-hero {
+                background: radial-gradient(circle at top left, #ffdbd1, #f9f5ea);
+                padding: 3rem 0 2rem;
+                text-align: center;
+            }
+            .success-icon {
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 1.5rem;
+                animation: scaleIn 0.5s ease-out;
+            }
+            .success-icon::after {
+                content: "✓";
+                font-size: 2.5rem;
+                color: white;
+                font-weight: 700;
+            }
+            @keyframes scaleIn {
+                0% { transform: scale(0); }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); }
+            }
+            .success-title {
+                font-family: "DM Serif Display", "Montserrat", serif;
+                font-size: 2.5rem;
+                margin-bottom: 0.5rem;
+                color: var(--color-text);
+            }
+            .success-subtitle {
+                font-size: 1.1rem;
+                color: var(--color-text-soft);
+            }
+            .detail-card {
+                background: white;
+                border-radius: var(--radius-lg);
+                padding: 2rem;
+                box-shadow: var(--shadow-soft);
+                margin-bottom: 1.5rem;
+            }
+            .detail-row {
+                display: flex;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid var(--color-border);
+                gap: 1rem;
+            }
+            .detail-row:last-child {
+                border-bottom: none;
+            }
+            .detail-label {
+                font-weight: 600;
+                color: var(--color-text-soft);
+                min-width: 140px;
+                font-size: 0.95rem;
+            }
+            .detail-value {
+                color: var(--color-text);
+                font-size: 0.95rem;
+            }
+            .info-box {
+                background: #f0f9ff;
+                border: 1px solid #bae6fd;
+                border-radius: var(--radius-md);
+                padding: 1.5rem;
+                margin: 1.5rem 0;
+            }
+            .info-box h4 {
+                color: var(--color-primary);
+                margin-top: 0;
+                margin-bottom: 0.5rem;
+                font-size: 1rem;
+            }
+            .info-box p {
+                margin: 0;
+                font-size: 0.95rem;
+                color: var(--color-text-soft);
+            }
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 2rem;
+            }
+            @media (min-width: 720px) {
+                .action-buttons {
+                    flex-direction: row;
+                    justify-content: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <%- include('../partials/navbar') %>
+    
+        <section class="success-hero">
+            <div class="container">
+                <div class="success-icon"></div>
+                <h1 class="success-title">You're Registered!</h1>
+                <p class="success-subtitle">We're excited to see you at the event</p>
+            </div>
+        </section>
+    
+        <section class="section section--light">
+            <div class="container" style="max-width: 700px;">
+                <div class="detail-card">
+                    <h3 style="margin-top: 0; color: var(--color-primary);">Event Details</h3>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Event Name</div>
+                        <div class="detail-value"><strong><%= event.event_name %></strong></div>
+                    </div>
+    
+                    <% if (event.event_date_time_start) { %>
+                        <div class="detail-row">
+                            <div class="detail-label">Date</div>
+                            <div class="detail-value">
+                                <%= new Date(event.event_date_time_start).toLocaleDateString('en-US', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                }) %>
+                            </div>
+                        </div>
+                    <% } %>
+    
+                    <% if (event.event_date_time_start) { %>
+                        <div class="detail-row">
+                            <div class="detail-label">Time</div>
+                            <div class="detail-value">
+                                <%= new Date(event.event_date_time_start).toLocaleTimeString('en-US', { 
+                                    hour: 'numeric', 
+                                    minute: '2-digit' 
+                                }) %>
+                                <% if (event.event_date_time_end) { %>
+                                    - <%= new Date(event.event_date_time_end).toLocaleTimeString('en-US', { 
+                                        hour: 'numeric', 
+                                        minute: '2-digit' 
+                                    }) %>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } %>
+    
+                    <% if (event.event_location) { %>
+                        <div class="detail-row">
+                            <div class="detail-label">Location</div>
+                            <div class="detail-value"><%= event.event_location %></div>
+                        </div>
+                    <% } %>
+    
+                    <div class="detail-row">
+                        <div class="detail-label">Registered As</div>
+                        <div class="detail-value">
+                            <%= participant.participant_first_name %> <%= participant.participant_last_name %>
+                        </div>
+                    </div>
+    
+                    <div class="detail-row">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value"><%= participant.participant_email %></div>
+                    </div>
+                </div>
+    
+                <div class="info-box">
+                    <h4>📧 What's Next?</h4>
+                    <p>
+                        A confirmation email has been sent to <strong><%= participant.participant_email %></strong>. 
+                        You'll receive a reminder before the event starts. We can't wait to see you there!
+                    </p>
+                </div>
+    
+                <div class="action-buttons">
+                    <a href="/enroll" class="btn btn--primary">Enroll in More Events</a>
+                    <a href="/" class="btn btn--outline">Back to Home</a>
+                </div>
+            </div>
+        </section>
+    
+        <script>
+            const navToggle = document.querySelector(".nav-toggle");
+            const navLinks = document.querySelector(".nav-links");
+    
+            if (navToggle && navLinks) {
+                navToggle.addEventListener("click", () => {
+                    navLinks.classList.toggle("nav-links--open");
+                    navToggle.classList.toggle("nav-toggle--open");
+                });
+            }
+        </script>
+    </body>
+    </html>al-scale=1.0">
+    <title>Registration Confirmed</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    <link rel="stylesheet" href="/styles/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+     <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .thank-you-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: scaleIn 0.5s ease-out;
+        }
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+        }
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        h1 {
+            color: #333;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+        .event-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .event-details h3 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 140px;
+        }
+        .detail-value {
+            color: #333;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 40px;
+            border-radius: 25px;
+            font-weight: 500;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 40px;
+            border-radius: 25px;
+            font-weight: 500;
+            margin: 10px;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+        .next-steps {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f4f8;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .next-steps h4 {
+            color: #667eea;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .next-steps p {
+            color: #555;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+  <body>
+    <!-- NAVBAR -->
+    <%- include('../partials/navbar') %>
+
+    <div class="thank-you-card">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+
+        <h1>Registration Confirmed! 🎉</h1>
+        <p class="subtitle">You're all set for the event</p>
+
+        <div class="event-details">
+            <h3>Event Details</h3>
+            
+            <div class="detail-row">
+                <div class="detail-label">Event Name:</div>
+                <div class="detail-value"><%= event.event_name %></div>
+            </div>
+
+            <% if (event.event_date_time_start) { %>
+                <div class="detail-row">
+                    <div class="detail-label">Date:</div>
+                    <div class="detail-value">
+                        <%= new Date(event.event_date_time_start).toLocaleDateString('en-US', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        }) %>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (event.event_date_time_start) { %>
+                <div class="detail-row">
+                    <div class="detail-label">Time:</div>
+                    <div class="detail-value">
+                        <%= new Date(event.event_date_time_start).toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        }) %>
+                        <% if (event.event_date_time_end) { %>
+                            - <%= new Date(event.event_date_time_end).toLocaleTimeString('en-US', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            }) %>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (event.event_location) { %>
+                <div class="detail-row">
+                    <div class="detail-label">Location:</div>
+                    <div class="detail-value"><%= event.event_location %></div>
+                </div>
+            <% } %>
+
+            <div class="detail-row">
+                <div class="detail-label">Registered As:</div>
+                <div class="detail-value">
+                    <%= participant.participant_first_name %> <%= participant.participant_last_name %>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Email:</div>
+                <div class="detail-value"><%= participant.participant_email %></div>
+            </div>
+        </div>
+
+        <div class="next-steps">
+            <h4>📧 What's Next?</h4>
+            <p>A confirmation email has been sent to <%= participant.participant_email %>. You'll receive a reminder before the event starts.</p>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <a href="/enroll" class="btn btn-primary">Enroll in More Events</a>
+            <a href="/" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

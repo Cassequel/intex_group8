@@ -7,6 +7,9 @@
 
 // Enroll doesn't do anything, just loops make page
 
+// THINGS TO HAVE CODEX DO 
+
+
 // requirements to set up all dev and production stuff
 require('dotenv').config();
 const express = require("express");
@@ -1933,6 +1936,297 @@ app.get('/teapot', (req, res) => {
 
 // start scheduled email jobs
 require('./email/reminderJob');
+
+// Registration/Enrollment Routes
+// Replace the existing /enroll routes in your index.js
+
+// Show enrollment page with available events
+app.get('/enroll', async (req, res) => {
+    try {
+        const userEmail = req.session.userEmail;
+        
+        if (!userEmail) {
+            return res.render('auth/login', { 
+                error_message: "Please log in to enroll in events" 
+            });
+        }
+
+        // Check if user is already a participant
+        let participant = await knex("participants")
+            .where({ participant_email: userEmail })
+            .first();
+
+        // If not a participant, redirect to profile completion page
+        if (!participant) {
+            return res.redirect('/enroll/complete-profile');
+        }
+
+        // Check if participant has all required information
+        if (!participant.participant_first_name || !participant.participant_last_name) {
+            return res.redirect('/enroll/complete-profile');
+        }
+
+        // Get available events (registration deadline hasn't passed and not at capacity)
+        const now = new Date();
+        
+        // First, get all events with their registration counts
+        const eventsWithCounts = await knex("event_occurences as o")
+            .leftJoin("event_templates as t", "o.event_template_id", "t.event_template_id")
+            .select(
+                "o.*",
+                "t.event_name",
+                "t.event_type",
+                "t.event_description",
+                "t.default_capacity"
+            )
+            .where("o.event_registration_deadline", ">", now)
+            .orderBy("o.event_date_time_start", "asc");
+
+        // Get registration counts for each event
+        const registrationCounts = await knex("registrations")
+            .select("event_occurence_id")
+            .count("* as count")
+            .groupBy("event_occurence_id");
+
+        // Create a map of event_id -> count
+        const countMap = {};
+        registrationCounts.forEach(r => {
+            countMap[r.event_occurence_id] = parseInt(r.count);
+        });
+
+        // Filter events that aren't at capacity
+        const availableEvents = eventsWithCounts.filter(event => {
+            const currentRegistrations = countMap[event.event_occurence_id] || 0;
+            const capacity = event.default_capacity || 999;
+            return currentRegistrations < capacity;
+        }).map(event => ({
+            ...event,
+            current_registrations: countMap[event.event_occurence_id] || 0
+        }));
+
+        // Check which events the user is already registered for
+        const userRegistrations = await knex("registrations")
+            .where({ participant_id: participant.participant_id })
+            .select("event_occurence_id");
+        
+        const registeredEventIds = userRegistrations.map(r => r.event_occurence_id);
+
+        res.render('enrollment/enroll', { 
+            availableEvents,
+            registeredEventIds,
+            error_message: null 
+        });
+    } catch (error) {
+        console.error("Error loading enrollment page:", error);
+        res.status(500).send("Error loading enrollment page");
+    }
+});
+
+// Show profile completion form
+app.get('/enroll/complete-profile', async (req, res) => {
+    try {
+        const userEmail = req.session.userEmail;
+        
+        if (!userEmail) {
+            return res.render('auth/login', { 
+                error_message: "Please log in to enroll in events" 
+            });
+        }
+
+        // Check if participant already exists
+        const participant = await knex("participants")
+            .where({ participant_email: userEmail })
+            .first();
+
+        res.render('enrollment/completeProfile', { 
+            error_message: null,
+            participant: participant || { participant_email: userEmail }
+        });
+    } catch (error) {
+        console.error("Error loading profile completion:", error);
+        res.status(500).send("Error loading profile completion page");
+    }
+});
+
+// Handle profile completion submission
+app.post('/enroll/complete-profile', async (req, res) => {
+    try {
+        const userEmail = req.session.userEmail;
+        
+        if (!userEmail) {
+            return res.render('auth/login', { 
+                error_message: "Please log in to enroll in events" 
+            });
+        }
+
+        const {
+            participant_first_name,
+            participant_last_name,
+            participant_dob,
+            phone,
+            city,
+            state,
+            zip,
+            participant_school_or_employer,
+            participant_field_of_interest
+        } = req.body;
+
+        // Validate required fields
+        if (!participant_first_name || !participant_last_name) {
+            const participant = await knex("participants")
+                .where({ participant_email: userEmail })
+                .first();
+
+            return res.status(400).render('enrollment/completeProfile', {
+                error_message: "First name and last name are required.",
+                participant: participant || { 
+                    participant_email: userEmail,
+                    participant_first_name,
+                    participant_last_name,
+                    participant_dob,
+                    phone,
+                    city,
+                    state,
+                    zip,
+                    participant_school_or_employer,
+                    participant_field_of_interest
+                }
+            });
+        }
+
+        // Check if participant already exists
+        const existingParticipant = await knex("participants")
+            .where({ participant_email: userEmail })
+            .first();
+
+        if (existingParticipant) {
+            // Update existing participant
+            await knex("participants")
+                .where({ participant_email: userEmail })
+                .update({
+                    participant_first_name,
+                    participant_last_name,
+                    participant_dob: participant_dob || null,
+                    phone: phone || null,
+                    city: city || null,
+                    state: state || null,
+                    zip: zip || null,
+                    participant_school_or_employer: participant_school_or_employer || null,
+                    participant_field_of_interest: participant_field_of_interest || null
+                });
+        } else {
+            // Create new participant
+            await knex("participants")
+                .insert({
+                    participant_email: userEmail,
+                    participant_first_name,
+                    participant_last_name,
+                    participant_dob: participant_dob || null,
+                    phone: phone || null,
+                    city: city || null,
+                    state: state || null,
+                    zip: zip || null,
+                    participant_school_or_employer: participant_school_or_employer || null,
+                    participant_field_of_interest: participant_field_of_interest || null,
+                    role: "participant"
+                });
+        }
+
+        // Redirect to enrollment page
+        res.redirect('/enroll');
+    } catch (error) {
+        console.error("Error completing profile:", error);
+        res.status(500).send("Error completing profile");
+    }
+});
+
+// Handle enrollment submission
+app.post('/enroll', async (req, res) => {
+    try {
+        const userEmail = req.session.userEmail;
+        const { event_occurence_id } = req.body;
+
+        if (!userEmail) {
+            return res.render('auth/login', { 
+                error_message: "Please log in to enroll in events" 
+            });
+        }
+
+        if (!event_occurence_id) {
+            return res.redirect('/enroll');
+        }
+
+        // Get participant
+        const participant = await knex("participants")
+            .where({ participant_email: userEmail })
+            .first();
+
+        if (!participant) {
+            return res.redirect('/enroll/complete-profile');
+        }
+
+        // Verify event is still available
+        const now = new Date();
+        const event = await knex("event_occurences as o")
+            .leftJoin("event_templates as t", "o.event_template_id", "t.event_template_id")
+            .select(
+                "o.*",
+                "t.event_name",
+                "t.event_type",
+                "t.default_capacity"
+            )
+            .where("o.event_occurence_id", event_occurence_id)
+            .where("o.event_registration_deadline", ">", now)
+            .first();
+
+        if (!event) {
+            return res.status(400).send("Event is no longer available for registration");
+        }
+
+        // Check capacity
+        const registrationCount = await knex("registrations")
+            .where({ event_occurence_id })
+            .count("* as count")
+            .first();
+
+        const currentCount = parseInt(registrationCount.count);
+        const maxCapacity = event.default_capacity || 999;
+
+        if (currentCount >= maxCapacity) {
+            return res.status(400).send("Event is at full capacity");
+        }
+
+        // Check if already registered
+        const existingRegistration = await knex("registrations")
+            .where({ 
+                participant_id: participant.participant_id,
+                event_occurence_id 
+            })
+            .first();
+
+        if (existingRegistration) {
+            return res.status(400).send("You are already registered for this event");
+        }
+
+        // Create registration
+        await knex("registrations").insert({
+            participant_id: participant.participant_id,
+            event_occurence_id,
+            registration_status: "confirmed",
+            registration_attended_flag: false,
+            registration_created_at: new Date()
+        });
+
+        // Redirect to thank you page
+        res.render('enrollment/thankYou', { 
+            event,
+            participant 
+        });
+    } catch (error) {
+        console.error("Error processing enrollment:", error);
+        res.status(500).send("Error processing enrollment");
+    }
+});
 
 
 
