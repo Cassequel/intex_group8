@@ -48,6 +48,7 @@ app.use(session({
     saveUninitialized: false
 }));
 
+// sets up connections for migrations(script to install database)
 
 app.get('/test-email', async (req, res) => {
   try {
@@ -98,7 +99,7 @@ app.post('/forgot-password', async (req, res) => {
 
         await knex("password_reset_tokens").insert({
             user_id: user.user_id,
-            token,
+            token_hash: token,
             expires_at: expiresAt
         });
 
@@ -130,7 +131,7 @@ app.get('/reset-password', async (req, res) => {
 
     try {
         const record = await knex("password_reset_tokens")
-            .where({ token })
+            .where({ token_hash: token })
             .andWhere("expires_at", ">", new Date())
             .andWhere(function () {
                 this.whereNull("used_at");
@@ -158,7 +159,7 @@ app.get('/reset-password', async (req, res) => {
 
     try {
         const record = await knex("password_reset_tokens")
-            .where({ token })
+            .where({ token_hash: token })
             .andWhere("expires_at", ">", new Date())
             .andWhere(function () {
                 this.whereNull("used_at");
@@ -189,7 +190,7 @@ app.post('/reset-password', async (req, res) => {
 
     try {
         const record = await knex("password_reset_tokens")
-            .where({ token })
+            .where({ token_hash: token })
             .andWhere("expires_at", ">", new Date())
             .andWhere(function () {
                 this.whereNull("used_at");

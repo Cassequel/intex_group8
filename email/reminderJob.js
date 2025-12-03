@@ -9,11 +9,11 @@ cron.schedule('*/5 * * * *', async () => {
 
   try {
     // ----- 1) 1 WEEK BEFORE -----
-    const weekRows = await db('registration as r')
+    const weekRows = await db('registrations as r')
       .join('participants as p', 'p.participant_id', 'r.participant_id')
-      .join('event_occurrences as o', 'o.eventoccurenceid', 'r.eventoccurenceid')
-      .join('event_templates as t', 't.eventtemplateid', 'o.eventtemplateid')
-      .whereRaw("DATE(o.eventdatetimestart) = CURRENT_DATE + INTERVAL '7 days'")
+      .join('event_occurences as o', 'o.event_occurence_id', 'r.event_occurence_id')
+      .join('event_templates as t', 't.event_template_id', 'o.event_template_id')
+      .whereRaw("DATE(o.event_date_time_start) = CURRENT_DATE + INTERVAL '7 days'")
       .andWhere(function () {
         this.where('r.attended_flag', false).orWhereNull('r.attended_flag');
       })
@@ -22,11 +22,11 @@ cron.schedule('*/5 * * * *', async () => {
       })
       .select(
         'r.registration_id',
-        'p.email',
-        'p.first_name',
-        't.eventname as name',
-        'o.eventdatetimestart as start_time',
-        'o.eventlocation as location'
+        'p.participant_email as email',
+        'p.participant_first_name as first_name',
+        't.event_name as name',
+        'o.event_date_time_start as start_time',
+        'o.event_location as location'
       );
 
     for (const row of weekRows) {
@@ -39,7 +39,7 @@ cron.schedule('*/5 * * * *', async () => {
 
       await sendEventReminder(user, event);
 
-      await db('registration')
+      await db('registrations')
         .where({ registration_id: row.registration_id })
         .update({ reminder_week_sent: true });
 
@@ -47,11 +47,11 @@ cron.schedule('*/5 * * * *', async () => {
     }
 
     // ----- 2) 1 DAY BEFORE -----
-    const dayRows = await db('registration as r')
+    const dayRows = await db('registrations as r')
       .join('participants as p', 'p.participant_id', 'r.participant_id')
-      .join('event_occurrences as o', 'o.eventoccurenceid', 'r.eventoccurenceid')
-      .join('event_templates as t', 't.eventtemplateid', 'o.eventtemplateid')
-      .whereRaw("DATE(o.eventdatetimestart) = CURRENT_DATE + INTERVAL '1 day'")
+      .join('event_occurences as o', 'o.event_occurence_id', 'r.event_occurence_id')
+      .join('event_templates as t', 't.event_template_id', 'o.event_template_id')
+      .whereRaw("DATE(o.event_date_time_start) = CURRENT_DATE + INTERVAL '1 day'")
       .andWhere(function () {
         this.where('r.attended_flag', false).orWhereNull('r.attended_flag');
       })
@@ -60,11 +60,11 @@ cron.schedule('*/5 * * * *', async () => {
       })
       .select(
         'r.registration_id',
-        'p.email',
-        'p.first_name',
-        't.eventname as name',
-        'o.eventdatetimestart as start_time',
-        'o.eventlocation as location'
+        'p.participant_email as email',
+        'p.participant_first_name as first_name',
+        't.event_name as name',
+        'o.event_date_time_start as start_time',
+        'o.event_location as location'
       );
 
     for (const row of dayRows) {
@@ -77,7 +77,7 @@ cron.schedule('*/5 * * * *', async () => {
 
       await sendEventReminder(user, event);
 
-      await db('registration')
+      await db('registrations')
         .where({ registration_id: row.registration_id })
         .update({ reminder_day_sent: true });
 
