@@ -1,24 +1,15 @@
 // TO DO 
 // EVENTS - CRUD FUNCTIONAL 
-// Lines are like two pixels off 
-
 // SURVEYS - CRUD FUNCTIONAL 
-// Search function searches participant name, 
-// No way to look at survey details 
-
 //USERS - COMPLETELY FUNCTIONAL 
-// confirmation for delete for users 
-
 //PARTICIPANTS - COMPLETLY FUNCTIONAL 
-
 // MILESTONES - CRUD FUNCTIONAL 
-// NO delte milestone, idk if we need that
-
 //DONATIONS - COMPLETLY FUNCTIONAL 
 
-
-// Make all headers the same across pages? - fix nav bar 
 // Enroll doesn't do anything, just loops 
+// Add a D level - migration to make past donors become donors/participants 
+
+
 
 // requrirements to set up all dev and production stuff
 require('dotenv').config();
@@ -624,6 +615,7 @@ app.post('/donations/participant-info', async (req, res) => {
 });
 
 // Complete the donation
+// Complete the donation
 app.post('/donations/complete', async (req, res) => {
     const { 
         donation_amount, 
@@ -641,6 +633,8 @@ app.post('/donations/complete', async (req, res) => {
     
     try {
         let finalParticipantId = participant_id;
+        let finalParticipantEmail = participant_email;
+        let finalParticipantName = '';
         
         // If we need to create a new participant
         if (create_participant === 'true' && !participant_id) {
@@ -650,22 +644,48 @@ app.post('/donations/complete', async (req, res) => {
                     participant_first_name,
                     participant_last_name,
                     phone: phone || null,
-                    role: "donor"
+                    role: "participant"
                 })
                 .returning("*");
             
             finalParticipantId = newParticipant.participant_id;
+            finalParticipantEmail = newParticipant.participant_email;
+            finalParticipantName = `${newParticipant.participant_first_name} ${newParticipant.participant_last_name}`;
+        } else {
+            // Get existing participant info
+            const participant = await knex("participants")
+                .where({ participant_id: finalParticipantId })
+                .first();
+            
+            if (participant) {
+                finalParticipantEmail = participant.participant_email;
+                finalParticipantName = `${participant.participant_first_name} ${participant.participant_last_name}`;
+            }
         }
         
         // Create the donation record
+        const donationDate = new Date().toISOString().split('T')[0];
         await knex("donations").insert({
             participant_id: finalParticipantId,
-            donation_date: new Date().toISOString().split('T')[0],
+            donation_date: donationDate,
             donation_amount: parseFloat(donation_amount)
         });
         
-        // Redirect to success page
-        res.redirect('/?donation_success=true');
+        // Format date for display
+        const formattedDate = new Date(donationDate).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Render thank you page
+        res.render('donations/donThankYou', {
+            donationAmount: parseFloat(donation_amount).toFixed(2),
+            participantName: finalParticipantName,
+            participantEmail: finalParticipantEmail,
+            donationDate: formattedDate,
+            isLoggedIn: req.session.isLoggedIn || false
+        });
         
     } catch (error) {
         console.error("Error completing donation:", error);
@@ -679,13 +699,26 @@ app.post('/donations/complete', async (req, res) => {
                     .first();
                 
                 if (participant) {
+                    const donationDate = new Date().toISOString().split('T')[0];
                     await knex("donations").insert({
                         participant_id: participant.participant_id,
-                        donation_date: new Date().toISOString().split('T')[0],
+                        donation_date: donationDate,
                         donation_amount: parseFloat(donation_amount)
                     });
                     
-                    return res.redirect('/?donation_success=true');
+                    const formattedDate = new Date(donationDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    return res.render('donations/donThankYou', {
+                        donationAmount: parseFloat(donation_amount).toFixed(2),
+                        participantName: `${participant.participant_first_name} ${participant.participant_last_name}`,
+                        participantEmail: participant.participant_email,
+                        donationDate: formattedDate,
+                        isLoggedIn: req.session.isLoggedIn || false
+                    });
                 }
             } catch (retryError) {
                 console.error("Error on retry:", retryError);
@@ -1144,9 +1177,14 @@ app.get('/participants/:id', async (req, res) => {
     // the user came from. Use the first present value.
     const returnTo = req.query.return || req.query.returnTo || req.query.from || null;
     try {
-        const participant = await knex("participants")
-            .select("*")
-            .where({ participant_id: id })
+        const participant = await knex("participants as p")
+            .leftJoin("donations as d", "p.participant_id", "d.participant_id")
+            .select(
+                "p.*",
+                knex.raw("COALESCE(SUM(d.donation_amount), 0) AS total_donations")
+            )
+            .where("p.participant_id", id)
+            .groupBy("p.participant_id")
             .first();
 
         if (!participant) {

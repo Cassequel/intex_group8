@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Thank You | Ella Rises</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/styles/styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 2rem;
+        background: linear-gradient(135deg, #2c5f2d 0%, #4a9d4f 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px rgba(44, 95, 45, 0.3);
+        animation: scaleIn 0.5s ease-out;
+    }
+    
+    @keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+    
+    .success-icon svg {
+        width: 60px;
+        height: 60px;
+        stroke: white;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+    }
+    
+    .checkmark {
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        animation: drawCheck 0.5s ease-out 0.3s forwards;
+    }
+    
+    @keyframes drawCheck {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    
+    .thank-you-title {
+        text-align: center;
+        font-size: 2.5rem;
+        color: #2c5f2d;
+        margin: 1rem 0;
+    }
+    
+    .donation-amount-display {
+        text-align: center;
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #2c5f2d;
+        margin: 1rem 0 2rem 0;
+    }
+    
+    .thank-you-message {
+        text-align: center;
+        font-size: 1.1rem;
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .info-card {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #2c5f2d;
+    }
+    
+    .info-card h3 {
+        color: #2c5f2d;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .info-card p {
+        margin: 0.5rem 0;
+        color: #333;
+    }
+    
+    .info-card p strong {
+        color: #666;
+        font-weight: 600;
+    }
+    
+    .impact-card {
+        background: linear-gradient(135deg, #2c5f2d 0%, #4a9d4f 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 2rem 0;
+    }
+    
+    .impact-card h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .impact-card p {
+        font-size: 1rem;
+        opacity: 0.95;
+        margin: 0;
+        line-height: 1.6;
+    }
+    
+    .email-notice {
+        text-align: center;
+        color: #666;
+        font-size: 0.95rem;
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background: #f5f5f5;
+        border-radius: 8px;
+    }
+    
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .social-share {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e0e0e0;
+        text-align: center;
+    }
+    
+    .social-share h3 {
+        font-size: 1.1rem;
+        color: #2c5f2d;
+        margin-bottom: 1rem;
+    }
+    
+    .share-buttons {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .share-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        background: white;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .share-btn:hover {
+        border-color: #2c5f2d;
+        color: #2c5f2d;
+        transform: translateY(-2px);
+    }
+</style>
+</head>
+<body>
+<!-- NAVBAR -->
+<header class="site-header">
+<div class="container nav-container">
+<a href="/" class="logo">
+<span class="logo-mark">ER</span>
+<span class="logo-text">Ella Rises</span>
+</a>
+<nav class="nav">
+<button class="nav-toggle" aria-label="Toggle navigation">
+<span></span><span></span><span></span>
+</button>
+<ul class="nav-links">
+<li><a href="/">Home</a></li>
+<% if (isLoggedIn) { %>
+<li><a href="/participants">Participants</a></li>
+<li><a href="/events">Events</a></li>
+<% } %>
+<li><a href="/donations">Donations</a></li>
+</ul>
+</nav>
+</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-overlay"></div>
+<div class="container hero-content">
+<p class="eyebrow">Success</p>
+<h1>Thank You!</h1>
+<p class="hero-subtitle">Your donation has been received</p>
+</div>
+</section>
+
+<!-- THANK YOU CONTENT -->
+<section class="section section--light">
+<div class="container">
+<div class="form-card">
+<!-- Success Icon -->
+<div class="success-icon">
+<svg viewBox="0 0 52 52">
+<path class="checkmark" d="M14 27l7.5 7.5L38 18"/>
+</svg>
+</div>
+
+<h2 class="thank-you-title">Donation Complete!</h2>
+<p class="donation-amount-display">$<%= donationAmount %></p>
+
+<p class="thank-you-message">
+Your generous donation means the world to us. Thanks to supporters like you, 
+we can continue empowering women and making a lasting impact in our community.
+</p>
+
+<!-- Impact Statement -->
+<div class="impact-card">
+<h3>Your Impact</h3>
+<p>Your donation helps provide mentorship, educational resources, and opportunities 
+for women to rise and achieve their dreams.</p>
+</div>
+
+<!-- Info Grid -->
+<div class="info-grid">
+<div class="info-card">
+<h3>Donor Information</h3>
+<p><strong>Name:</strong> <%= participantName %></p>
+<p><strong>Email:</strong> <%= participantEmail %></p>
+</div>
+<div class="info-card">
+<h3>Donation Details</h3>
+<p><strong>Amount:</strong> $<%= donationAmount %></p>
+<p><strong>Date:</strong> <%= donationDate %></p>
+</div>
+</div>
+
+<!-- Email Notice -->
+<div class="email-notice">
+📧 A confirmation email has been sent to <strong><%= participantEmail %></strong>
+</div>
+
+<!-- Action Buttons -->
+<div class="button-group">
+<a href="/" class="btn btn--primary btn--large">Return Home</a>
+<a href="/donations" class="btn btn--ghost btn--large">Make Another Donation</a>
+</div>
+
+<!-- Social Share -->
+<div class="social-share">
+<h3>Help us spread the word</h3>
+<div class="share-buttons">
+<a href="https://www.facebook.com/sharer/sharer.php?u=https://ella-rises.com" target="_blank" class="share-btn">
+<span>📘</span> Facebook
+</a>
+<a href="https://twitter.com/intent/tweet?text=I%20just%20donated%20to%20Ella%20Rises!%20Join%20me%20in%20supporting%20women%27s%20empowerment.&url=https://ella-rises.com" target="_blank" class="share-btn">
+<span>🐦</span> Twitter
+</a>
+<a href="mailto:?subject=Support%20Ella%20Rises&body=I%20just%20made%20a%20donation%20to%20Ella%20Rises%20and%20wanted%20to%20share%20this%20amazing%20organization%20with%20you.%20Check%20them%20out%3A%20https://ella-rises.com" class="share-btn">
+<span>✉️</span> Email
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<script>
+const navToggle = document.querySelector(".nav-toggle");
+const navLinks = document.querySelector(".nav-links");
+navToggle.addEventListener("click", () => {
+    navLinks.classList.toggle("nav-links--open");
+    navToggle.classList.toggle("nav-toggle--open");
+});
+</script>
+</body>
+</html>

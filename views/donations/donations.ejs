@@ -90,7 +90,8 @@
 
 
 <% if (userLevel === 'M') { %>
-  <!-- DONATIONS TABLE -->
+
+    <!-- DONATIONS TABLE -->
   <section id="donate-table" class="section section--light">
     <div class="container">
       <div class="section-header">
@@ -101,6 +102,13 @@
       <div class="table-card">
         <div class="table-card__header">
           <span>Donations</span>
+          <input 
+            type="text" 
+            id="donation-search" 
+            class="search-input" 
+            placeholder="Search by name, amount, or date..."
+            style="margin-left: auto; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 300px;"
+          />
         </div>
         <div class="table-card__body">
           <table class="data-table">
@@ -222,6 +230,27 @@
     </div>
   </footer>
 
+</body>
+  <script>
+    // Donation table search filter
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchInput = document.getElementById("donation-search");
+      const tableRows = document.querySelectorAll(".data-table tbody tr");
+
+      searchInput.addEventListener("input", function () {
+        const term = this.value.toLowerCase();
+
+        tableRows.forEach((row) => {
+          const rowText = row.innerText.toLowerCase();
+          if (rowText.includes(term)) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      });
+    });
+  </script>
   <script>
     // Simple mobile nav toggle
     const navToggle = document.querySelector(".nav-toggle");
@@ -232,5 +261,6 @@
       navToggle.classList.toggle("nav-toggle--open");
     });
   </script>
+</body>
 </body>
 </html>
