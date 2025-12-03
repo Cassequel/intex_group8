@@ -363,6 +363,99 @@ app.get('/donations', requireManager, async (req, res) => {
     }
 });
 
+// Registrations
+app.get('/registrations', async (req, res) => {
+    try {
+        const registrations = await knex("registrations as r")
+            .leftJoin("participants as p", "r.participant_id", "p.participant_id")
+            .leftJoin("event_occurences as o", "r.event_occurence_id", "o.event_occurence_id")
+            .leftJoin("event_templates as t", "o.event_template_id", "t.event_template_id")
+            .select(
+                "r.*",
+                knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name"),
+                "p.participant_email",
+                "o.event_date_time_start",
+                "o.event_location",
+                "t.event_name"
+            )
+            .orderBy("r.registration_id", "desc");
+        res.render('registrations/registrations', { registrations });
+    } catch (error) {
+        console.error("Error loading registrations:", error);
+        res.status(500).send("Error loading registrations");
+    }
+});
+
+app.get('/registrations/:id/edit', requireManager, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const registration = await knex("registrations as r")
+            .leftJoin("participants as p", "r.participant_id", "p.participant_id")
+            .leftJoin("event_occurences as o", "r.event_occurence_id", "o.event_occurence_id")
+            .leftJoin("event_templates as t", "o.event_template_id", "t.event_template_id")
+            .select(
+                "r.*",
+                knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name"),
+                "p.participant_email",
+                "o.event_date_time_start",
+                "o.event_location",
+                "t.event_name"
+            )
+            .where("r.registration_id", id)
+            .first();
+
+        if (!registration) {
+            return res.status(404).render('public/418Code');
+        }
+
+        res.render('registrations/regEdit', { registration, error_message: null });
+    } catch (error) {
+        console.error("Error loading registration:", error);
+        res.status(500).send("Error loading registration");
+    }
+});
+
+app.post('/registrations/:id/edit', requireManager, async (req, res) => {
+    const { id } = req.params;
+    const {
+        registration_status,
+        registration_attended_flag,
+        registration_check_in_time
+    } = req.body;
+
+    try {
+        await knex("registrations")
+            .where({ registration_id: id })
+            .update({
+                registration_status: registration_status || null,
+                registration_attended_flag: registration_attended_flag === 'true',
+                registration_check_in_time: registration_check_in_time || null
+            });
+        res.redirect('/registrations');
+    } catch (error) {
+        console.error("Error updating registration:", error);
+        try {
+            const registration = await knex("registrations as r")
+                .leftJoin("participants as p", "r.participant_id", "p.participant_id")
+                .leftJoin("event_occurences as o", "r.event_occurence_id", "o.event_occurence_id")
+                .leftJoin("event_templates as t", "o.event_template_id", "t.event_template_id")
+                .select(
+                    "r.*",
+                    knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name"),
+                    "p.participant_email",
+                    "o.event_date_time_start",
+                    "o.event_location",
+                    "t.event_name"
+                )
+                .where("r.registration_id", id)
+                .first();
+            res.status(500).render('registrations/regEdit', { registration, error_message: "Could not update registration. Please try again." });
+        } catch (loadErr) {
+            res.status(500).send("Error loading registration");
+        }
+    }
+});
+
 
 // Replace the existing /donations GET route with this:
 app.get('/donAdd', (req, res) => {

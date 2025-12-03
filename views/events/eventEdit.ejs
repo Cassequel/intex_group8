@@ -71,7 +71,14 @@
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
-        <form class="form-grid" method="POST" action="/events/<%= event.event_occurrence_id %>/edit">
+        <% const toLocalValue = (d) => {
+             if (!d) return '';
+             const jsDate = d.toISOString ? new Date(d) : new Date(String(d));
+             const local = new Date(jsDate.getTime() - jsDate.getTimezoneOffset() * 60000);
+             return local.toISOString().slice(0,16);
+           };
+        %>
+        <form class="form-grid" method="POST" action="/events/<%= event.event_occurence_id %>/edit">
           <div class="form-field">
             <label for="event_template_id">Template</label>
             <select id="event_template_id" name="event_template_id" required>
@@ -108,11 +115,11 @@
           <div class="form-grid-two" style="margin-top: 1rem;">
             <div class="form-field">
               <label for="event_date_time_start">Start</label>
-              <input id="event_date_time_start" name="event_date_time_start" type="datetime-local" value="<%= event.event_date_time_start ? (event.event_date_time_start.toISOString ? event.event_date_time_start.toISOString().slice(0,16) : String(event.event_date_time_start).slice(0,16)) : '' %>" />
+              <input id="event_date_time_start" name="event_date_time_start" type="datetime-local" value="<%= toLocalValue(event.event_date_time_start) %>" />
             </div>
             <div class="form-field">
               <label for="event_date_time_end">End</label>
-              <input id="event_date_time_end" name="event_date_time_end" type="datetime-local" value="<%= event.event_date_time_end ? (event.event_date_time_end.toISOString ? event.event_date_time_end.toISOString().slice(0,16) : String(event.event_date_time_end).slice(0,16)) : '' %>" />
+              <input id="event_date_time_end" name="event_date_time_end" type="datetime-local" value="<%= toLocalValue(event.event_date_time_end) %>" />
             </div>
           </div>
 
@@ -128,7 +135,7 @@
 
           <div class="form-field">
             <label for="event_registration_deadline">Registration deadline</label>
-            <input id="event_registration_deadline" name="event_registration_deadline" type="datetime-local" value="<%= event.event_registration_deadline ? (event.event_registration_deadline.toISOString ? event.event_registration_deadline.toISOString().slice(0,16) : String(event.event_registration_deadline).slice(0,16)) : '' %>" />
+            <input id="event_registration_deadline" name="event_registration_deadline" type="datetime-local" value="<%= toLocalValue(event.event_registration_deadline) %>" />
           </div>
 
           <div class="form-field" style="margin-top: 0.5rem;">

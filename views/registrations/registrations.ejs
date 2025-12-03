@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrations | Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <%- include('../partials/navbar') %>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">Registrations</p>
+      <h1>Event registrations</h1>
+      <p class="hero-subtitle">View participant registrations and check-ins.</p>
+    </div>
+  </section>
+
+  <!-- TABLE -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>All registrations</h2>
+        <p>Sorted by newest first.</p>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card__header">
+          <span>Registrations</span>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <input
+              type="search"
+              id="occurrenceFilter"
+              placeholder="Filter by occurrence ID..."
+              style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 180px;"
+            />
+          </div>
+        </div>
+        <div class="table-card__body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Participant</th>
+                <th>Email</th>
+                <th>Occurrence ID</th>
+                <th>Event</th>
+                <th>Status</th>
+                <th>Attended</th>
+                <th>Check-in</th>
+                <% if (userLevel === 'M') { %><th>Actions</th><% } %>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (registrations && registrations.length) { %>
+                <% registrations.forEach((reg) => { %>
+                  <tr data-occurrence="<%= reg.event_occurence_id || '' %>">
+                    <td><%= reg.registration_id %></td>
+                    <td><%= reg.participant_name || ('ID ' + reg.participant_id) %></td>
+                    <td><%= reg.participant_email || '' %></td>
+                    <td><%= reg.event_occurence_id %></td>
+                    <td><%= reg.event_name || ('Occurrence ' + reg.event_occurence_id) %></td>
+                    <td><%= reg.registration_status || '' %></td>
+                    <td><%= reg.registration_attended_flag ? 'Yes' : 'No' %></td>
+                    <td>
+                      <%
+                        const checkIn = reg.registration_check_in_time;
+                        let checkInDisplay = "";
+                        if (checkIn) {
+                          checkInDisplay = checkIn.toISOString ? checkIn.toISOString().replace('T',' ').slice(0,16) : String(checkIn);
+                        }
+                      %>
+                      <%= checkInDisplay %>
+                    </td>
+                    <% if (userLevel === 'M') { %>
+                      <td class="table-actions">
+                        <a class="btn btn--outline btn--small" href="/registrations/<%= reg.registration_id %>/edit">Edit</a>
+                      </td>
+                    <% } %>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="<%= userLevel === 'M' ? 8 : 7 %>" class="empty-row">No registrations found.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+    navToggle?.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+
+    // Filter by occurrence ID
+    const occurrenceFilter = document.getElementById("occurrenceFilter");
+    const regRows = Array.from(document.querySelectorAll("tbody tr"));
+    const applyRegFilter = () => {
+      const term = (occurrenceFilter?.value || "").trim().toLowerCase();
+      regRows.forEach((row) => {
+        const occ = (row.dataset.occurrence || "").toString().toLowerCase();
+        row.style.display = !term || occ.includes(term) ? "" : "none";
+      });
+    };
+    occurrenceFilter?.addEventListener("input", applyRegFilter);
+  </script>
+</body>
+</html>

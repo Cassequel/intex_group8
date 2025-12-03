@@ -28,20 +28,8 @@ async function sendPasswordReset(user, token) {
 }
 
 async function sendNewDeviceAlert(user, deviceInfo) {
-  return sendMail({
-    to: user.email,
-    subject: 'New sign-in to your account',
-    html: `
-      <p>Hi ${user.firstName},</p>
-      <p>We noticed a sign-in from a new device:</p>
-      <ul>
-        <li>Device: ${deviceInfo.device}</li>
-        <li>IP: ${deviceInfo.ip}</li>
-        <li>Time: ${deviceInfo.time}</li>
-      </ul>
-      <p>If this wasn’t you, reset your password immediately.</p>
-    `,
-  });
+  // Temporarily disabled new-device alert emails.
+  return Promise.resolve();
 }
 
 // --------------- event / calendar reminders ---------------
