@@ -914,14 +914,14 @@ app.post('/events/new', async (req, res) => {
         event_template_id,
         event_date_time_start,
         event_date_time_end,
-        even_location,
+        event_location,
         event_capacity,
         event_registration_deadline
     } = {
         event_template_id: req.body.event_template_id,
         event_date_time_start: req.body.event_date_time_start,
         event_date_time_end: req.body.event_date_time_end,
-        even_location: req.body.event_location,
+        event_location: req.body.event_location,
         event_capacity: req.body.event_capacity,
         event_registration_deadline: req.body.event_registration_deadline
     };
@@ -936,7 +936,7 @@ app.post('/events/new', async (req, res) => {
                 event_template_id,
                 event_date_time_start: event_date_time_start || null,
                 event_date_time_end: event_date_time_end || null,
-                even_location,
+                event_location,
                 event_capacity: event_capacity || null,
                 event_registration_deadline: event_registration_deadline || null
             })
@@ -1008,14 +1008,14 @@ app.post('/events/:id/edit', async (req, res) => {
         event_template_id,
         event_date_time_start,
         event_date_time_end,
-        even_location,
+        event_location,
         event_capacity,
         event_registration_deadline
     } = {
         event_template_id: req.body.event_template_id,
         event_date_time_start: req.body.event_date_time_start,
         event_date_time_end: req.body.event_date_time_end,
-        even_location: req.body.event_location,
+        event_location: req.body.event_location,
         event_capacity: req.body.event_capacity,
         event_registration_deadline: req.body.event_registration_deadline
     };
@@ -1029,7 +1029,7 @@ app.post('/events/:id/edit', async (req, res) => {
                     event_template_id,
                     event_date_time_start,
                     event_date_time_end,
-                    even_location,
+                    event_location,
                     event_capacity,
                     event_registration_deadline
                 },
@@ -1044,7 +1044,7 @@ app.post('/events/:id/edit', async (req, res) => {
                 event_template_id,
                 event_date_time_start: event_date_time_start || null,
                 event_date_time_end: event_date_time_end || null,
-                even_location,
+                event_location,
                 event_capacity: event_capacity || null,
                 event_registration_deadline: event_registration_deadline || null
             });

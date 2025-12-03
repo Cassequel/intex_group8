@@ -64,11 +64,11 @@
     <div class="hero-overlay"></div>
     <div class="container hero-content">
       <p class="eyebrow">Event</p>
-      <h1><%= event.eventname %></h1>
-      <p class="hero-subtitle"><%= event.eventdescription || 'No description' %></p>
+      <h1><%= event.event_name %></h1>
+      <p class="hero-subtitle"><%= event.event_description || 'No description' %></p>
       <% if (userLevel !== 'U') { %>
         <div class="hero-actions">
-          <a href="/events/<%= event.eventoccurrenceid %>/edit" class="btn btn--outline">Edit event</a>
+          <a href="/events/<%= event.event_occurrence_id %>/edit" class="btn btn--outline">Edit event</a>
         </div>
       <% } %>
     </div>
