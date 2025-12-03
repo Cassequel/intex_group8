@@ -10,6 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .input-error {
+      border-color: #d14343 !important;
+      background: rgba(209, 67, 67, 0.08) !important;
+    }
+  </style>
 </head>
 <body>
   <!-- NAVBAR -->
@@ -39,18 +45,22 @@
         <% if (typeof error_message !== "undefined" && error_message) { %>
           <div class="alert alert--error"><%= error_message %></div>
         <% } %>
+        <%
+          const errorField = typeof error_field !== "undefined" ? error_field : null;
+          const values = (typeof formValues !== "undefined" && formValues) ? formValues : { email: "", username: "", password: "" };
+        %>
         <form method="POST" action="/register" class="form-grid">
           <div class="form-field">
             <label for="email">Email</label>
-            <input id="email" name="email" type="email" required />
+            <input id="email" name="email" type="email" required class="<%= errorField === 'email' ? 'input-error' : '' %>" value="<%= values.email || '' %>" />
           </div>
           <div class="form-field">
             <label for="username">Username</label>
-            <input id="username" name="username" type="text" required />
+            <input id="username" name="username" type="text" required class="<%= errorField === 'username' ? 'input-error' : '' %>" value="<%= values.username || '' %>" />
           </div>
           <div class="form-field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" required />
+            <input id="password" name="password" type="password" required class="<%= errorField === 'password' ? 'input-error' : '' %>" value="<%= values.password || '' %>" />
           </div>
           <button type="submit" class="btn btn--primary btn--large">Create account</button>
         </form>

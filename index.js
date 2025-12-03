@@ -1063,14 +1063,19 @@ app.get('/register', (req, res) => {
     if (req.session.isLoggedIn) {
         return res.redirect('/');
     }
-    res.render('auth/register', { error_message: null });
+    res.render('auth/register', { error_message: null, error_field: null, formValues: { email: "", username: "", password: "" } });
 });
 
 app.post('/register', async (req, res) => {
-    const { email, username, password_hash } = req.body;
+    const { email, username, password } = req.body;
+    const formValues = { email, username, password };
 
-    if (!email || !username || !password_hash) {
-        return res.render('auth/register', { error_message: "Please enter an email, username, and password." });
+    if (!email || !username || !password) {
+        return res.render('auth/register', {
+            error_message: "Please enter an email, username, and password.",
+            error_field: !email ? "email" : !username ? "username" : "password",
+            formValues
+        });
     }
 
     try {
@@ -1081,12 +1086,18 @@ app.post('/register', async (req, res) => {
             .first();
 
         if (existingUser) {
-            return res.render('auth/register', { error_message: "Registration failed. Please try again with new values." });
+            return res.render('auth/register', {
+                error_message: existingUser.username === username
+                    ? "That username has already been taken."
+                    : "That email is already registered.",
+                error_field: existingUser.username === username ? "username" : "email",
+                formValues
+            });
         }
 
         const pwError = validatePassword(password);
         if (pwError) {
-            return res.render('auth/register', { error_message: pwError });
+            return res.render('auth/register', { error_message: pwError, error_field: "password", formValues });
         }
 
         let hashedPassword = await bcrypt.hash(password, 10);
@@ -1111,11 +1122,7 @@ app.post('/register', async (req, res) => {
         res.redirect('/');
     } catch (error) {
         console.error("Registration error:", error);
-        const duplicateErr = error.code === "23505";
-        const message = duplicateErr
-            ? "Registration failed. Cannot use current email."
-            : "Server error. Please try again.";
-        res.status(500).render('auth/register', { error_message: message });
+        res.status(500).render('auth/register', { error_message: "Server error. Please try again.", error_field: null, formValues });
     }
 });
 
