@@ -2327,6 +2327,10 @@ app.post('/enroll/unregister', async (req, res) => {
     }
 });
 
+app.get('/about', (req, res) => {
+    res.render('public/about');
+});
+
 
 app.listen(port, () => {
     console.log("The server is listening");
