@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Contact Us - Ella Rises</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Contact Ella Rises to learn more about our programs, volunteer opportunities, or partnership options. We'd love to hear from you and help young women rise through education." />
   <link rel="icon" type="image/png" href="/images/favicon.png" />
   <link rel="stylesheet" href="/styles/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -153,6 +154,7 @@
   <%- include('../partials/navbar') %>
 
   <!-- HERO -->
+  <main>
   <section class="contact-hero">
     <div class="container">
       <h1>Get in Touch</h1>
@@ -167,36 +169,37 @@
   <section class="contact-form-section">
     <div class="container">
       <div class="contact-form-container">
-        <form id="contactForm">
+        <form id="contactForm" aria-label="Contact form">
           <div class="form-group">
             <label for="name">Name *</label>
-            <input type="text" id="name" name="name" required />
+            <input type="text" id="name" name="name" required aria-required="true" />
           </div>
 
           <div class="form-group">
             <label for="email">Email *</label>
-            <input type="email" id="email" name="email" required />
+            <input type="email" id="email" name="email" required aria-required="true" />
           </div>
 
           <div class="form-group">
             <label for="message">Message *</label>
-            <textarea id="message" name="message" required></textarea>
+            <textarea id="message" name="message" required aria-required="true"></textarea>
           </div>
 
-          <button type="submit" class="submit-btn">Send Message</button>
+          <button type="submit" class="submit-btn" aria-label="Send contact message">Send Message</button>
         </form>
       </div>
     </div>
   </section>
 
   <!-- SUCCESS MODAL -->
-  <div id="successModal" class="modal">
+  <div id="successModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
     <div class="modal-content">
-      <h2>Thank You!</h2>
+      <h2 id="modalTitle">Thank You!</h2>
       <p>Thanks for contacting us! We'll get back to you soon.</p>
-      <button class="modal-btn" onclick="window.location.href='/'">Return to Home</button>
+      <button class="modal-btn" onclick="window.location.href='/'" aria-label="Return to home page">Return to Home</button>
     </div>
   </div>
+  </main>
 
   <!-- FOOTER -->
   <footer id="contact" class="site-footer">
