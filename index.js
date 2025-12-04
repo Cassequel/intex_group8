@@ -387,10 +387,7 @@ app.get('/', async (req, res) => {
     // Map to the shape the EJS expects
     const events = rows.map(r => {
       const start = r.event_date_time_start ? new Date(r.event_date_time_start) : null;
-      const date_display = start
-        ? start.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
-        : 'TBD';
-
+      const date_display = tart ? start.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'TBD';
       return {
         id: r.occurence_id,
         template_id: r.template_id,
