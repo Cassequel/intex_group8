@@ -1939,6 +1939,8 @@ require('./email/reminderJob');
 
 // Registration/Enrollment Routes
 // Replace the existing /enroll routes in your index.js
+// Registration/Enrollment Routes
+// Replace the existing /enroll routes in your index.js
 
 // Show enrollment page with available events
 app.get('/enroll', async (req, res) => {
@@ -2228,6 +2230,46 @@ app.post('/enroll', async (req, res) => {
     }
 });
 
+// Handle unregistration (delete registration)
+app.post('/enroll/unregister', async (req, res) => {
+    try {
+        const userEmail = req.session.userEmail;
+        const { event_occurence_id } = req.body;
+
+        if (!userEmail) {
+            return res.render('auth/login', { 
+                error_message: "Please log in" 
+            });
+        }
+
+        if (!event_occurence_id) {
+            return res.redirect('/enroll');
+        }
+
+        // Get participant
+        const participant = await knex("participants")
+            .where({ participant_email: userEmail })
+            .first();
+
+        if (!participant) {
+            return res.redirect('/enroll');
+        }
+
+        // Delete the registration
+        await knex("registrations")
+            .where({ 
+                participant_id: participant.participant_id,
+                event_occurence_id: event_occurence_id
+            })
+            .del();
+
+        // Redirect back to enrollment page
+        res.redirect('/enroll');
+    } catch (error) {
+        console.error("Error unregistering:", error);
+        res.status(500).send("Error unregistering from event");
+    }
+});
 
 
 app.listen(port, () => {

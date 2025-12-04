@@ -145,15 +145,14 @@
 
                         <!-- Field of Interest -->
                         <div class="form-field">
-                            <label for="participant_field_of_interest">Field of Interest</label>
-                            <input 
-                                type="text" 
-                                id="participant_field_of_interest" 
-                                name="participant_field_of_interest" 
-                                value="<%= participant.participant_field_of_interest || '' %>"
-                                placeholder="e.g., Arts, STEM, Music"
-                            />
-                        </div>
+                            <label for="participant_field_of_interest">Field of interest</label>
+                            <select id="participant_field_of_interest" name="participant_field_of_interest">
+                              <option value="">-- Select one --</option>
+                              <option value="STEM">STEM</option>
+                              <option value="Arts">Arts</option>
+                              <option value="Both">Both</option>
+                            </select>
+                          </div>
                     </div>
 
                     <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
@@ -181,8 +180,6 @@
             </div>
         </div>
     </section>
-
-    <%- include('../partials/footer') %>
 
     <script>
         const navToggle = document.querySelector(".nav-toggle");

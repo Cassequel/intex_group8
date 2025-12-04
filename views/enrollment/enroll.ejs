@@ -107,11 +107,17 @@
                                     </button>
                                 </form>
                             <% } else { %>
-                                <div style="padding: 0.75rem; background-color: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-md); text-align: center;">
-                                    <p style="margin: 0; color: #166534; font-weight: 600; font-size: 0.9rem;">
+                                <div style="padding: 0.75rem; background-color: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-md); margin-bottom: 0.75rem;">
+                                    <p style="margin: 0; color: #166534; font-weight: 600; font-size: 0.9rem; text-align: center;">
                                         ✓ You're registered for this event
                                     </p>
                                 </div>
+                                <form method="POST" action="/enroll/unregister" class="event-actions" onsubmit="return confirm('Are you sure you want to unregister from this event?');">
+                                    <input type="hidden" name="event_occurence_id" value="<%= event.event_occurence_id %>">
+                                    <button type="submit" class="btn btn--outline" style="width: 100%; color: var(--color-rose); border-color: var(--color-rose);">
+                                        Unregister
+                                    </button>
+                                </form>
                             <% } %>
                         </article>
                     <% }); %>
