@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enroll in Events - Ella Rises</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    <link rel="stylesheet" href="/styles/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+
+    <section class="section section--light">
+        <div class="container">
+            <div class="section-header">
+                <p class="eyebrow">Enrollment</p>
+                <h2>Available Events</h2>
+                <p>Select an event below to register and join us</p>
+            </div>
+
+
+            <% if (availableEvents.length === 0) { %>
+                <div class="form-card" style="text-align: center; padding: 3rem 2rem;">
+                    <h3>No Events Available</h3>
+                    <p class="text-muted">There are currently no events open for registration. Please check back later!</p>
+                    <a href="/" class="btn btn--primary" style="margin-top: 1rem;">Return Home</a>
+                </div>
+            <% } else { %>
+                <div class="events-grid">
+                    <% availableEvents.forEach(event => { %>
+                        <article class="event-card">
+                            <% if (event.event_date_time_start) { %>
+                                <p class="event-date">
+                                    <%= new Date(event.event_date_time_start).toLocaleDateString('en-US', { 
+                                        month: 'short', 
+                                        day: 'numeric', 
+                                        year: 'numeric' 
+                                    }) %>
+                                </p>
+                            <% } %>
+                            
+                            <h3><%= event.event_name %></h3>
+                            
+                            <% if (event.event_type) { %>
+                                <div class="program-tag" style="margin-bottom: 0.5rem;">
+                                    <%= event.event_type %>
+                                </div>
+                            <% } %>
+
+                            <% if (event.event_location) { %>
+                                <p class="event-location"><%= event.event_location %></p>
+                            <% } %>
+
+                            <% if (event.event_description) { %>
+                                <p class="event-description"><%= event.event_description %></p>
+                            <% } %>
+
+                            <% if (event.event_date_time_start) { %>
+                                <p style="font-size: 0.85rem; color: var(--color-text-soft); margin: 0.5rem 0;">
+                                    <strong>Time:</strong>
+                                    <%= new Date(event.event_date_time_start).toLocaleTimeString('en-US', { 
+                                        hour: 'numeric', 
+                                        minute: '2-digit' 
+                                    }) %>
+                                    <% if (event.event_date_time_end) { %>
+                                        - <%= new Date(event.event_date_time_end).toLocaleTimeString('en-US', { 
+                                            hour: 'numeric', 
+                                            minute: '2-digit' 
+                                        }) %>
+                                    <% } %>
+                                </p>
+                            <% } %>
+
+                            <% if (event.event_registration_deadline) { %>
+                                <p style="font-size: 0.85rem; color: var(--color-text-soft); margin: 0.5rem 0;">
+                                    <strong>Register by:</strong>
+                                    <%= new Date(event.event_registration_deadline).toLocaleDateString('en-US', { 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                    }) %>
+                                </p>
+                            <% } %>
+
+                            <div style="margin: 0.75rem 0; padding: 0.5rem 0; border-top: 1px solid var(--color-border);">
+                                <p style="font-size: 0.85rem; color: var(--color-text-soft); margin: 0;">
+                                    <strong>Capacity:</strong>
+                                    <%= event.current_registrations %> / <%= event.default_capacity %> registered
+                                </p>
+                                <div style="width: 100%; height: 6px; background-color: #f3f4f6; border-radius: 999px; margin-top: 0.5rem; overflow: hidden;">
+                                    <div style="height: 100%; background: linear-gradient(to right, var(--color-primary), var(--color-accent)); width: <%= (event.current_registrations / event.default_capacity * 100) %>%; border-radius: 999px;"></div>
+                                </div>
+                            </div>
+
+                            <% if (!registeredEventIds.includes(event.event_occurence_id)) { %>
+                                <form method="POST" action="/enroll" class="event-actions">
+                                    <input type="hidden" name="event_occurence_id" value="<%= event.event_occurence_id %>">
+                                    <button type="submit" class="btn btn--primary" style="width: 100%;">
+                                        Enroll Now
+                                    </button>
+                                </form>
+                            <% } else { %>
+                                <div style="padding: 0.75rem; background-color: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-md); margin-bottom: 0.75rem;">
+                                    <p style="margin: 0; color: #166534; font-weight: 600; font-size: 0.9rem; text-align: center;">
+                                        ✓ You're registered for this event
+                                    </p>
+                                </div>
+                                <form method="POST" action="/enroll/unregister" class="event-actions" onsubmit="return confirm('Are you sure you want to unregister from this event?');">
+                                    <input type="hidden" name="event_occurence_id" value="<%= event.event_occurence_id %>">
+                                    <button type="submit" class="btn btn--outline" style="width: 100%; color: var(--color-rose); border-color: var(--color-rose);">
+                                        Unregister
+                                    </button>
+                                </form>
+                            <% } %>
+                        </article>
+                    <% }); %>
+                </div>
+            <% } %>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="/" class="btn btn--outline">← Back to Home</a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const navToggle = document.querySelector(".nav-toggle");
+        const navLinks = document.querySelector(".nav-links");
+
+        if (navToggle && navLinks) {
+            navToggle.addEventListener("click", () => {
+                navLinks.classList.toggle("nav-links--open");
+                navToggle.classList.toggle("nav-toggle--open");
+            });
+        }
+    </script>
+</body>
+</html>
