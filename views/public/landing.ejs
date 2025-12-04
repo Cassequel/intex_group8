@@ -11,17 +11,15 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     .section-illustration {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 1.25rem;
+      position: absolute;
+      right: 150px;
+      bottom: -15px;
     }
     .section-illustration img {
-      max-width: 320px;
+      max-width: 150px;
       width: 100%;
-      border-radius: 14px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.14);
-      background: #fff;
     }
+
     .hero-right {
       position: relative;
       background: radial-gradient(circle at center, rgba(153,183,198,0.35), #ffd8d1);
@@ -46,9 +44,26 @@
       opacity: 1;
       z-index: 2;
     }
+    #about {
+      position: relative;
+    }
+    .section--accent {
+      background-image: url('/images/flower banner.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    @media (min-width: 769px) {
+      .section-illustration {
+        bottom: -22px;
+      }
+    }
     @media (max-width: 768px) {
       .section-illustration {
         justify-content: center;
+      }
+      .section-illustration img {
+        max-width: 100px;
       }
     }
   </style>
@@ -126,6 +141,9 @@
         </ul>
       </div>
     </div>
+    <div class="section-illustration">
+      <img src="../../images/3_flowers.png" alt="Decorative flower illustration" />
+    </div>
   </section>
 
   <!-- PROGRAMS -->
@@ -142,6 +160,7 @@
       <div class="program-grid">
         <!-- Program 1 -->
         <article class="program-card">
+          <img src="/images/girls in steam.jpeg" alt="Girls in STEAM" class="program-image" />
           <div class="program-tag">STEAM</div>
           <h3>Girls in STEAM</h3>
           <p>
@@ -157,6 +176,7 @@
 
         <!-- Program 2 -->
         <article class="program-card">
+          <img src="/images/women in tech.jpg" alt="Women in Tech & Art" class="program-image" />
           <div class="program-tag">SUMMIT</div>
           <h3>Women in Tech & Art</h3>
           <p>
@@ -171,6 +191,7 @@
 
         <!-- Program 3 -->
         <article class="program-card">
+          <img src="/images/intro to painting.jpg" alt="Intro to Painting" class="program-image" />
           <div class="program-tag">ARTS</div>
           <h3>Intro to Painting</h3>
           <p>
@@ -185,6 +206,7 @@
 
         <!-- Program 4 -->
         <article class="program-card">
+          <img src="/images/coding club.JPG" alt="Coding Club" class="program-image" />
           <div class="program-tag">STEM</div>
           <h3>Coding Club</h3>
           <p>
@@ -314,6 +336,38 @@
         <span class="pill">Host a workshop</span>
         <span class="pill">Sponsor a cohort</span>
         <span class="pill">Share our programs</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPONSORS -->
+  <section id="sponsors" class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>Thank You to Our Sponsors</h2>
+        <p>Our programs are made possible by the generosity of our community partners</p>
+      </div>
+      <div class="sponsors-grid">
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>

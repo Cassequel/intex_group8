@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>About - Ella Rises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/images/favicon.png" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <%- include('../partials/navbar') %>
+
+  <!-- HERO VIDEO SECTION -->
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="hero-left">
+        <p class="eyebrow">About Ella Rises</p>
+        <h1>Empowering young women through arts, culture, and education.</h1>
+        <p class="hero-subtitle">
+          Watch our story and discover how we're creating opportunities for young Latinas to explore their heritage,
+          develop leadership skills, and envision their futures.
+        </p>
+      </div>
+      <div class="hero-right video-container">
+        <video controls>
+          <source src="/images/uploads/file.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUR STORY -->
+  <section id="story" class="section section--light">
+    <div class="container">
+      <div class="section-header">
+        <h2>Our Story</h2>
+        <p>How Ella Rises began and where we're going</p>
+      </div>
+      <div class="about-content">
+        <p>
+          Ella Rises was founded with a simple yet powerful vision: to create spaces where young Latinas
+          can see themselves as scholars, artists, and leaders. Through culturally rooted programming,
+          we help participants connect with their heritage while exploring pathways to higher education
+          and meaningful careers.
+        </p>
+        <p>
+          Our programs bring together arts, music, and STEAM education to foster creativity, critical
+          thinking, and confidence. We believe that when young women are given the tools and encouragement
+          to rise, they transform not only their own lives but their entire communities.
+        </p>
+        <p>
+          Today, we serve over 150 girls each year through workshops, mentoring programs, and cultural
+          celebrations. Our work is made possible by dedicated volunteers, generous donors, and community
+          partners who share our commitment to equity and opportunity.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPONSORS SECTION -->
+  <section id="sponsors" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Our Sponsors</h2>
+        <p>Thank you to our generous sponsors who make our programs possible</p>
+      </div>
+      <div class="sponsors-grid">
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+        <div class="sponsor-card">
+          <div class="sponsor-logo-placeholder">
+            <p>Sponsor Logo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANNER -->
+  <section class="banner-section">
+    <img src="/images/banner.png" alt="Ella Rises Banner" class="banner-image" />
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contact" class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Ella Rises</h3>
+        <p>
+          A nonprofit organization dedicated to helping young women rise through arts, culture, and
+          education.
+        </p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:info@ellarises.org">info@ellarises.org</a></p>
+        <p>Instagram · Facebook</p>
+      </div>
+      <div>
+        <h4>Partners</h4>
+        <p>We are grateful for the schools, community centers, and sponsors who support our mission.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Ella Rises. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Simple mobile nav toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const navLinks = document.querySelector(".nav-links");
+
+    navToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("nav-links--open");
+      navToggle.classList.toggle("nav-toggle--open");
+    });
+  </script>
+</body>
+</html>
