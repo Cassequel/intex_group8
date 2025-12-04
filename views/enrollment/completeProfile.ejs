@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile - Ella Rises</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    <link rel="stylesheet" href="/styles/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+
+    <section class="section section--light">
+        <div class="container" style="max-width: 700px;">
+            <div class="section-header">
+                <p class="eyebrow">One More Step</p>
+                <h2>Complete Your Profile</h2>
+                <p>We need a bit more information before you can enroll in events</p>
+            </div>
+
+            <% if (error_message) { %>
+                <div class="alert alert--error">
+                    <%= error_message %>
+                </div>
+            <% } %>
+
+            <div class="form-card">
+                <form method="POST" action="/enroll/complete-profile">
+                    <div class="form-grid">
+                        <!-- Email (read-only) -->
+                        <div class="form-field">
+                            <label for="participant_email">Email</label>
+                            <input 
+                                type="email" 
+                                id="participant_email" 
+                                name="participant_email" 
+                                value="<%= participant.participant_email %>"
+                                readonly
+                                style="background-color: #f3f4f6; cursor: not-allowed;"
+                            />
+                        </div>
+
+                        <!-- First Name (required) -->
+                        <div class="form-field">
+                            <label for="participant_first_name">
+                                First Name <span style="color: var(--color-rose);">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="participant_first_name" 
+                                name="participant_first_name" 
+                                value="<%= participant.participant_first_name || '' %>"
+                                required
+                            />
+                        </div>
+
+                        <!-- Last Name (required) -->
+                        <div class="form-field">
+                            <label for="participant_last_name">
+                                Last Name <span style="color: var(--color-rose);">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="participant_last_name" 
+                                name="participant_last_name" 
+                                value="<%= participant.participant_last_name || '' %>"
+                                required
+                            />
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="form-field">
+                            <label for="participant_dob">Date of Birth</label>
+                            <input 
+                                type="date" 
+                                id="participant_dob" 
+                                name="participant_dob" 
+                                value="<%= participant.participant_dob ? new Date(participant.participant_dob).toISOString().split('T')[0] : '' %>"
+                            />
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-field">
+                            <label for="phone">Phone Number</label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone" 
+                                value="<%= participant.phone || '' %>"
+                                placeholder="(555) 123-4567"
+                            />
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-field">
+                            <label for="city">City</label>
+                            <input 
+                                type="text" 
+                                id="city" 
+                                name="city" 
+                                value="<%= participant.city || '' %>"
+                            />
+                        </div>
+
+                        <!-- State -->
+                        <div class="form-field">
+                            <label for="state">State</label>
+                            <input 
+                                type="text" 
+                                id="state" 
+                                name="state" 
+                                value="<%= participant.state || '' %>"
+                                placeholder="UT"
+                                maxlength="2"
+                            />
+                        </div>
+
+                        <!-- ZIP Code -->
+                        <div class="form-field">
+                            <label for="zip">ZIP Code</label>
+                            <input 
+                                type="text" 
+                                id="zip" 
+                                name="zip" 
+                                value="<%= participant.zip || '' %>"
+                                placeholder="12345"
+                                maxlength="10"
+                            />
+                        </div>
+
+                        <!-- School or Employer -->
+                        <div class="form-field">
+                            <label for="participant_school_or_employer">School or Employer</label>
+                            <input 
+                                type="text" 
+                                id="participant_school_or_employer" 
+                                name="participant_school_or_employer" 
+                                value="<%= participant.participant_school_or_employer || '' %>"
+                                placeholder="e.g., Provo High School"
+                            />
+                        </div>
+
+                        <!-- Field of Interest -->
+                        <div class="form-field">
+                            <label for="participant_field_of_interest">Field of interest</label>
+                            <select id="participant_field_of_interest" name="participant_field_of_interest">
+                              <option value="">-- Select one --</option>
+                              <option value="STEM">STEM</option>
+                              <option value="Arts">Arts</option>
+                              <option value="Both">Both</option>
+                            </select>
+                          </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                        <p style="font-size: 0.85rem; color: var(--color-text-soft); margin-bottom: 1rem;">
+                            <span style="color: var(--color-rose);">*</span> Required fields
+                        </p>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <button type="submit" class="btn btn--primary">
+                                Continue to Enrollment →
+                            </button>
+                            <a href="/" class="btn btn--outline">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 1.5rem; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: var(--radius-md);">
+                <h4 style="color: var(--color-primary); margin-top: 0; margin-bottom: 0.5rem; font-size: 1rem;">
+                    Why do we need this information?
+                </h4>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-soft);">
+                    This information helps us better serve our participants and tailor our programs to meet your needs. 
+                    We'll use it to contact you about events and opportunities that match your interests.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const navToggle = document.querySelector(".nav-toggle");
+        const navLinks = document.querySelector(".nav-links");
+
+        if (navToggle && navLinks) {
+            navToggle.addEventListener("click", () => {
+                navLinks.classList.toggle("nav-links--open");
+                navToggle.classList.toggle("nav-toggle--open");
+            });
+        }
+    </script>
+</body>
+</html>
