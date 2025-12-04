@@ -144,16 +144,22 @@ p {
 .nav-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 3rem;
   padding: 0.9rem 0;
 }
 
 .logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 2.5rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+.logo-image {
+  height: 40px;
+  width: auto;
+  display: block;
 }
 
 .logo-mark {
@@ -175,6 +181,7 @@ p {
 /* Nav links */
 .nav {
   position: relative;
+  margin-left: auto;
 }
 
 .nav-links {
@@ -240,8 +247,8 @@ p {
 .hero {
   position: relative;
   padding: 4.5rem 0 4rem;
-  background: radial-gradient(circle at top, #f9f5ea, #ffdbd1 35%, #99b7c6 80%);
-  overflow: hidden;
+  background: radial-gradient(circle at top, #99b7c6, #cbcbcb 35%, #ffd8d1 80%);
+  overflow: visible;
 }
 
 .hero::before {
@@ -555,9 +562,24 @@ p {
   font-size: 0.85rem;
 }
 
+/* Banner */
+.banner-section {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background-color: #ffffff;
+}
+
+.banner-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0;
+}
+
 /* Footer */
 .site-footer {
-  background-color: var(--color-charcoal);
+  background-color: #000000;
   color: #e5e7eb;
   padding-top: 2.5rem;
 }
@@ -783,4 +805,120 @@ p {
   background-color: #fef2f2;
   color: #b91c1c;
   border: 1px solid #fecdd3;
+}
+
+
+/* === HERO LAYOUT + IMAGE PANEL (MOBILE FIRST) === */
+
+/* layer ordering so SVG + overlays sit behind content */
+.hero {
+  position: relative;
+  padding: 4.5rem 0 4rem;
+  background: radial-gradient(circle at top, #99b7c6, #cbcbcb 35%, #ffd8d1 80%);
+  overflow: visible;
+  z-index: 0; /* base stacking context */
+}
+
+/* keep pseudo-elements behind content */
+.hero::before,
+.hero::after {
+  z-index: 0;
+}
+
+/* overlays and content sit above the SVG */
+.hero-overlay,
+.hero-content {
+  position: relative;
+  z-index: 2; /* explicitly above the wave */
+}
+
+/* SVG divider at the bottom in #ffd8d1 */
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+
+  /* attach to bottom edge so it doesn't eat into the hero */
+  bottom: -80px;
+  height: 90px;            /* more natural wave height */
+  pointer-events: none;
+
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: 100% 90px;
+  background-image: url("data:image/svg+xml;charset=utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 35.28 2.17' preserveAspectRatio='none'><path d='M0 .5c3.07.55 9.27-.42 16.14 0 6.88.4 13.75.57 19.14-.11V0H0z' fill='%23ffd8d1'/><path d='M0 1c3.17.8 7.29-.38 10.04-.55 2.75-.17 9.25 1.47 12.67 1.3 3.43-.17 4.65-.84 7.05-.87 2.4-.02 5.52.88 5.52.88V0H0z' opacity='.5' fill='%23ffd8d1'/><path d='M0 1.85c2.56-.83 7.68-.3 11.79-.42 4.1-.12 6.86-.61 9.58-.28 2.73.33 5.61 1.17 8.61 1 3-.19 4.73-.82 5.3-.84V.1H0z' opacity='.5' fill='%23ffd8d1'/></svg>");
+}
+
+
+/* content above overlays/SVG */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;       /* keep hero nice on mobile */
+  padding-top: 0.5rem;
+  margin: 0 auto;
+}
+
+/* mobile: stacked layout */
+.hero-left {
+  width: 100%;
+}
+
+.hero-right {
+  width: 100%;
+  margin-top: 1.75rem;
+  min-height: 260px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #99b7c6, #cbcbcb 35%, #ffd8d1 80%);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  box-shadow: var(--shadow-soft);
+}
+
+/* ≥ 720px: switch hero to two-column layout */
+@media (min-width: 720px) {
+  .hero-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    max-width: 960px;
+  }
+
+  .hero-left,
+  .hero-right {
+    width: auto;
+    flex: 1 1 50%;
+  }
+
+  .hero-right {
+    margin-top: 0;
+    min-height: 320px;
+  }
+}
+
+/* ≥ 900px: more breathing room, larger image panel */
+@media (min-width: 900px) {
+  .hero-content {
+    gap: 3rem;
+    max-width: 1120px;
+  }
+
+  .hero-right {
+    min-height: 360px;
+  }
+}
+
+/* ≥ 1024px: desktop padding + taller hero image */
+@media (min-width: 1024px) {
+  .hero {
+    padding-top: 5.5rem;
+    padding-bottom: 4.75rem;
+  }
+
+  .hero-right {
+    min-height: 420px;
+  }
 }

@@ -10,21 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    .hero-illustrations {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-      align-items: flex-end;
-      flex-wrap: wrap;
-    }
-    .hero-illustrations img {
-      max-height: 140px;
-      object-fit: contain;
-      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.12));
-      border-radius: 12px;
-      background: rgba(255,255,255,0.6);
-      padding: 0.4rem;
-    }
     .section-illustration {
       display: flex;
       justify-content: flex-end;
@@ -37,10 +22,31 @@
       box-shadow: 0 12px 32px rgba(0,0,0,0.14);
       background: #fff;
     }
+    .hero-right {
+      position: relative;
+      background: radial-gradient(circle at center, rgba(153,183,198,0.35), #ffd8d1);
+    }
+    .hero-right::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0));
+      z-index: 1;
+    }
+    .hero-right .fade-frame {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      z-index: 0;
+    }
+    .hero-right .fade-frame.is-active {
+      opacity: 1;
+      z-index: 2;
+    }
     @media (max-width: 768px) {
-      .hero-illustrations {
-        justify-content: center;
-      }
       .section-illustration {
         justify-content: center;
       }
@@ -52,35 +58,48 @@
   <%- include('../partials/navbar') %>
 
   <!-- HERO -->
+  <!-- HERO -->
   <section class="hero">
-    <div class="hero-overlay"></div>
     <div class="container hero-content">
-      <p class="eyebrow">Welcome to Ella Rises</p>
-      <h1>Inspiring young women to pursue education and celebrate their heritage.</h1>
-      <p class="hero-subtitle">
-        Ella Rises creates culturally rooted programs where young Latinas can develop confidence,
-        leadership, and a vision for their future.
-      </p>
-      <div class="hero-actions">
-        <a href="#enroll" class="btn btn--primary">Enroll in a Program</a>
-        <a href="/donations" class="btn btn--ghost">Support Our Mission</a>
+      <!-- LEFT: TEXT -->
+      <div class="hero-left">
+        <p class="eyebrow">Welcome to Ella Rises</p>
+        <h1>Inspiring young women to pursue education and celebrate their heritage.</h1>
+        <p class="hero-subtitle">
+          Ella Rises creates culturally rooted programs where young Latinas can develop confidence,
+          leadership, and a vision for their future.
+        </p>
+        <div class="hero-actions">
+          <a href="#enroll" class="btn btn--primary">Enroll in a Program</a>
+          <a href="/donations" class="btn btn--ghost">Support Our Mission</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">150+</span>
+            <span class="stat-label">Girls served each year</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">4</span>
+            <span class="stat-label">Signature programs</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Focused on future pathways</span>
+          </div>
+        </div>
       </div>
-      <div class="hero-stats">
-        <div class="stat">
-          <span class="stat-number">150+</span>
-          <span class="stat-label">Girls served each year</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number">4</span>
-          <span class="stat-label">Signature programs</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number">100%</span>
-          <span class="stat-label">Focused on future pathways</span>
-        </div>
+
+      <!-- RIGHT: CYCLING IMAGES -->
+      <div class="hero-right" aria-label="Ella Rises participants">
+        <div class="fade-frame is-active" style="background-image: url('/images/ER BYU Tour 2022-042.jpg');"></div>
+        <div class="fade-frame" style="background-image: url('/images/ER STEM Workshop Aug 2022-09.jpg');"></div>
+        <div class="fade-frame" style="background-image: url('/images/ER Table.jpg');"></div>
+        <div class="fade-frame" style="background-image: url('/images/ER UMFA Mural_072.jpg');"></div>
       </div>
     </div>
   </section>
+
+
 
   <!-- ABOUT -->
   <section id="about" class="section section--light">
@@ -326,6 +345,11 @@
     </div>
   </section>
 
+  <!-- BANNER -->
+  <section class="banner-section">
+    <img src="/images/banner.png" alt="Ella Rises Banner" class="banner-image" />
+  </section>
+
   <!-- FOOTER -->
   <footer id="contact" class="site-footer">
     <div class="container footer-grid">
@@ -361,6 +385,23 @@
       navToggle.classList.toggle("nav-toggle--open");
     });
   </script>
+  <script>
+    const heroPanel = document.querySelector('.hero-right');
+    if (heroPanel) {
+      const frames = Array.from(heroPanel.querySelectorAll('.fade-frame'));
+      let current = 0;
+      const showFrame = (next) => {
+        frames[current].classList.remove('is-active');
+        frames[next].classList.add('is-active');
+        current = next;
+      };
+      setInterval(() => {
+        const next = (current + 1) % frames.length;
+        showFrame(next);
+      }, 5000); // 5s per image with CSS crossfade
+    }
+  </script>
+
 </body>
 </html>
 
