@@ -9,6 +9,43 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .hero-illustrations {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .hero-illustrations img {
+      max-height: 140px;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.12));
+      border-radius: 12px;
+      background: rgba(255,255,255,0.6);
+      padding: 0.4rem;
+    }
+    .section-illustration {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1.25rem;
+    }
+    .section-illustration img {
+      max-width: 320px;
+      width: 100%;
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+      background: #fff;
+    }
+    @media (max-width: 768px) {
+      .hero-illustrations {
+        justify-content: center;
+      }
+      .section-illustration {
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- NAVBAR -->
@@ -145,6 +182,7 @@
           <a href="#enroll" class="program-link">Learn more &amp; enroll →</a>
         </article>
       </div>
+
     </div>
   </section>
 
