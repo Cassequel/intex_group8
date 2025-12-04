@@ -1532,22 +1532,25 @@ app.get('/users/:id/edit', requireManager, async (req, res) => {
 app.post('/users/:id/edit', requireManager, async (req, res) => {
     const { id } = req.params;
     const { username, email, password, level } = req.body;
-    if (!username || !email || !password) {
+    // Only require username and email, not password
+    if (!username || !email) {
         return res.status(400).render('userDashboard/userEdit', {
-            user: { user_id: id, username, email, password, level },
-            error_message: "Username, email, and password are required."
+            user: { user_id: id, username, email, level },
+            error_message: "Username and email are required."
         });
     }
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const updateData = {
+            username,
+            email,
+            level: level || 'U'
+        };
+        if (password && password.trim() !== "") {
+            updateData.password_hash = await bcrypt.hash(password, 10);
+        }
         const [updated] = await knex("users")
             .where({ user_id: id })
-            .update({
-                username,
-                email,
-                password_hash: hashedPassword,
-                level: level || 'U'
-            })
+            .update(updateData)
             .returning("*");
         res.redirect('/users');
     } catch (error) {

@@ -42,11 +42,14 @@
           </div>
           <div class="form-field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="text" value="<%= user.password || '' %>" required />
+            <input id="password" name="password" type="text" value="" />
           </div>
           <div class="form-field">
             <label for="level">Level (U or M)</label>
-            <input id="level" name="level" type="text" maxlength="1" value="<%= user.level || 'U' %>" />
+            <select id="level" name="level">
+              <option value="U" <%= user.level === 'U' ? 'selected' : '' %>>U</option>
+              <option value="M" <%= user.level === 'M' ? 'selected' : '' %>>M</option>
+            </select>
           </div>
           <div class="form-field" style="margin-top: 0.5rem;">
             <button type="submit" class="btn btn--primary btn--large">Save changes</button>
