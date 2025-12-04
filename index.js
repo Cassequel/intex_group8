@@ -375,7 +375,6 @@ app.get('/', async (req, res) => {
         't.event_type',
         'o.event_date_time_start',
         'o.event_date_time_end',
-        // note: your schema has a typo 'even_location' — select it and alias to 'event_location'
         'o.event_location',
         'o.event_capacity',
         'o.event_registration_deadline'
@@ -387,7 +386,7 @@ app.get('/', async (req, res) => {
     // Map to the shape the EJS expects
     const events = rows.map(r => {
       const start = r.event_date_time_start ? new Date(r.event_date_time_start) : null;
-      const date_display = start.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'TBD';
+      const date_display = start ? start.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'TBD';
       return {
         id: r.occurence_id,
         template_id: r.template_id,
