@@ -1,7 +1,4 @@
 // TO DO 
-// participant to milestone flow
-
-
 
 // requirements to set up all dev and production stuff
 require('dotenv').config();
@@ -1326,7 +1323,17 @@ app.get('/participants/:id', async (req, res) => {
             return res.status(403).send("Not authorized");
         }
 
-        res.render('participants/parDetail', { participant, returnTo });
+        // Fetch milestones for this participant
+        const milestones = await knex("milestones")
+            .where({ participant_id: id })
+            .orderBy("milestone_date", "desc");
+
+        res.render('participants/parDetail', {
+            participant,
+            milestones,
+            returnTo,
+            userLevel: req.session.userLevel || req.session.level
+        });
     } catch (error) {
         console.error("Error loading participant:", error);
         res.status(500).send("Error loading participant");

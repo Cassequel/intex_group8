@@ -118,6 +118,67 @@
           <p class="detail-value"><%= typeof participant.total_donations !== "undefined" && participant.total_donations !== null ? participant.total_donations : "Not provided" %></p>
         </div>
       </div>
+
+      <!-- MILESTONES SECTION -->
+      <div style="margin-top: 2rem;">
+        <h2 style="margin-bottom: 0.5rem;">Milestones</h2>
+        <div class="table-card">
+          <div class="table-card__body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Achieved date</th>
+                  <% if (typeof userLevel !== 'undefined' && userLevel === 'M') { %>
+                    <th>Actions</th>
+                  <% } %>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (milestones && milestones.length) { %>
+                  <% milestones.forEach((m) => { %>
+                    <tr>
+                      <td><a href="/milestones/<%= m.milestone_id %>"><%= m.milestone_title %></a></td>
+                      <td>
+                        <%
+                          const today = new Date();
+                          const achieved = m.milestone_date ? new Date(m.milestone_date) : null;
+                          const status = achieved && achieved < today ? "Completed" : "Planned";
+                        %>
+                        <%= status %>
+                      </td>
+                      <td>
+                        <%
+                          const d = m.milestone_date;
+                          let formattedDate = "";
+                          if (d) {
+                            formattedDate = d.toISOString ? d.toISOString().slice(0,10) : String(d).slice(0,10);
+                          }
+                        %>
+                        <%= formattedDate %>
+                      </td>
+                      <% if (typeof userLevel !== 'undefined' && userLevel === 'M') { %>
+                        <td>
+                          <a href="/milestones/<%= m.milestone_id %>/edit" class="btn btn--outline" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Edit</a>
+                          <form action="/milestones/<%= m.milestone_id %>/delete" method="POST" style="display: inline; margin-left: 0.25rem;">
+                            <button type="submit" class="btn btn--ghost" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;" onclick="return confirm('Are you sure you want to delete this milestone?')">Delete</button>
+                          </form>
+                        </td>
+                      <% } %>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="<%= (typeof userLevel !== 'undefined' && userLevel === 'M') ? '4' : '3' %>" class="empty-row">No milestones found for this participant.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <div style="margin-top: 1.5rem;">
         <a href="/participants/<%= participant.participant_id %>/edit" class="btn btn--outline">Edit participant</a>
         <% if (returnTo) { %>
