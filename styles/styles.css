@@ -22,7 +22,7 @@
   --color-bg: #ffffff;
   --color-bg-light: var(--color-ivory);
   --color-bg-accent: var(--color-peach-soft);
-  --color-primary: var(--color-purple);
+  --color-primary: var(--color-blue);
   --color-primary-dark: var(--color-charcoal);
   --color-accent: var(--color-coral);
   --color-text: var(--color-charcoal);
@@ -102,6 +102,12 @@ p {
 .btn--primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 18px 40px rgba(16, 49, 0, 0.35);
+}
+
+/* Navbar login button styling - consistent across all pages */
+.nav-links .btn--primary {
+  background: var(--color-charcoal);
+  color: #ffffff;
 }
 
 .btn--outline {
@@ -609,27 +615,6 @@ p {
   display: block;
 }
 
-.video-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  color: #ffffff;
-  text-align: center;
-  padding: 2rem;
-}
-
-.video-placeholder svg {
-  opacity: 0.7;
-}
-
-.video-placeholder p {
-  margin: 0;
-  font-size: 1rem;
-  opacity: 0.8;
-}
-
 /* About Content */
 .about-content {
   max-width: 800px;
@@ -643,46 +628,119 @@ p {
 }
 
 /* Sponsors */
+/* Mobile-first: Scrolling banner for screens below 645px */
 .sponsors-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
+  display: flex;
+  overflow: hidden;
+  width: 100%;
   margin-top: 2rem;
+  position: relative;
+}
+
+.sponsors-grid::before,
+.sponsors-grid::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.sponsors-grid::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.sponsors-grid::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.sponsors-grid {
+  animation: scroll 30s linear infinite;
 }
 
 .sponsor-card {
   background-color: #ffffff;
   border-radius: var(--radius-lg);
-  padding: 2rem;
+  padding: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-soft);
   border: 1px solid var(--color-border);
-  min-height: 120px;
+  min-height: 100px;
+  min-width: 180px;
+  flex-shrink: 0;
+  margin-right: 1.5rem;
 }
 
-.sponsor-logo-placeholder {
-  text-align: center;
-  color: var(--color-text-soft);
-  font-size: 0.9rem;
-  opacity: 0.5;
-}
-
-.sponsor-logo-placeholder img {
-  max-width: 200px;
+.sponsor-logo {
+  max-width: 150px;
+  max-height: 80px;
+  width: auto;
   height: auto;
+  object-fit: contain;
   display: block;
-  margin: 0 auto;
 }
 
-@media (min-width: 720px) {
+/* Desktop view: Grid layout at 645px and above */
+@media (min-width: 645px) {
   .sponsors-grid {
-    grid-template-columns: repeat(3, 1fr);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    animation: none;
+    overflow: visible;
+  }
+
+  .sponsors-grid::before,
+  .sponsors-grid::after {
+    display: none;
+  }
+
+  .sponsor-card {
+    margin-right: 0;
+    padding: 2rem;
+    min-width: auto;
+    min-height: 120px;
+  }
+
+  .sponsor-logo {
+    max-width: 200px;
+    max-height: 100px;
+  }
+
+  .sponsor-mobile-duplicate {
+    display: none;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
+  .sponsors-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .sponsor-card--single {
+    display: block;
+    grid-column: auto;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+@media (min-width: 1200px) {
   .sponsors-grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -1050,5 +1108,65 @@ p {
 
   .hero-right {
     min-height: 420px;
+  }
+}
+
+/* ========================================
+   DEDICATED STYLES FOR NON-LANDING PAGES
+   (events, surveys, users, participants, milestones)
+   ======================================== */
+
+/* Make hero section smaller and more condensed */
+body:not(.landing-page) .hero {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+  min-height: auto;
+}
+
+/* Fix hero layout for pages with eyebrow, h1, and subtitle */
+body:not(.landing-page) .hero-content {
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  padding-top: 0;
+}
+
+body:not(.landing-page) .hero-content .eyebrow {
+  display: block;
+  order: 1;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+body:not(.landing-page) .hero-content h1 {
+  display: block;
+  order: 2;
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  margin-bottom: 0.75rem;
+}
+
+body:not(.landing-page) .hero-content .hero-subtitle {
+  display: block;
+  order: 3;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+body:not(.landing-page) .hero-content .hero-actions {
+  order: 4;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 720px) {
+  body:not(.landing-page) .hero {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  body:not(.landing-page) .hero {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
   }
 }
