@@ -817,20 +817,54 @@ app.get('/donations/:id/edit', async (req, res) => {
 
 app.post('/donations/:id/edit', async (req, res) => {
     const { id } = req.params;
-    const {  participant_first_name,  participant_last_name, participant_email, donation_date, donation_amount } = req.body;
+    const { participant_email, donation_date, donation_amount } = req.body;
 
-    if (! participant_first_name || ! participant_last_name || !participant_email || !donation_amount) {
-        return res.status(400).render('donations/donEdit', {
-            donation: { donation_id: id,  participant_first_name,  participant_last_name, participant_email, donation_date, donation_amount },
-            error_message: "Please fill in name, email, and donation_amount."
-        });
+    if (!participant_email || !donation_amount) {
+        // Load the current donation data to re-render the form
+        try {
+            const donation = await knex("donations as d")
+                .leftJoin("participants as p", "d.participant_id", "p.participant_id")
+                .select(
+                    "d.*",
+                    "p.participant_email",
+                    "p.participant_first_name",
+                    "p.participant_last_name"
+                )
+                .where("d.donation_id", id)
+                .first();
+            
+            return res.status(400).render('donations/donEdit', {
+                donation,
+                error_message: "Email and amount are required."
+            });
+        } catch (err) {
+            return res.status(500).send("Error loading donation");
+        }
     }
 
     try {
-        const participant = await knex("participants").where({ participant_email: participant_email }).first();
+        const participant = await knex("participants")
+            .where({ participant_email: participant_email })
+            .first();
+        
         if (!participant) {
+            // Load the current donation data to re-render the form
+            const donation = await knex("donations as d")
+                .leftJoin("participants as p", "d.participant_id", "p.participant_id")
+                .select(
+                    "d.*",
+                    "p.participant_email",
+                    "p.participant_first_name",
+                    "p.participant_last_name"
+                )
+                .where("d.donation_id", id)
+                .first();
+            
+            // Override the email with what the user entered
+            donation.participant_email = participant_email;
+            
             return res.status(400).render('donations/donEdit', {
-                donation: { donation_id: id,  participant_first_name,  participant_last_name, participant_email, donation_date, donation_amount },
+                donation,
                 error_message: "We couldn't find a participant with that email."
             });
         }
@@ -853,18 +887,19 @@ app.post('/donations/:id/edit', async (req, res) => {
                     "d.*",
                     "p.participant_email",
                     "p.participant_first_name",
-                    "p.participant_last_name",
-                    knex.raw("CONCAT(COALESCE(p.participant_first_name,''),' ',COALESCE(p.participant_last_name,'')) as participant_name")
+                    "p.participant_last_name"
                 )
                 .where("d.donation_id", id)
                 .first();
-            res.status(500).render('donations/donEdit', { donation, error_message: "Could not update donation. Please try again." });
+            res.status(500).render('donations/donEdit', { 
+                donation, 
+                error_message: "Could not update donation. Please try again." 
+            });
         } catch (loadErr) {
             res.status(500).send("Error loading donation");
         }
     }
 });
-
 app.post('/donations/:id/delete', requireManager, async (req, res) => {
     const { id } = req.params;
     try {
