@@ -56,7 +56,10 @@
           </div>
           <div class="form-field">
             <label for="level">Level (U or M)</label>
-            <input id="level" name="level" type="text" maxlength="1" class="<%= errorField === 'level' ? 'input-error' : '' %>" value="<%= values.level || 'U' %>" />
+            <select id="level" name="level" class="<%= errorField === 'level' ? 'input-error' : '' %>">
+              <option value="U" <%= values.level === 'U' ? 'selected' : '' %>>U</option>
+              <option value="M" <%= values.level === 'M' ? 'selected' : '' %>>M</option>
+            </select>
           </div>
           <div class="form-field" style="margin-top: 0.5rem;">
             <button type="submit" class="btn btn--primary btn--large">Save user</button>

@@ -9,6 +9,40 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.75rem;
+      max-width: 460px;
+      width: 90%;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+      text-align: center;
+    }
+    .modal h3 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .modal-overlay.is-open {
+      display: flex;
+    }
+  </style>
 </head>
 <body>
   <!-- NAVBAR -->
@@ -40,9 +74,12 @@
       <div class="table-card">
         <div class="table-card__header">
           <span>Users</span>
-          <% if (userLevel === 'M') { %>
-            <a href="/users/new" class="btn btn--primary btn--small">Add user</a>
-          <% } %>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <input type="search" id="userSearch" placeholder="Search users..." style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; min-width: 200px;" />
+            <% if (userLevel === 'M') { %>
+              <a href="/users/new" class="btn btn--primary btn--small">Add user</a>
+            <% } %>
+          </div>
         </div>
         <div class="table-card__body">
           <table class="data-table">
@@ -57,16 +94,14 @@
             <tbody>
               <% if (users && users.length) { %>
                 <% users.forEach((user) => { %>
-                  <tr>
+                  <tr data-username="<%= (user.username || '').toLowerCase() %>" data-email="<%= (user.email || '').toLowerCase() %>">
                     <td><%= user.username %></td>
                     <td><%= user.email %></td>
                     <td><%= user.level || 'U' %></td>
                     <% if (userLevel === 'M') { %>
                       <td class="table-actions">
                         <a class="btn btn--outline btn--small" href="/users/<%= user.user_id %>/edit">Edit</a>
-                        <form class="inline-form" method="POST" action="/users/<%= user.user_id %>/delete">
-                          <button type="submit" class="btn btn--ghost btn--small">Delete</button>
-                        </form>
+                        <button type="button" class="btn btn--ghost btn--small delete-btn" data-id="<%= user.user_id %>" data-name="<%= user.username %>">Delete</button>
                       </td>
                     <% } %>
                   </tr>
@@ -83,6 +118,17 @@
     </div>
   </section>
 
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3>Confirm delete</h3>
+      <p id="deleteModalMessage">Are you sure you want to delete this user?</p>
+      <div class="modal-actions">
+        <button class="btn btn--ghost" id="cancelDelete" type="button">No, keep</button>
+        <button class="btn btn--primary" id="confirmDelete" type="button">Yes, delete</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Simple mobile nav toggle
     const navToggle = document.querySelector(".nav-toggle");
@@ -91,6 +137,55 @@
     navToggle.addEventListener("click", () => {
       navLinks.classList.toggle("nav-links--open");
       navToggle.classList.toggle("nav-toggle--open");
+    });
+
+    const modalOverlay = document.querySelector(".modal-overlay");
+    const modalMessage = document.querySelector("#deleteModalMessage");
+    const confirmBtn = document.querySelector("#confirmDelete");
+    const cancelBtn = document.querySelector("#cancelDelete");
+    const deleteButtons = document.querySelectorAll(".delete-btn");
+    let pendingId = null;
+
+    deleteButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        pendingId = btn.dataset.id;
+        const name = btn.dataset.name || "this user";
+        modalMessage.textContent = `Are you sure you want to delete ${name}?`;
+        modalOverlay.classList.add("is-open");
+      });
+    });
+
+    cancelBtn.addEventListener("click", () => {
+      pendingId = null;
+      modalOverlay.classList.remove("is-open");
+    });
+
+    confirmBtn.addEventListener("click", async () => {
+      if (!pendingId) return;
+      try {
+        const res = await fetch(`/users/${pendingId}/delete`, { method: "POST" });
+        if (!res.ok) throw new Error("Request failed");
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        alert("Could not delete user. Please try again.");
+      } finally {
+        pendingId = null;
+        modalOverlay.classList.remove("is-open");
+      }
+    });
+
+    // Simple client-side search by username and email
+    const userSearch = document.getElementById("userSearch");
+    const userRows = Array.from(document.querySelectorAll("tbody tr"));
+
+    userSearch?.addEventListener("input", () => {
+      const term = userSearch.value.trim().toLowerCase();
+      userRows.forEach((row) => {
+        const username = row.dataset.username || "";
+        const email = row.dataset.email || "";
+        row.style.display = username.includes(term) || email.includes(term) ? "" : "none";
+      });
     });
   </script>
 </body>
