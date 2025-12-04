@@ -1,6 +1,10 @@
-// TO DO 
+// TO DO
 
-// requirements to set up all dev and production stuff
+// Dependencies and initial configuration
+// Load all the npm packages we need and fire up Express. The main ones are session
+// management for logins, bcrypt for password hashing, multer for file uploads, and
+// helmet for security headers. We also pull in our custom email service and the knex
+// database connection.
 require('dotenv').config();
 const express = require("express");
 const session = require("express-session");
@@ -21,6 +25,9 @@ const crypto = require('crypto');
 const knex = require("./db");
 
 
+// Session setup
+// Configure sessions to keep track of who's logged in. The secret key encrypts session
+// data, and we're not saving empty sessions to keep the database clean.
 app.use(session({
     secret: process.env.SESSION_SECRET || "devsecret",
     resave: false,
@@ -48,71 +55,53 @@ app.get('/test-email', async (req, res) => {
 
 
 
-// installs helmet - used to delcare headers to pretect other aspects of the code
+// Security headers
+// Install helmet middleware to set HTTP security headers that protect against common vulnerabilities.
 app.use(helmet());
 
 
-// Root directory for static images
+// File upload configuration
+// Set up multer to handle file uploads safely. Files get stored in /images/uploads with
+// a 5MB size limit, and we only allow safe formats like images and PDFs to prevent
+// malicious uploads.
 const uploadRoot = path.join(__dirname, "images");
-// Sub-directory where uploaded profile pictures will be stored
 const uploadDir = path.join(uploadRoot, "uploads");
-// Ensure upload directories exist
 fs.mkdirSync(uploadDir, { recursive: true });
-// cb is the callback function
-// The callback is how you hand control back to Multer after
-// your customization step
 
-// Configure Multer's disk storage engine
-// Multer calls it once per upload to ask where to store the file. Your function receives:
-// req: the incoming request.
-// file: metadata about the file (original name, mimetype, etc.).
-// cb: the callback.
 const storage = multer.diskStorage({
-    // Save files into our uploads directory
     destination: (req, file, cb) => {
         cb(null, uploadDir);
     },
-    // Reuse the original filename so users see familiar names
     filename: (req, file, cb) => {
         cb(null, file.originalname);
     }
 });
 
-
-// multer class helps secure file structure to make sure malicious files arent uploaded 
-const upload = multer({ 
+const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
     fileFilter: (req, file, cb) => {
         const allowedTypes = /jpeg|jpg|png|gif|pdf/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimetype = allowedTypes.test(file.mimetype);
-        
+
         if (mimetype && extname) {
             return cb(null, true);
         }
         cb(new Error('Invalid file type'));
     }
 });
-// Expose everything in /images (including uploads) as static assets
 app.use("/images", express.static(uploadRoot));
 
 
 
 
 
-/* Session middleware (Middleware is code that runs between the time the request comes
-to the server and the time the response is sent back. It allows you to intercept and
-decide if the request should continue. It also allows you to parse the body request
-from the html form, handle errors, check authentication, etc.)
-
-REQUIRED parameters for session:
-*/
-// Content Security Policy middleware - allows localhost connections for development
-// This fixes the CSP violation error with Chrome DevTools
+// Content security policy
+// Tell browsers what external resources they're allowed to load. We whitelist localhost
+// for development, Tableau for dashboards, and our production domain. This stops XSS
+// attacks by blocking unauthorized scripts.
 app.use((req, res, next) => {
-  // Set a permissive CSP for development that allows localhost connections
-  // This allows Chrome DevTools to connect to localhost:3000
   res.setHeader(
     'Content-Security-Policy',
     "default-src 'self' http://localhost:* ws://localhost:* wss://localhost:* https://public.tableau.com http://public.tableau.com; " +
@@ -172,7 +161,10 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// Global authentication middleware - runs on EVERY request
+// Global authentication check
+// Check if user is logged in before letting them see protected pages. Public pages like
+// the landing page, login, and donation flow don't need authentication. Everything else
+// requires a valid session or you get kicked to the login page.
 app.use((req, res, next) => {
     // Skip authentication for login routes
     if (req.path === '/' || req.path === '/login' || req.path === '/logout' ||
@@ -191,18 +183,21 @@ app.use((req, res, next) => {
         //continue with the request path
         return next();
     }
-    
+
     // Check if user is logged in for all other routes
     if (req.session.isLoggedIn) {
         //notice no return because nothing below it
         next(); // User is logged in, continue
-    } 
+    }
     else {
         res.render("auth/login", { error_message: "Please log in to access this page" });
     }
 });
 
-// ==================== PASSWORD RESET ROUTES ====================
+// Password reset flow
+// Handle forgot password requests by generating a unique token and emailing a reset link.
+// Tokens expire after an hour and can only be used once. When user submits new password,
+// we hash it with bcrypt and update the database.
 
 // Show forgot password form
 app.get('/forgot-password', (req, res) => {
@@ -333,7 +328,9 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
-
+// Landing page
+// Show the homepage with the next 3 upcoming events. Pull event data from the database,
+// format the dates nicely, and pass them to the landing page template.
 app.get('/', async (req, res) => {
   try {
     // Fetch the next 3 upcoming event occurrences (start >= now), joined with their templates
@@ -381,6 +378,9 @@ app.get('/', async (req, res) => {
   }
 });
 
+// Donations list page
+// Managers see all donations, regular users only see their own. Query the donations table
+// and join with participants to get names, then filter based on user level.
 app.get('/donations', async (req, res) => {
     try {
         // If user is a manager, show all donations
@@ -420,7 +420,10 @@ app.get('/donations', async (req, res) => {
     }
 });
 
-// Registrations
+// Event registrations management
+// Display all event registrations with participant and event details. Managers can edit
+// registration status, attendance flags, and check-in times. We join across three tables
+// to get participant names and event info.
 app.get('/registrations', async (req, res) => {
     try {
         const registrations = await knex("registrations as r")
@@ -515,8 +518,11 @@ app.post('/registrations/:id/edit', requireManager, async (req, res) => {
     }
 });
 
-
-// Replace the existing /donations GET route with this:
+// Public donation flow (multi-step process)
+// Handle the donation process in steps: amount selection, participant info collection,
+// payment confirmation. If user is logged in and already a participant, skip the info
+// collection step. New donors get the "donor" role, existing participants get "participant/donor"
+// added to their role.
 app.get('/donAdd', (req, res) => {
     res.render('donations/donAdd', { 
         error_message: null,
@@ -770,6 +776,10 @@ app.post('/donations/complete', async (req, res) => {
     }
 });
 
+// Donation detail, edit, and delete routes
+// Let users view individual donations, and managers can edit or delete them. When editing,
+// we validate that the participant email exists before updating. Delete is manager-only
+// to prevent users from removing donation records.
 app.get('/donations/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -911,7 +921,11 @@ app.post('/donations/:id/delete', requireManager, async (req, res) => {
     }
 });
 
-// Milestones
+// Milestones CRUD operations
+// Track participant achievements and progress milestones. Managers see all milestones,
+// regular users only see their own. Each milestone links to a participant and includes
+// a title and optional date. The detail page shows all milestones for that participant
+// in chronological order.
 app.get('/milestones', async (req, res) => {
     try {
         // If manager, show all milestones
@@ -1107,6 +1121,10 @@ app.post('/milestones/:id/delete', requireManager, async (req, res) => {
     }
 });
 
+// User registration
+// Create new user accounts with email, username, and password. Check for duplicate usernames
+// and emails, validate password length (min 8 chars), then hash the password with bcrypt.
+// After successful registration, automatically log the user in and redirect to homepage.
 app.get('/register', (req, res) => {
     if (req.session.isLoggedIn) {
         return res.redirect('/');
@@ -1174,6 +1192,10 @@ app.post('/register', async (req, res) => {
     }
 });
 
+// User login
+// Authenticate users by checking username and password against the database. Compare the
+// submitted password with the stored bcrypt hash. On successful login, create a session
+// and send a new device alert email with device info and IP address.
 app.get('/login', (req, res) => {
     if (req.session.isLoggedIn) {
         return res.redirect('/');
@@ -1237,12 +1259,20 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// User logout
+// Destroy the session and redirect to login page. This clears all session data including
+// user ID, username, and level.
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/login');
     });
 });
 
+// Participants CRUD operations
+// Manage the participants table with full create, read, update, delete functionality. Each
+// participant has personal info (name, email, DOB, contact info), school/employer data, and
+// a role (participant, donor, or participant/donor). The detail page shows total donations
+// and associated milestones, but only managers can view it.
 app.get('/participants', async (req, res) => {
     try {
         // Select all columns to avoid missing-column errors if schema differs (e.g., no "school")
@@ -1453,8 +1483,10 @@ app.post('/participants/:id/delete',requireManager, async (req, res) => {
     }
 });
 
-// Users
-
+// Users dashboard (manager-only)
+// Let managers create, edit, and delete user accounts. When creating users, check for
+// duplicate usernames/emails and enforce password requirements. Editing allows password
+// updates (optional) and level changes (U for user, M for manager).
 app.get('/users', requireManager, async (req, res) => {
     try {
         const users = await knex("users").select("*").orderBy("user_id", "asc");
@@ -1589,7 +1621,10 @@ app.post('/users/:id/delete', requireManager, async (req, res) => {
     }
 });
 
-// Events (templates + occurrences)
+// Events CRUD operations (templates + occurrences)
+// Manage event occurrences which are specific instances of event templates. Each occurrence
+// has a start/end time, location, capacity, and registration deadline. When creating or editing,
+// users select from existing templates and fill in the occurrence details.
 app.get('/events', async (req, res) => {
     try {
         const events = await knex("event_occurences as o")
@@ -1796,7 +1831,11 @@ app.post('/events/:id/delete',requireManager, async (req, res) => {
     }
 });
 
-// Surveys
+// Surveys CRUD operations
+// Collect feedback from participants about events. Each survey links to a participant and
+// event occurrence, with scores for satisfaction, usefulness, instructor, and recommendation.
+// Managers see all surveys, regular users only see their own. Surveys include optional comments
+// and submission date.
 app.get('/surveys', async (req, res) => {
     try {
         // MANAGER: show all surveys (join through occurrences -> templates to get template.event_name)
@@ -1991,6 +2030,9 @@ app.post('/surveys/:id/delete', async (req, res) => {
     }
 });
 
+// Manager dashboard and easter egg
+// The manager dashboard route renders the main admin interface. The teapot route is an HTTP
+// 418 easter egg status code (I'm a teapot) for fun.
 app.get('/managerDashboard', (req, res) => {
     res.render('managerDashboard/managerDashboard');
 });
@@ -1999,15 +2041,15 @@ app.get('/teapot', (req, res) => {
     res.status(418).render('public/418Code');
 });
 
-// start scheduled email jobs
+// Start scheduled email jobs
+// Fire up the background job that sends automated event reminder emails to registered participants.
 require('./email/reminderJob');
 
-// Registration/Enrollment Routes
-// Replace the existing /enroll routes in your index.js
-// Registration/Enrollment Routes
-// Replace the existing /enroll routes in your index.js
-
-// Show enrollment page with available events
+// Event enrollment flow (multi-step process)
+// Let logged-in users register for upcoming events. First check if they're a participant. If not,
+// redirect to profile completion. Show available events where registration deadline hasn't passed and
+// let them enroll. Users can also unregister from events. The enrollment
+// creates a registration record with confirmed status.
 app.get('/enroll', async (req, res) => {
     try {
         const userEmail = req.session.userEmail;
@@ -2345,6 +2387,9 @@ app.post('/enroll/unregister', async (req, res) => {
     }
 });
 
+// About and contact pages
+// Renders the about page and handles contact form submissions. 
+// Contact form logs the submission to console and returns JSON success response. 
 app.get('/about', (req, res) => {
     res.render('public/about', {
         isLoggedIn: req.session.isLoggedIn || false,
@@ -2378,7 +2423,8 @@ app.post('/contact', async (req, res) => {
     }
 });
 
-
+// Start the Express server
+// Listen on the configured port (from environment variable or default 8080) and log when ready.
 app.listen(port, () => {
     console.log("The server is listening");
 });

@@ -58,6 +58,12 @@
               Max date
               <input type="date" id="maxDate" style="padding: 0.35rem 0.5rem; border: 1px solid var(--color-border); border-radius: 8px;" />
             </label>
+            <select id="recommendationTypeFilter" style="padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; background: white; cursor: pointer;">
+              <option value="">All Types</option>
+              <option value="promoter">Promoter</option>
+              <option value="passive">Passive</option>
+              <option value="detractor">Detractor</option>
+            </select>
             <% if (userLevel === 'M') { %>
               <a href="/surveys/new" class="btn btn--primary btn--small">Add survey</a>
             <% } %>
@@ -81,7 +87,8 @@
                   <tr
                     data-name="<%= (survey.participant_name || '').toLowerCase() %>"
                     data-event="<%= (survey.event_name || '').toLowerCase() %>"
-                    data-date="<%= (() => { const d = survey.survey_submission_date || survey.submission_date; try { return d ? new Date(d).toISOString() : ''; } catch(e) { return ''; } })() %>">
+                    data-date="<%= (() => { const d = survey.survey_submission_date || survey.submission_date; try { return d ? new Date(d).toISOString() : ''; } catch(e) { return ''; } })() %>"
+                    data-recommendation-score="<%= survey.recommendation_score ?? '' %>">
                     <td><%= survey.survey_id %></td>
                     <td><a href="/surveys/<%= survey.survey_id %>"><%= survey.participant_name || "Unknown participant" %></a></td>
                     <td><%= survey.event_name || "Unknown event" %></td>
@@ -126,34 +133,48 @@
       navToggle.classList.toggle("nav-toggle--open");
     });
 
-    // Search by participant, event, and date range
+    // Search by participant, event, date range, and recommendation type
     const surveySearch = document.getElementById("surveySearch");
     const minDateInput = document.getElementById("minDate");
     const maxDateInput = document.getElementById("maxDate");
+    const recommendationTypeFilter = document.getElementById("recommendationTypeFilter");
     const surveyRows = Array.from(document.querySelectorAll("tbody tr"));
 
     const applySurveyFilters = () => {
       const term = surveySearch.value.trim().toLowerCase();
       const minDate = minDateInput.value ? new Date(minDateInput.value).getTime() : null;
       const maxDate = maxDateInput.value ? new Date(maxDateInput.value).getTime() + 24 * 60 * 60 * 1000 - 1 : null; // end of day
+      const selectedType = recommendationTypeFilter.value.toLowerCase();
 
       surveyRows.forEach((row) => {
         const name = row.dataset.name || "";
         const eventName = row.dataset.event || "";
         const rowText = row.textContent.toLowerCase();
         const dateValue = row.dataset.date ? new Date(row.dataset.date).getTime() : null;
+        const recScore = row.dataset.recommendationScore;
+
+        // Determine recommendation type from score
+        let recType = "";
+        if (recScore !== "" && recScore !== null && recScore !== undefined) {
+          const score = parseInt(recScore);
+          if (score === 5) recType = "promoter";
+          else if (score === 4) recType = "passive";
+          else if (score <= 3) recType = "detractor";
+        }
 
         const matchesTerm = !term || name.includes(term) || eventName.includes(term) || rowText.includes(term);
         const matchesMin = minDate === null || (dateValue !== null && dateValue >= minDate);
         const matchesMax = maxDate === null || (dateValue !== null && dateValue <= maxDate);
+        const matchesType = !selectedType || recType === selectedType;
 
-        row.style.display = matchesTerm && matchesMin && matchesMax ? "" : "none";
+        row.style.display = matchesTerm && matchesMin && matchesMax && matchesType ? "" : "none";
       });
     };
 
     surveySearch?.addEventListener("input", applySurveyFilters);
     minDateInput?.addEventListener("change", applySurveyFilters);
     maxDateInput?.addEventListener("change", applySurveyFilters);
+    recommendationTypeFilter?.addEventListener("change", applySurveyFilters);
 
     applySurveyFilters();
   </script>
