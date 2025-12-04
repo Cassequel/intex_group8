@@ -86,63 +86,59 @@
       <div class="program-grid">
         <!-- Program 1 -->
         <article class="program-card">
-          <div class="program-tag">Arts</div>
-          <h3>Ballet Folklórico</h3>
+          <div class="program-tag">STEAM</div>
+          <h3>Girls in STEAM</h3>
           <p>
-            Dance classes rooted in Latin American folk traditions that build confidence, connection,
-            and joy through movement and performance.
+            Group mentoring on pathways into STEAM careers.
           </p>
           <div class="program-meta">
             <span>Grades: 6–12</span>
             <span>Weekly in-person sessions</span>
           </div>
-          <a href="/registrations" class="program-link">Learn more &amp; enroll →</a>
+          <a href="/enroll?event_name=Girls%20in%20STEAM%20Mentoring" class="program-link">Learn more &amp; enroll →</a>
           <a href="/registrations">registrations</a>
         </article>
 
         <!-- Program 2 -->
         <article class="program-card">
-          <div class="program-tag">Music</div>
-          <h3>Mariachi Ensemble</h3>
+          <div class="program-tag">SUMMIT</div>
+          <h3>Women in Tech & Art</h3>
           <p>
-            A welcoming space for young women to learn mariachi, strengthen musical skills, and perform
-            together as a band, no matter their experience level.
+            Celebration of female innovation across STEAM industries.
           </p>
           <div class="program-meta">
-            <span>All skill levels welcome</span>
-            <span>Group rehearsals &amp; performances</span>
+            <span>All ages welcome</span>
+            <span>Annual</span>
           </div>
-          <a href="#enroll" class="program-link">Learn more &amp; enroll →</a>
+          <a href="/enroll?event_name=Women%20in%20Tech%20%26%20Art%20Showcase" class="program-link">Learn more &amp; enroll →</a>
         </article>
 
         <!-- Program 3 -->
         <article class="program-card">
-          <div class="program-tag">Summit</div>
-          <h3>Ella Rises Summit</h3>
+          <div class="program-tag">ARTS</div>
+          <h3>Intro to Painting</h3>
           <p>
-            A one-day, high-energy experience that blends art, STEAM, and campus visits so participants
-            can imagine themselves thriving in college.
+            Foundations of painting, color theory, and practice.
           </p>
           <div class="program-meta">
-            <span>Annual summer event</span>
-            <span>Workshops + campus tour</span>
+            <span>Grades: 6-12</span>
+            <span>Weekly in-person sessions</span>
           </div>
-          <a href="#enroll" class="program-link">Learn more &amp; enroll →</a>
+          <a href="/enroll?event_name=Intro%20to%20Painting%20Class" class="program-link">Learn more &amp; enroll →</a>
         </article>
 
         <!-- Program 4 -->
         <article class="program-card">
-          <div class="program-tag">STEAM</div>
-          <h3>STEAM Workshops</h3>
+          <div class="program-tag">STEM</div>
+          <h3>Coding Club</h3>
           <p>
-            Hands-on activities in science, tech, engineering, art, and math that highlight Latina role
-            models and real-world pathways in these fields.
+            Guided coding sessions and peer projects.
           </p>
           <div class="program-meta">
-            <span>Virtual &amp; in-person</span>
-            <span>Guest speakers &amp; mentors</span>
+            <span>Grades: 6-12 &amp; in-person</span>
+            <span>Weekly in-person sessions</span>
           </div>
-          <a href="#enroll" class="program-link">Learn more &amp; enroll →</a>
+          <a href="/enroll?event_name=Monthly%20Coding%20Club" class="program-link">Learn more &amp; enroll →</a>
         </article>
       </div>
     </div>
@@ -185,45 +181,22 @@
       </div>
 
       <div class="events-grid">
-        <article class="event-card">
-          <p class="event-date">Multiple Dates</p>
-          <h3>Ballet Folklórico Classes</h3>
-          <p class="event-location">Neighborhood Arts Center</p>
-          <p class="event-description">
-            Weekly classes for new and returning dancers to learn choreography, technique, and cultural
-            stories behind each dance.
-          </p>
-          <div class="event-actions">
-            <a href="#" class="btn btn--ghost">More info</a>
-            <a href="#" class="btn btn--primary">RSVP</a>
-          </div>
-        </article>
-
-        <article class="event-card">
-          <p class="event-date">Spring 2026</p>
-          <h3>Mariachi Open Rehearsal</h3>
-          <p class="event-location">Community Music Space</p>
-          <p class="event-description">
-            A chance to meet the ensemble, try instruments, and learn how to join the program this year.
-          </p>
-          <div class="event-actions">
-            <a href="#" class="btn btn--ghost">More info</a>
-            <a href="#" class="btn btn--primary">RSVP</a>
-          </div>
-        </article>
-
-        <article class="event-card">
-          <p class="event-date">Summer 2026</p>
-          <h3>Ella Rises Summit</h3>
-          <p class="event-location">Local College Campus</p>
-          <p class="event-description">
-            A full-day summit featuring art, STEAM activities, and a tour of a college or technical school.
-          </p>
-          <div class="event-actions">
-            <a href="#" class="btn btn--ghost">More info</a>
-            <a href="#" class="btn btn--primary">RSVP</a>
-          </div>
-        </article>
+        <% if (events && events.length > 0) { %>
+          <% events.forEach(event => { %>
+            <article class="event-card">
+              <p class="event-date"><%= event.date_display || event.date %></p>
+              <h3><%= event.name %></h3>
+              <p class="event-location"><%= event.location %></p>
+              <p class="event-description"><%= event.description %></p>
+              <div class="event-actions">
+                <a href="/events/<%= event.id %>" class="btn btn--ghost">More info</a>
+                <a href="/enroll?event_name=<%= encodeURIComponent(event.name) %>" class="btn btn--primary">RSVP</a>
+              </div>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <p>No upcoming events available.</p>
+        <% } %>
       </div>
     </div>
   </section>
@@ -325,5 +298,3 @@
   </script>
 </body>
 </html>
-
-

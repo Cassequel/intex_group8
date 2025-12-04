@@ -21,11 +21,6 @@
                 <p>Select an event below to register and join us</p>
             </div>
 
-            <% if (error_message) { %>
-                <div class="alert alert--error">
-                    <%= error_message %>
-                </div>
-            <% } %>
 
             <% if (availableEvents.length === 0) { %>
                 <div class="form-card" style="text-align: center; padding: 3rem 2rem;">

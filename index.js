@@ -1,13 +1,6 @@
 // TO DO 
+// Pull next three events in landing 
 
-// make them a participant at a d level
-
-// Add Community partners and sponsors
-// Loops
-
-// Enroll doesn't do anything, just loops make page
-
-// THINGS TO HAVE CODEX DO 
 
 
 // requirements to set up all dev and production stuff
@@ -369,8 +362,55 @@ app.use((req, res, next) => {
 });
 
 
-app.get('/', (req, res) => {
-    res.render('public/landing');
+app.get('/', async (req, res) => {
+  try {
+    // Fetch the next 3 upcoming event occurrences (start >= now), joined with their templates
+    const rows = await knex('event_occurences as o')
+      .leftJoin('event_templates as t', 'o.event_template_id', 't.event_template_id')
+      .select(
+        'o.event_occurence_id as occurence_id',
+        't.event_template_id as template_id',
+        't.event_name',
+        't.event_description',
+        't.event_type',
+        'o.event_date_time_start',
+        'o.event_date_time_end',
+        // note: your schema has a typo 'even_location' — select it and alias to 'event_location'
+        'o.event_location',
+        'o.event_capacity',
+        'o.event_registration_deadline'
+      )
+      .where('o.event_date_time_start', '>=', new Date())
+      .orderBy('o.event_date_time_start', 'asc')
+      .limit(3);
+
+    // Map to the shape the EJS expects
+    const events = rows.map(r => {
+      const start = r.event_date_time_start ? new Date(r.event_date_time_start) : null;
+      const date_display = StaticRange
+        ? start.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+        : 'TBD';
+
+      return {
+        id: r.occurence_id,
+        template_id: r.template_id,
+        name: r.event_name,
+        description: r.event_description,
+        type: r.event_type,
+        date: r.event_date_time_start ? new Date(r.event_date_time_start).toISOString() : null,
+        date_display,
+        location: r.event_location || 'TBD',
+        capacity: r.event_capacity,
+        registration_deadline: r.event_registration_deadline
+      };
+    });
+
+    res.render('public/landing', { events });
+  } catch (err) {
+    console.error('Error loading homepage events:', err);
+    // Render the landing page with an empty events array so the template still works
+    res.render('public/landing', { events: [] });
+  }
 });
 
 app.get('/donations', async (req, res) => {
@@ -1972,7 +2012,8 @@ app.get('/enroll', async (req, res) => {
         const now = new Date();
         
         // First, get all events with their registration counts
-        const eventsWithCounts = await knex("event_occurences as o")
+        let eventsWithCounts = await knex("event_occurences as o")
+        
             .leftJoin("event_templates as t", "o.event_template_id", "t.event_template_id")
             .select(
                 "o.*",
@@ -1983,6 +2024,14 @@ app.get('/enroll', async (req, res) => {
             )
             .where("o.event_registration_deadline", ">", now)
             .orderBy("o.event_date_time_start", "asc");
+
+            // Apply optional filtering from landing page
+            const selectedEventName = req.query.event_name;
+            if (selectedEventName) {
+                eventsWithCounts = eventsWithCounts.filter(
+                    ev => ev.event_name === selectedEventName
+                );
+            }
 
         // Get registration counts for each event
         const registrationCounts = await knex("registrations")
