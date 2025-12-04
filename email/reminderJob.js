@@ -4,7 +4,7 @@ const db = require('../db');
 const { sendEventReminder } = require('./emailService');
 
 // Runs every 5 minutes
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule('*/1 * * * *', async () => {
   console.log('Running event reminder job...');
 
   try {

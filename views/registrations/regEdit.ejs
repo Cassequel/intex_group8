@@ -66,6 +66,13 @@
             %>
             <input id="registration_check_in_time" name="registration_check_in_time" type="datetime-local" value="<%= ciVal %>" />
           </div>
+          <div class="form-field">
+            <label for="reminder_day_sent">Reminder Day Sent</label>
+            <select id="reminder_day_sent" name="reminder_day_sent">
+              <option value="false" <%= !registration.reminder_day_sent ? 'selected' : '' %>>No</option>
+              <option value="true" <%= registration.reminder_day_sent ? 'selected' : '' %>>Yes</option>
+            </select>
+          </div>
           <div class="form-field" style="margin-top: 0.5rem;">
             <button type="submit" class="btn btn--primary btn--large">Save changes</button>
             <a href="/registrations" class="btn btn--ghost btn--large" style="margin-left: 0.5rem;">Cancel</a>

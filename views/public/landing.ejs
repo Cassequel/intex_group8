@@ -4,11 +4,15 @@
   <meta charset="UTF-8" />
   <title>Ella Rises</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ella Rises empowers young Latina women through culturally rooted STEAM, arts, and music programs. Join our community to explore heritage, develop leadership skills, and envision futures in education and careers." />
   <link rel="icon" type="image/png" href="/images/favicon.png" />
   <link rel="stylesheet" href="/styles/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Preload critical hero images for faster LCP -->
+  <link rel="preload" as="image" href="/images/ER BYU Tour 2022-042.jpg" />
+  <link rel="preload" as="image" href="/images/ER STEM Workshop Aug 2022-09.jpg" />
   <style>
     .section-illustration {
       position: absolute;
@@ -104,7 +108,7 @@
   <%- include('../partials/navbar') %>
 
   <!-- HERO -->
-  <!-- HERO -->
+  <main>
   <section class="hero">
     <div class="container hero-content">
       <!-- LEFT: TEXT -->
@@ -173,7 +177,7 @@
       </div>
     </div>
     <div class="section-illustration">
-      <img src="../../images/3_flowers.png" alt="Decorative flower illustration" />
+      <img src="../../images/3_flowers.png" alt="Decorative flower illustration" width="150" height="150" loading="lazy" />
     </div>
   </section>
 
@@ -191,7 +195,7 @@
       <div class="program-grid">
         <!-- Program 1 -->
         <article class="program-card">
-          <img src="/images/girls in steam.jpeg" alt="Girls in STEAM" class="program-image" />
+          <img src="/images/girls in steam.jpeg" alt="Girls in STEAM" class="program-image" width="400" height="300" loading="lazy" />
           <div class="program-tag">STEAM</div>
           <h3>Girls in STEAM</h3>
           <p>
@@ -202,11 +206,12 @@
             <span>Weekly in-person sessions</span>
           </div>
           <a href="/enroll?event_name=Girls%20in%20STEAM%20Mentoring" class="program-link">Learn more &amp; enroll →</a>
+          <a href="/registrations">registrations</a>
         </article>
 
         <!-- Program 2 -->
         <article class="program-card">
-          <img src="/images/women in tech.jpg" alt="Women in Tech & Art" class="program-image" />
+          <img src="/images/women in tech.jpg" alt="Women in Tech & Art" class="program-image" width="400" height="300" loading="lazy" />
           <div class="program-tag">SUMMIT</div>
           <h3>Women in Tech & Art</h3>
           <p>
@@ -221,7 +226,7 @@
 
         <!-- Program 3 -->
         <article class="program-card">
-          <img src="/images/intro to painting.jpg" alt="Intro to Painting" class="program-image" />
+          <img src="/images/intro to painting.jpg" alt="Intro to Painting" class="program-image" width="400" height="300" loading="lazy" />
           <div class="program-tag">ARTS</div>
           <h3>Intro to Painting</h3>
           <p>
@@ -236,7 +241,7 @@
 
         <!-- Program 4 -->
         <article class="program-card">
-          <img src="/images/coding club.JPG" alt="Coding Club" class="program-image" />
+          <img src="/images/coding club.JPG" alt="Coding Club" class="program-image" width="400" height="300" loading="lazy" />
           <div class="program-tag">STEM</div>
           <h3>Coding Club</h3>
           <p>
@@ -380,16 +385,16 @@
       </div>
       <div class="sponsors-grid">
         <div class="sponsor-card">
-          <img src="/images/sponsors/thanksgiving point.png" alt="Thanksgiving Point" class="sponsor-logo">
+          <img src="/images/sponsors/thanksgiving point.png" alt="Thanksgiving Point" class="sponsor-logo" width="200" height="100" loading="lazy">
         </div>
         <div class="sponsor-card">
-          <img src="/images/sponsors/byu.png" alt="BYU" class="sponsor-logo">
+          <img src="/images/sponsors/byu.png" alt="BYU" class="sponsor-logo" width="200" height="100" loading="lazy">
         </div>
         <div class="sponsor-card">
-          <img src="/images/sponsors/uvu creative learning studio.png" alt="UVU Creative Learning Studio" class="sponsor-logo">
+          <img src="/images/sponsors/uvu creative learning studio.png" alt="UVU Creative Learning Studio" class="sponsor-logo" width="200" height="100" loading="lazy">
         </div>
         <div class="sponsor-card">
-          <img src="/images/sponsors/meta.jpg" alt="Meta" class="sponsor-logo">
+          <img src="/images/sponsors/meta.jpg" alt="Meta" class="sponsor-logo" width="200" height="100" loading="lazy">
         </div>
       </div>
       <div style="text-align: center; margin-top: 2rem;">
@@ -400,8 +405,9 @@
 
   <!-- BANNER -->
   <section class="banner-section">
-    <img src="/images/banner.png" alt="Ella Rises Banner" class="banner-image" />
+    <img src="/images/banner.png" alt="Ella Rises Banner" class="banner-image" width="1200" height="300" loading="lazy" />
   </section>
+  </main>
 
   <!-- FOOTER -->
   <footer id="contact" class="site-footer">
