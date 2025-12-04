@@ -93,6 +93,24 @@
             <%= submittedDate || "Not provided" %>
           </p>
         </div>
+        <div class="detail-card">
+          <h3>Recommendation Type</h3>
+          <p class="detail-value">
+            <%
+              let recommendationType = "Not provided";
+              if (survey.recommendation_score !== null && survey.recommendation_score !== undefined) {
+                if (survey.recommendation_score === 5) {
+                  recommendationType = "Promoter";
+                } else if (survey.recommendation_score === 4) {
+                  recommendationType = "Passive";
+                } else if (survey.recommendation_score <= 3) {
+                  recommendationType = "Detractor";
+                }
+              }
+            %>
+            <%= recommendationType %>
+          </p>
+        </div>
         <div class="detail-card comment-block">
           <h3>Comments</h3>
           <p class="detail-value"><%= survey.comments || survey.survey_comments || "Not provided" %></p>
