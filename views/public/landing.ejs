@@ -48,10 +48,41 @@
       position: relative;
     }
     .section--accent {
+      position: relative;
       background-image: url('/images/flower banner.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+    }
+    .section--accent::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 182, 193, 0.5);
+      z-index: 0;
+    }
+    .section--accent .container {
+      position: relative;
+      z-index: 1;
+    }
+    /* Hero button overrides */
+    .hero-actions .btn--primary {
+      background: var(--color-charcoal);
+      color: #ffffff;
+    }
+    .hero-actions .btn--ghost {
+      color: #000000;
+    }
+    /* Navbar login button override */
+    .nav-links .btn--primary {
+      background: var(--color-charcoal);
+      color: #ffffff;
+    }
+    /* Make donation button style */
+    .impact-actions .btn--ghost {
+      background: var(--color-charcoal);
+      color: #ffffff;
+      border-color: var(--color-charcoal);
     }
     @media (min-width: 769px) {
       .section-illustration {
@@ -68,7 +99,7 @@
     }
   </style>
 </head>
-<body>
+<body class="landing-page">
   <!-- NAVBAR -->
   <%- include('../partials/navbar') %>
 
@@ -171,7 +202,6 @@
             <span>Weekly in-person sessions</span>
           </div>
           <a href="/enroll?event_name=Girls%20in%20STEAM%20Mentoring" class="program-link">Learn more &amp; enroll →</a>
-          <a href="/registrations">registrations</a>
         </article>
 
         <!-- Program 2 -->
@@ -245,7 +275,7 @@
         </p>
         <div class="impact-actions">
           <a href="#get-involved" class="btn btn--primary btn--full">Get involved</a>
-          <a href="#donate" class="btn btn--ghost btn--full">Make a donation</a>
+          <a href="/donations" class="btn btn--ghost btn--full">Make a donation</a>
         </div>
       </div>
     </div>
@@ -329,6 +359,7 @@
           Volunteers, mentors, and partners are essential to making Ella Rises possible. Share your skills,
           your story, or your support.
         </p>
+        <a href="/contact" class="btn btn--primary" style="margin-top: 1.5rem;">Contact Us</a>
       </div>
       <div class="pill-grid">
         <span class="pill">Volunteer at events</span>
@@ -349,25 +380,20 @@
       </div>
       <div class="sponsors-grid">
         <div class="sponsor-card">
-          <div class="sponsor-logo-placeholder">
-            <p>Sponsor Logo</p>
-          </div>
+          <img src="/images/sponsors/thanksgiving point.png" alt="Thanksgiving Point" class="sponsor-logo">
         </div>
         <div class="sponsor-card">
-          <div class="sponsor-logo-placeholder">
-            <p>Sponsor Logo</p>
-          </div>
+          <img src="/images/sponsors/byu.png" alt="BYU" class="sponsor-logo">
         </div>
         <div class="sponsor-card">
-          <div class="sponsor-logo-placeholder">
-            <p>Sponsor Logo</p>
-          </div>
+          <img src="/images/sponsors/uvu creative learning studio.png" alt="UVU Creative Learning Studio" class="sponsor-logo">
         </div>
         <div class="sponsor-card">
-          <div class="sponsor-logo-placeholder">
-            <p>Sponsor Logo</p>
-          </div>
+          <img src="/images/sponsors/meta.jpg" alt="Meta" class="sponsor-logo">
         </div>
+      </div>
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="/about#sponsors" class="btn btn--primary">View all sponsors</a>
       </div>
     </div>
   </section>

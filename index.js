@@ -1,7 +1,4 @@
 // TO DO 
-// Pull next three events in landing 
-
-
 
 // requirements to set up all dev and production stuff
 require('dotenv').config();
@@ -344,6 +341,8 @@ app.use((req, res, next) => {
         req.path === '/index' ||
         req.path === '/teapot' ||
         req.path === '/donAdd'||
+        req.path === '/about'||
+        req.path === '/contact'||
         req.path === '/donations/select' ||
         req.path === '/donations/participant-info'||
         req.path === '/donations/complete') {
@@ -1359,7 +1358,17 @@ app.get('/participants/:id', async (req, res) => {
             return res.status(403).send("Not authorized");
         }
 
-        res.render('participants/parDetail', { participant, returnTo });
+        // Fetch milestones for this participant
+        const milestones = await knex("milestones")
+            .where({ participant_id: id })
+            .orderBy("milestone_date", "desc");
+
+        res.render('participants/parDetail', {
+            participant,
+            milestones,
+            returnTo,
+            userLevel: req.session.userLevel || req.session.level
+        });
     } catch (error) {
         console.error("Error loading participant:", error);
         res.status(500).send("Error loading participant");
@@ -2362,7 +2371,36 @@ app.post('/enroll/unregister', async (req, res) => {
 });
 
 app.get('/about', (req, res) => {
-    res.render('public/about');
+    res.render('public/about', {
+        isLoggedIn: req.session.isLoggedIn || false,
+        userLevel: req.session.userLevel || null,
+        participantRole: req.session.participantRole || null
+    });
+});
+
+// Contact page routes
+app.get('/contact', (req, res) => {
+    res.render('public/contact', {
+        isLoggedIn: req.session.isLoggedIn || false,
+        userLevel: req.session.userLevel || null,
+        participantRole: req.session.participantRole || null
+    });
+});
+
+app.post('/contact', async (req, res) => {
+    try {
+        const { name, email, message } = req.body;
+
+        // Here you could add logic to save the contact form submission to a database
+        // or send an email notification
+        console.log('Contact form submission:', { name, email, message });
+
+        // For now, just return success
+        res.status(200).json({ success: true, message: 'Contact form submitted successfully' });
+    } catch (error) {
+        console.error('Error processing contact form:', error);
+        res.status(500).json({ success: false, message: 'Error submitting contact form' });
+    }
 });
 
 
