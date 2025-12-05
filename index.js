@@ -19,6 +19,13 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
+
+// Serve robots.txt for SEO
+app.get('/robots.txt', (_req, res) => {
+  res.type('text/plain');
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
+
 const helmet = require('helmet');
 const { sendPasswordReset, sendNewDeviceAlert, sendEventReminder} = require('./email/emailService');
 const crypto = require('crypto'); 
