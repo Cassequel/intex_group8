@@ -377,11 +377,27 @@ app.get('/', async (req, res) => {
       };
     });
 
-    res.render('public/landing', { events });
+    // Fetch donation statistics
+    const donationStats = await knex('donations')
+      .select(
+        knex.raw('COUNT(*) as total_donations'),
+        knex.raw('COALESCE(SUM(donation_amount), 0) as total_amount')
+      )
+      .first();
+
+    res.render('public/landing', {
+      events,
+      totalDonations: parseInt(donationStats.total_donations) || 0,
+      totalDonationAmount: parseFloat(donationStats.total_amount) || 0
+    });
   } catch (err) {
     console.error('Error loading homepage events:', err);
     // Render the landing page with an empty events array so the template still works
-    res.render('public/landing', { events: [] });
+    res.render('public/landing', {
+      events: [],
+      totalDonations: 0,
+      totalDonationAmount: 0
+    });
   }
 });
 
