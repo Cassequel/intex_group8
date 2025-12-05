@@ -1,0 +1,21 @@
+# Robots.txt for Ella Rises
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin
+Disallow: /api/
+Disallow: /*.json$
+
+# Allow important public pages
+Allow: /
+Allow: /about
+Allow: /contact
+Allow: /enroll
+Allow: /donations
+Allow: /events
+
+# Sitemap location (update this URL to your actual domain when deployed)
+Sitemap: http://localhost:3000/sitemap.xml

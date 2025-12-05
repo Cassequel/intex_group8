@@ -140,7 +140,7 @@
       </div>
 
       <!-- RIGHT: CYCLING IMAGES -->
-      <div class="hero-right" aria-label="Ella Rises participants">
+      <div class="hero-right" role="region" aria-label="Ella Rises participants">
         <div class="fade-frame is-active" style="background-image: url('/images/ER BYU Tour 2022-042.jpg');"></div>
         <div class="fade-frame" style="background-image: url('/images/ER STEM Workshop Aug 2022-09.jpg');"></div>
         <div class="fade-frame" style="background-image: url('/images/ER Table.jpg');"></div>
@@ -206,7 +206,7 @@
             <span>Weekly in-person sessions</span>
           </div>
           <a href="/enroll?event_name=Girls%20in%20STEAM%20Mentoring" class="program-link">Learn more &amp; enroll →</a>
-          <a href="/registrations">registrations</a>
+          <!-- <a href="/registrations">registrations</a> -->
         </article>
 
         <!-- Program 2 -->
@@ -303,8 +303,8 @@
               <p class="event-location"><%= event.location %></p>
               <p class="event-description"><%= event.description %></p>
               <div class="event-actions">
-                <a href="/events/<%= event.id %>" class="btn btn--ghost">More info</a>
-                <a href="/enroll?event_name=<%= encodeURIComponent(event.name) %>" class="btn btn--primary">RSVP</a>
+                <a href="/events/<%= event.id %>" class="btn btn--ghost">Learn more about <%= event.name %></a>
+                <a href="/enroll?event_name=<%= encodeURIComponent(event.name) %>" class="btn btn--primary">RSVP for <%= event.name %></a>
               </div>
             </article>
           <% }) %>
@@ -430,7 +430,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>c 2025 Ella Rises. All rights reserved. <a href="/teapot" style="color: inherit; opacity: 0.3; text-decoration: none;">teapot</a></p>
+      <p>c 2025 Ella Rises. All rights reserved.</p>
     </div>
   </footer>
 
